@@ -12,13 +12,13 @@ youtube-transcript-api==0.6.1
 
 # LangChain framework
 langchain==0.1.0
-langchain-google-genai==0.5.1
+langchain-google-genai==2.1.12
 langchain-community==0.0.13
 langchain-core==0.1.7
 
 # Vector stores and embeddings
 chromadb==0.4.22
-sentence-transformers==5.1.1
+sentence-transformers==2.2.2
 
 # HTTP requests
 requests==2.31.0
@@ -29,14 +29,9 @@ python-dotenv==1.0.0
 
 # Text processing and embeddings
 nltk==3.8.1
-regex==2025.9.18
 
 # Async support
 asyncio-throttle==1.0.2
 
 # Caching
 diskcache==5.6.3
-
-# Development dependencies (optional for production)
-pytest==7.4.3
-pytest-asyncio==0.21.1
