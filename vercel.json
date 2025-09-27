@@ -16,11 +16,5 @@
       "src": "/(.*)",
       "dest": "server/vercel_app.py"
     }
-  ],
-  "env": {
-    "GEMINI_API_KEY": "@gemini_api_key",
-    "DEBUG": "False",
-    "HOST": "0.0.0.0",
-    "PORT": "8000"
-  }
+  ]
 }
