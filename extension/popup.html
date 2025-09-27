@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube AI Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="assets/icon48.png" alt="AI Assistant" class="logo">
+            <h1>YouTube AI Assistant</h1>
+        </div>
+        
+        <div class="video-section">
+            <div class="video-info hidden" id="videoInfo">
+                <img id="videoThumbnail" src="" alt="Video thumbnail" class="thumbnail">
+                <div class="video-details">
+                    <h3 id="videoTitle">Video Title</h3>
+                    <p id="videoChannel">Channel Name</p>
+                    <span id="processingStatus" class="status">Processing...</span>
+                </div>
+            </div>
+            
+            <div class="url-input" id="urlInput">
+                <input type="text" id="videoUrl" placeholder="Paste YouTube video URL here...">
+                <button id="processVideo" class="btn-primary">Process Video</button>
+            </div>
+        </div>
+
+        <div class="chat-section hidden" id="chatSection">
+            <div class="chat-container" id="chatContainer">
+                <div class="welcome-message">
+                    <p>🎥 Video processed! Ask me anything about the content.</p>
+                </div>
+            </div>
+            
+            <div class="input-section">
+                <div class="input-container">
+                    <input type="text" id="questionInput" placeholder="Ask a question about the video...">
+                    <button id="sendQuestion" class="btn-send" title="Send question">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22,2 15,22 11,13 2,9 22,2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="loading hidden" id="loading">
+            <div class="spinner"></div>
+            <p>Processing your request...</p>
+        </div>
+
+        <div class="error hidden" id="error">
+            <p id="errorMessage">Something went wrong. Please try again.</p>
+            <button id="retryBtn" class="btn-secondary">Retry</button>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

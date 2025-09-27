@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube AI Assistant - Test Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .video-section {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #495057;
+            border: 2px solid #e9ecef;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .video-info {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .video-info.show {
+            display: block;
+        }
+
+        .video-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .video-thumbnail {
+            width: 120px;
+            height: 90px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .video-details h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .video-details p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status.processing {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.ready {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .chat-section {
+            display: none;
+        }
+
+        .chat-section.show {
+            display: block;
+        }
+
+        .chat-container {
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+            background: #fafafa;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            position: relative;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message.ai {
+            align-self: flex-start;
+            background: white;
+            color: #333;
+            border: 1px solid #e9ecef;
+        }
+
+        .message-content {
+            line-height: 1.4;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 10px;
+        }
+
+        .question-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .question-input:focus {
+            border-color: #667eea;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .welcome-message {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .video-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .message {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎥 YouTube AI Assistant</h1>
+            <p>Test Interface - Ask questions about YouTube videos</p>
+        </div>
+
+        <div class="content">
+            <div class="video-section">
+                <div class="input-group">
+                    <label for="videoUrl">YouTube Video URL</label>
+                    <input type="url" id="videoUrl" placeholder="https://www.youtube.com/watch?v=...">
+                </div>
+                <button id="processVideo" class="btn btn-primary">
+                    🚀 Process Video
+                </button>
+            </div>
+
+            <div id="videoInfo" class="video-info">
+                <div class="video-header">
+                    <img id="videoThumbnail" src="" alt="Video thumbnail" class="video-thumbnail">
+                    <div class="video-details">
+                        <h3 id="videoTitle">Video Title</h3>
+                        <p id="videoChannel">Channel Name</p>
+                        <span id="processingStatus" class="status processing">Processing...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="chatSection" class="chat-section">
+                <div class="chat-container">
+                    <div id="chatMessages" class="chat-messages">
+                        <div class="welcome-message">
+                            🎬 Video processed successfully! Ask me anything about the content.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-section">
+                    <input type="text" id="questionInput" class="question-input" placeholder="Ask a question about the video...">
+                    <button id="sendQuestion" class="btn btn-primary">
+                        📤 Send
+                    </button>
+                </div>
+            </div>
+
+            <div id="loading" class="loading">
+                <p>Processing your request...</p>
+            </div>
+
+            <div id="error" class="error">
+                <p id="errorMessage">An error occurred</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class YouTubeAITester {
+            constructor() {
+                this.apiBaseUrl = 'http://localhost:8000';
+                this.currentVideoId = null;
+                this.isProcessing = false;
+                this.initializeElements();
+                this.attachEventListeners();
+            }
+
+            initializeElements() {
+                this.elements = {
+                    videoUrl: document.getElementById('videoUrl'),
+                    processVideoBtn: document.getElementById('processVideo'),
+                    videoInfo: document.getElementById('videoInfo'),
+                    videoThumbnail: document.getElementById('videoThumbnail'),
+                    videoTitle: document.getElementById('videoTitle'),
+                    videoChannel: document.getElementById('videoChannel'),
+                    processingStatus: document.getElementById('processingStatus'),
+                    chatSection: document.getElementById('chatSection'),
+                    chatMessages: document.getElementById('chatMessages'),
+                    questionInput: document.getElementById('questionInput'),
+                    sendQuestionBtn: document.getElementById('sendQuestion'),
+                    loading: document.getElementById('loading'),
+                    error: document.getElementById('error'),
+                    errorMessage: document.getElementById('errorMessage')
+                };
+            }
+
+            attachEventListeners() {
+                this.elements.processVideoBtn.addEventListener('click', () => this.processVideo());
+                this.elements.sendQuestionBtn.addEventListener('click', () => this.sendQuestion());
+                this.elements.questionInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.sendQuestion();
+                });
+                this.elements.videoUrl.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.processVideo();
+                });
+            }
+
+            extractVideoId(url) {
+                const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
+                const match = url.match(regex);
+                return match ? match[1] : null;
+            }
+
+            async processVideo() {
+                const videoUrl = this.elements.videoUrl.value.trim();
+                if (!videoUrl) {
+                    this.showError('Please enter a YouTube video URL');
+                    return;
+                }
+
+                const videoId = this.extractVideoId(videoUrl);
+                if (!videoId) {
+                    this.showError('Please enter a valid YouTube video URL');
+                    return;
+                }
+
+                this.currentVideoId = videoId;
+                this.showLoading('Processing video...');
+                this.hideError();
+
+                try {
+                    // Get video info first
+                    const videoInfo = await this.fetchVideoInfo(videoId);
+                    this.displayVideoInfo(videoInfo);
+
+                    // Process the video
+                    const response = await fetch(`${this.apiBaseUrl}/langchain/process-video`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ video_url: videoUrl })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    this.onVideoProcessed(result);
+
+                } catch (error) {
+                    console.error('Error processing video:', error);
+                    this.showError(`Failed to process video: ${error.message}`);
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            async fetchVideoInfo(videoId) {
+                // For demo purposes, we'll create a placeholder
+                // In a real app, you'd call YouTube API
+                return {
+                    title: 'YouTube Video',
+                    channel: 'Channel Name',
+                    thumbnail: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
+                };
+            }
+
+            displayVideoInfo(videoInfo) {
+                this.elements.videoThumbnail.src = videoInfo.thumbnail;
+                this.elements.videoTitle.textContent = videoInfo.title;
+                this.elements.videoChannel.textContent = videoInfo.channel;
+                this.elements.processingStatus.textContent = 'Processing...';
+                this.elements.processingStatus.className = 'status processing';
+                this.elements.videoInfo.classList.add('show');
+            }
+
+            onVideoProcessed(result) {
+                this.elements.processingStatus.textContent = 'Ready for questions!';
+                this.elements.processingStatus.className = 'status ready';
+                this.elements.chatSection.classList.add('show');
+                this.elements.questionInput.focus();
+
+                // Clear any previous messages except welcome
+                const messages = this.elements.chatMessages.querySelectorAll('.message');
+                messages.forEach(msg => msg.remove());
+            }
+
+            async sendQuestion() {
+                const question = this.elements.questionInput.value.trim();
+                if (!question || !this.currentVideoId || this.isProcessing) return;
+
+                this.isProcessing = true;
+                this.addMessage(question, 'user');
+                this.elements.questionInput.value = '';
+                this.elements.sendQuestionBtn.disabled = true;
+                this.showLoading('Thinking...');
+
+                try {
+                    const response = await fetch(`${this.apiBaseUrl}/langchain/ask-question`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            video_id: this.currentVideoId,
+                            question: question
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    this.addMessage(result.answer, 'ai');
+
+                } catch (error) {
+                    console.error('Error asking question:', error);
+                    this.addMessage(`Sorry, I encountered an error: ${error.message}. Please try again.`, 'ai');
+                } finally {
+                    this.isProcessing = false;
+                    this.elements.sendQuestionBtn.disabled = false;
+                    this.hideLoading();
+                }
+            }
+
+            addMessage(content, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}`;
+
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+                contentDiv.textContent = content;
+
+                messageDiv.appendChild(contentDiv);
+                this.elements.chatMessages.appendChild(messageDiv);
+
+                // Scroll to bottom
+                this.elements.chatMessages.scrollTop = this.elements.chatMessages.scrollHeight;
+            }
+
+            showLoading(message = 'Loading...') {
+                this.elements.loading.querySelector('p').textContent = message;
+                this.elements.loading.classList.add('show');
+            }
+
+            hideLoading() {
+                this.elements.loading.classList.remove('show');
+            }
+
+            showError(message) {
+                this.elements.errorMessage.textContent = message;
+                this.elements.error.classList.add('show');
+            }
+
+            hideError() {
+                this.elements.error.classList.remove('show');
+            }
+        }
+
+        // Initialize the tester when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new YouTubeAITester();
+        });
+    </script>
+</body>
+</html>

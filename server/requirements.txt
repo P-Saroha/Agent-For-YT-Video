@@ -1,0 +1,44 @@
+# FastAPI and web framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Pydantic for data validation
+pydantic==2.5.1
+pydantic-settings==2.1.0
+
+# YouTube transcript extraction
+youtube-transcript-api==0.6.1
+
+# LangChain framework
+langchain==0.1.0
+langchain-google-genai==0.5.1
+langchain-community==0.0.13
+langchain-core==0.1.7
+
+# Vector stores and embeddings
+chromadb==0.4.22
+sentence-transformers==5.1.1
+
+# HTTP requests
+requests==2.31.0
+httpx==0.25.2
+
+# Environment variables
+python-dotenv==1.0.0
+
+# Text processing and embeddings
+nltk==3.8.1
+regex==2025.9.18
+
+# Async support
+asyncio-throttle==1.0.2
+
+# Caching
+diskcache==5.6.3
+
+# Development dependencies
+pytest==7.4.3
+pytest-asyncio==0.21.1
+black==23.11.0
+flake8==6.1.0

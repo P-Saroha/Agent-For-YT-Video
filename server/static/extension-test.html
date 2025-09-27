@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube AI Extension - Optimized Testing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .optimization-info {
+            background: rgba(40, 167, 69, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 5px solid #28a745;
+        }
+        
+        .optimization-info h3 {
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+        
+        .optimization-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            list-style: none;
+        }
+        
+        .optimization-list li {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        
+        .form-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        
+        input[type="url"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="url"]:focus, textarea:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            transform: translateY(-1px);
+        }
+        
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(45deg, #28a745, #1e7e34);
+            color: white;
+        }
+        
+        .btn-info {
+            background: linear-gradient(45deg, #17a2b8, #138496);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(45deg, #ffc107, #e0a800);
+            color: #333;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 1.1em;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .result, .error {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            border-left: 5px solid;
+        }
+        
+        .result {
+            background: rgba(40, 167, 69, 0.8);
+            border-left-color: #28a745;
+        }
+        
+        .error {
+            background: rgba(220, 53, 69, 0.8);
+            border-left-color: #dc3545;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #ffd700;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .extension-badge {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        
+        .feature-highlight {
+            background: rgba(255, 215, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            margin: 15px 0;
+        }
+        
+        .feature-highlight h4 {
+            color: #ffd700;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 YouTube AI Extension <span class="extension-badge">Optimized</span></h1>
+        
+        <div class="optimization-info">
+            <h3>⚡ Extension Optimizations Applied</h3>
+            <ul class="optimization-list">
+                <li>🎯 Max 5 videos in memory</li>
+                <li>📏 800 char chunks max</li>
+                <li>🗄️ SQLite lightweight cache</li>
+                <li>⏱️ 15s response timeout</li>
+                <li>📊 Max 20 chunks per video</li>
+                <li>💾 50KB transcript limit</li>
+                <li>🔄 LRU cache management</li>
+                <li>🧹 Auto cleanup after 3 days</li>
+            </ul>
+        </div>
+        
+        <div class="feature-highlight">
+            <h4>🎯 Perfect for Chrome Extension</h4>
+            <p>This optimized version is designed specifically for browser extensions with limited memory and storage. It uses smart caching, size limits, and cleanup to ensure smooth performance.</p>
+        </div>
+        
+        <div class="form-section">
+            <div class="form-group">
+                <label for="videoUrl">🎬 YouTube Video URL:</label>
+                <input type="url" id="videoUrl" placeholder="https://www.youtube.com/watch?v=..." 
+                       value="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+            </div>
+            
+            <div class="form-group">
+                <label for="questionText">❓ Your Question:</label>
+                <textarea id="questionText" rows="3" placeholder="Ask a question about the video...">What is this video about?</textarea>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn-primary" onclick="processVideoOptimized()">🎬 Process Video</button>
+                <button class="btn-success" onclick="askQuestionOptimized()">❓ Ask Question</button>
+                <button class="btn-info" onclick="getCacheStats()">📊 Cache Stats</button>
+                <button class="btn-warning" onclick="cleanupCache()">🧹 Cleanup Cache</button>
+            </div>
+        </div>
+        
+        <div id="stats"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000';
+        
+        async function processVideoOptimized() {
+            const videoUrl = document.getElementById('videoUrl').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!videoUrl) {
+                showError('Please enter a video URL');
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="loading">🔄 Processing video with optimized engine...</div>';
+            
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`${API_BASE}/extension/process-video`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ video_url: videoUrl })
+                });
+                
+                const responseTime = Date.now() - startTime;
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showProcessResult(data, responseTime);
+                } else {
+                    showError(`Error: ${data.detail || 'Unknown error'}`);
+                }
+            } catch (error) {
+                showError(`Network error: ${error.message}`);
+            }
+        }
+        
+        async function askQuestionOptimized() {
+            const videoUrl = document.getElementById('videoUrl').value;
+            const question = document.getElementById('questionText').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!question) {
+                showError('Please enter a question');
+                return;
+            }
+            
+            const videoId = extractVideoId(videoUrl);
+            if (!videoId) {
+                showError('Please enter a valid YouTube URL');
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="loading">🤔 Getting optimized answer...</div>';
+            
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`${API_BASE}/extension/ask-question`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        video_id: videoId,
+                        question: question 
+                    })
+                });
+                
+                const responseTime = Date.now() - startTime;
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showQuestionResult(data, responseTime);
+                } else {
+                    showError(`Error: ${data.detail || 'Unknown error'}`);
+                }
+            } catch (error) {
+                showError(`Network error: ${error.message}`);
+            }
+        }
+        
+        async function getCacheStats() {
+            const statsDiv = document.getElementById('stats');
+            statsDiv.innerHTML = '<div class="loading">📊 Loading cache statistics...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/extension/cache/stats`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showCacheStats(data);
+                } else {
+                    statsDiv.innerHTML = '<div class="error">Error loading stats</div>';
+                }
+            } catch (error) {
+                statsDiv.innerHTML = '<div class="error">Network error loading stats</div>';
+            }
+        }
+        
+        async function cleanupCache() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="loading">🧹 Cleaning up cache...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/extension/cache/cleanup`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="result">
+                            <h3>🧹 Cache Cleanup Complete</h3>
+                            <p>${data.message}</p>
+                            <p>Old entries (3+ days) have been removed to free up space.</p>
+                        </div>
+                    `;
+                    // Refresh stats
+                    getCacheStats();
+                } else {
+                    showError(`Cleanup error: ${data.detail || 'Unknown error'}`);
+                }
+            } catch (error) {
+                showError(`Cleanup failed: ${error.message}`);
+            }
+        }
+        
+        function showProcessResult(data, responseTime) {
+            document.getElementById('result').innerHTML = `
+                <div class="result">
+                    <h3>🎬 Video Processed Successfully <span class="extension-badge">Optimized</span></h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="stat-value">${responseTime}ms</span>
+                            <span class="stat-label">Response Time</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value">${data.chunks_count}</span>
+                            <span class="stat-label">Chunks Created</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value">${data.status}</span>
+                            <span class="stat-label">Status</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value">${data.language}</span>
+                            <span class="stat-label">Language</span>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-highlight">
+                        <h4>📹 Video Details</h4>
+                        <p><strong>ID:</strong> ${data.video_id}</p>
+                        <p><strong>Title:</strong> ${data.title}</p>
+                        <p><strong>Channel:</strong> ${data.channel}</p>
+                    </div>
+                    
+                    <strong>📋 Full Response:</strong><br>
+                    ${JSON.stringify(data, null, 2)}
+                </div>
+            `;
+        }
+        
+        function showQuestionResult(data, responseTime) {
+            document.getElementById('result').innerHTML = `
+                <div class="result">
+                    <h3>💡 Question Answered <span class="extension-badge">Fast</span></h3>
+                    
+                    <div class="feature-highlight">
+                        <h4>❓ ${data.question}</h4>
+                        <p><strong>💬 Answer:</strong> ${data.answer}</p>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="stat-value">${responseTime}ms</span>
+                            <span class="stat-label">Total Time</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value">${Math.round(data.response_time * 1000)}ms</span>
+                            <span class="stat-label">Server Time</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value">${data.confidence}</span>
+                            <span class="stat-label">Confidence</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value">${data.method}</span>
+                            <span class="stat-label">Method</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function showCacheStats(data) {
+            document.getElementById('stats').innerHTML = `
+                <div class="result">
+                    <h3>📊 Cache Statistics <span class="extension-badge">Live</span></h3>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="stat-value">${data.memory_cache_size}</span>
+                            <span class="stat-label">Memory Cache</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value">${data.database_cache_size}</span>
+                            <span class="stat-label">Database Cache</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value">${data.max_cache_size}</span>
+                            <span class="stat-label">Max Memory</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value">${data.max_chunk_size}</span>
+                            <span class="stat-label">Max Chunk Size</span>
+                        </div>
+                    </div>
+                    
+                    ${data.current_videos.length > 0 ? `
+                    <div class="feature-highlight">
+                        <h4>💾 Videos in Memory</h4>
+                        <p>${data.current_videos.join(', ')}</p>
+                    </div>` : ''}
+                </div>
+            `;
+        }
+        
+        function showError(message) {
+            document.getElementById('result').innerHTML = `
+                <div class="error">
+                    <h3>❌ Error</h3>
+                    ${message}
+                </div>
+            `;
+        }
+        
+        function extractVideoId(url) {
+            const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+            return match ? match[1] : null;
+        }
+        
+        // Auto-load stats on page load
+        window.addEventListener('load', getCacheStats);
+    </script>
+</body>
+</html>
