@@ -9,21 +9,23 @@ class VideoProcessResponse(BaseModel):
     video_id: str
     title: str
     channel: str
-    duration: Optional[str] = None
     processed_at: datetime
     chunks_count: int
-    status: str = "success"
+    status: str
+    language: str
 
 class QuestionRequest(BaseModel):
-    video_id: str
+    video_url: str  # Change from video_id to video_url
     question: str
 
 class QuestionResponse(BaseModel):
-    question: str
     answer: str
+    video_id: str
+    question: str
+    processing_time: float
+    answered_at: datetime
     confidence: float
-    sources: List[Dict[str, Any]]
-    response_time: float
+    source_type: str
 
 class HealthResponse(BaseModel):
     status: str

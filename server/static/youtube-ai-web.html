@@ -316,6 +316,7 @@
         const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const API_BASE_URL = isLocalhost ? 'http://127.0.0.1:8000' : window.location.origin;
         let currentVideoId = null;
+        let currentVideoUrl = null;
 
         console.log('API Base URL:', API_BASE_URL);
 
@@ -370,6 +371,7 @@
 
                 const data = await response.json();
                 currentVideoId = data.video_id;
+                currentVideoUrl = videoUrl;
 
                 showResult(`
                     <h3>✅ Video Processed Successfully!</h3>
@@ -418,6 +420,7 @@
             // Extract video ID if not already processed
             if (!currentVideoId) {
                 currentVideoId = extractVideoId(videoUrl);
+                currentVideoUrl = videoUrl;
                 if (!currentVideoId) {
                     showResult('<h3>❌ Error</h3><p>Invalid YouTube URL format</p>', 'error');
                     return;
@@ -433,7 +436,7 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ 
-                        video_id: currentVideoId,
+                        video_url: currentVideoUrl || videoUrl,
                         question: question 
                     })
                 });
@@ -477,6 +480,7 @@
             document.getElementById('question').value = '';
             document.getElementById('results').innerHTML = '';
             currentVideoId = null;
+            currentVideoUrl = null;
         }
 
         // Auto-populate question if empty
