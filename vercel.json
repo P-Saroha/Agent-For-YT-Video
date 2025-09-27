@@ -21,10 +21,5 @@
     "DEBUG": "False",
     "HOST": "0.0.0.0",
     "PORT": "8000"
-  },
-  "functions": {
-    "server/vercel_app.py": {
-      "maxDuration": 30
-    }
   }
 }
