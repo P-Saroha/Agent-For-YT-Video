@@ -10,14 +10,13 @@ pydantic-settings==2.1.0
 # YouTube transcript extraction
 youtube-transcript-api==0.6.1
 
-# LangChain framework
-langchain==0.1.0
+# LangChain framework - compatible versions
+langchain==0.3.75
 langchain-google-genai==2.1.12
-langchain-community==0.0.13
-langchain-core==0.1.7
+langchain-community==0.3.75
+langchain-core==0.3.75
 
-# Vector stores and embeddings
-chromadb==0.4.22
+# AI and embeddings
 sentence-transformers==2.2.2
 
 # HTTP requests
@@ -27,11 +26,5 @@ httpx==0.25.2
 # Environment variables
 python-dotenv==1.0.0
 
-# Text processing and embeddings
+# Text processing
 nltk==3.8.1
-
-# Async support
-asyncio-throttle==1.0.2
-
-# Caching
-diskcache==5.6.3
