@@ -15,7 +15,7 @@ class GeminiQuestionAnsweringService:
         self.api_url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
         
         if self.gemini_api_key and self.gemini_api_key != "your_gemini_api_key_here":
-            print("✅ Using Google Gemini API for advanced question answering")
+            print("Using Google Gemini API for advanced question answering")
         else:
             print("⚠️  No Gemini API key found. Using simple pattern-based answering.")
     

@@ -21,24 +21,24 @@ def get_langchain_service():
     global _langchain_service
     if _langchain_service is None:
         try:
-            print("🔧 Initializing LangChain YouTube service...")
+            print("Initializing LangChain YouTube service...")
             from app.services.langchain_service import LangChainYouTubeService
             _langchain_service = LangChainYouTubeService()
-            print("✅ LangChain YouTube service initialized successfully")
+            print("LangChain YouTube service initialized successfully")
         except Exception as e:
-            print(f"❌ Failed to initialize LangChain service: {e}")
+            print(f"Failed to initialize LangChain service: {e}")
             # Fallback to simple service if LangChain fails
             from app.services.simple_ai_service import get_simple_service
             _langchain_service = get_simple_service()
-            print("🔄 Using simple AI service as fallback")
+            print("Using simple AI service as fallback")
     return _langchain_service
 
 @router.post("/ask-question", response_model=QuestionResponse)
 async def ask_question_langchain(request: QuestionRequest):
     """Ask a question about a YouTube video using LangChain RAG"""
     try:
-        print(f"❓ Question: {request.question}")
-        print(f"🎬 Video ID: {request.video_id}")
+        print(f"Question: {request.question}")
+        print(f"Video ID: {request.video_id}")
         
         start_time = time.time()
         
@@ -85,14 +85,14 @@ async def ask_question_langchain(request: QuestionRequest):
     except HTTPException:
         raise
     except Exception as e:
-        print(f"❌ Error answering question: {e}")
+        print(f"Error answering question: {e}")
         raise HTTPException(status_code=500, detail=f"Question answering failed: {str(e)}")
 
 @router.post("/process-video", response_model=VideoProcessResponse)
 async def process_video_langchain(request: VideoProcessRequest):
     """Process a YouTube video using LangChain with embeddings and vector storage"""
     try:
-        print(f"🎬 Processing video with LangChain: {request.video_url}")
+        print(f"Processing video with LangChain: {request.video_url}")
         service = get_langchain_service()
         
         if hasattr(service, 'process_video'):
@@ -122,7 +122,7 @@ async def process_video_langchain(request: VideoProcessRequest):
             )
         
     except Exception as e:
-        print(f"❌ Error processing video: {e}")
+        print(f"Error processing video: {e}")
         raise HTTPException(status_code=500, detail=f"Video processing failed: {str(e)}")
 
 @router.get("/health")

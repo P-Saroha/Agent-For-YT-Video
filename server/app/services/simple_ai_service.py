@@ -18,7 +18,7 @@ class SimpleYouTubeAIService:
         self.model = "gemini-1.5-flash"
         self.api_url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
         
-        print("🚀 Simple YouTube AI Service initialized for deployment")
+        print("Simple YouTube AI Service initialized for deployment")
     
     def extract_video_id(self, url: str) -> str:
         """Extract video ID from various YouTube URL formats"""
@@ -43,7 +43,7 @@ class SimpleYouTubeAIService:
             transcript_text = " ".join([entry['text'] for entry in transcript_list])
             return transcript_text
         except Exception as e:
-            print(f"❌ Error getting transcript: {e}")
+            print(f"Error getting transcript: {e}")
             return ""
     
     async def ask_gemini(self, question: str, transcript: str) -> str:
@@ -84,11 +84,11 @@ Please provide a comprehensive answer based only on the information in the trans
                 else:
                     return "Sorry, I couldn't generate an answer from the video content."
             else:
-                print(f"❌ Gemini API error: {response.status_code} - {response.text}")
+                print(f"Gemini API error: {response.status_code} - {response.text}")
                 return "Sorry, there was an error processing your question."
                 
         except Exception as e:
-            print(f"❌ Error asking Gemini: {e}")
+            print(f"Error asking Gemini: {e}")
             return "Sorry, there was an error processing your question."
     
     async def process_video_question(self, video_url: str, question: str) -> Dict[str, Any]:
@@ -96,7 +96,7 @@ Please provide a comprehensive answer based only on the information in the trans
         try:
             # Extract video ID
             video_id = self.extract_video_id(video_url)
-            print(f"📹 Processing video: {video_id}")
+            print(f"Processing video: {video_id}")
             
             # Get transcript
             transcript = await self.get_transcript(video_id)
@@ -107,7 +107,7 @@ Please provide a comprehensive answer based only on the information in the trans
                     "video_id": video_id
                 }
             
-            print(f"📝 Got transcript: {len(transcript)} characters")
+            print(f"Got transcript: {len(transcript)} characters")
             
             # Ask Gemini
             answer = await self.ask_gemini(question, transcript)

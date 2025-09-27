@@ -66,7 +66,7 @@ Detailed English Answer:"""
         # Store for processed videos
         self.processed_videos = {}
         
-        print("✅ LangChain YouTube AI Assistant initialized")
+        print("LangChain YouTube AI Assistant initialized")
     
     async def process_video(self, video_url: str) -> Dict[str, Any]:
         """Process a YouTube video using LangChain"""
@@ -87,7 +87,7 @@ Detailed English Answer:"""
                     "status": "already_processed"
                 }
             
-            print(f"🎬 Processing video: {video_id}")
+            print(f"Processing video: {video_id}")
             
             # Get transcript using youtube-transcript-api
             transcript_data = await self.get_transcript(video_id)
@@ -143,7 +143,7 @@ Detailed English Answer:"""
                 }
             }
             
-            print(f"✅ Video {video_id} processed successfully")
+            print(f"Video {video_id} processed successfully")
             
             return {
                 "video_id": video_id,
@@ -178,7 +178,7 @@ Detailed English Answer:"""
             # Calculate confidence based on source relevance
             confidence = min(len(source_docs) * 0.2, 1.0) if source_docs else 0.3
             
-            print(f"✅ Generated answer with {len(source_docs)} source documents")
+            print(f"Generated answer with {len(source_docs)} source documents")
             
             return {
                 "question": question,

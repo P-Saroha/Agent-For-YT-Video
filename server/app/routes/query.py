@@ -31,13 +31,13 @@ def get_services():
     global transcript_service, embedding_service, vectorstore_service, qa_service, chunking_service
     
     if transcript_service is None:
-        print("🔧 Initializing services...")
+        print("Initializing services...")
         transcript_service = TranscriptService()
         embedding_service = EmbeddingService()
         vectorstore_service = VectorStoreService()
         qa_service = GeminiQuestionAnsweringService()
         chunking_service = ChunkingService()
-        print("✅ Services initialized successfully")
+        print("Services initialized successfully")
     
     return transcript_service, embedding_service, vectorstore_service, qa_service, chunking_service
 

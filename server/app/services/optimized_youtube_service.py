@@ -79,7 +79,7 @@ Answer (maximum 3 sentences):"""
         # Initialize SQLite for metadata storage
         self.init_database()
         
-        print("✅ Optimized YouTube AI Assistant initialized")
+        print("Optimized YouTube AI Assistant initialized")
         print(f"📊 Cache size limit: {self.max_cache_size} videos")
         print(f"📏 Max chunk size: {self.max_chunk_size} characters")
     
@@ -118,7 +118,7 @@ Answer (maximum 3 sentences):"""
             if not video_id:
                 raise Exception("Invalid YouTube URL")
             
-            print(f"🎬 Smart processing video: {video_id}")
+            print(f"Smart processing video: {video_id}")
             
             # Check if already in memory cache
             if video_id in self.video_cache:
@@ -215,7 +215,7 @@ Answer (maximum 3 sentences):"""
                 "status": "processed"
             }
             
-            print(f"✅ Video {video_id} processed and cached successfully")
+            print(f"Video {video_id} processed and cached successfully")
             return metadata
             
         except Exception as e:

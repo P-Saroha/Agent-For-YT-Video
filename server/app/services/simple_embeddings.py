@@ -18,7 +18,7 @@ class EmbeddingService:
             # Use a multilingual model that supports Hindi and other languages
             self.sentence_transformer_model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')
             self.use_simple_embeddings = False
-            print("✅ Using sentence-transformers for multilingual embeddings")
+            print("Using sentence-transformers for multilingual embeddings")
         except ImportError:
             print("⚠️  sentence-transformers not available, using simple text-based embeddings")
             print("Using simple text-based embeddings (install sentence-transformers for better results)")
