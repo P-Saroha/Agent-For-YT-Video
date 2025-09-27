@@ -1,0 +1,7 @@
+# Vercel ignore file
+myenv/
+__pycache__/
+*.pyc
+.git/
+*.log
+.env
