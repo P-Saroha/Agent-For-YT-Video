@@ -86,8 +86,8 @@ class YouTubeAIAssistant {
             const videoInfo = await this.fetchVideoInfo(videoId);
             this.displayVideoInfo(videoInfo);
 
-            // Process the video
-            const response = await fetch(`${API_BASE_URL}/process-video`, {
+            // Process the video using extension-optimized endpoint
+            const response = await fetch(`${API_BASE_URL}/extension/process-video`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -146,7 +146,7 @@ class YouTubeAIAssistant {
         this.elements.sendQuestionBtn.disabled = true;
 
         try {
-            const response = await fetch(`${API_BASE_URL}/ask-question`, {
+            const response = await fetch(`${API_BASE_URL}/extension/ask-question`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
