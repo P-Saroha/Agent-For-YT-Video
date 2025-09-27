@@ -26,7 +26,21 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify exact origins
+    allow_origins=[
+        "chrome-extension://*",  # Allow all Chrome extensions
+        "http://localhost:3000",
+        "http://localhost:8000",
+        "https://youtube.com",
+        "https://www.youtube.com",
+        # Add your deployed domains here
+        "https://*.vercel.app",
+        "https://*.railway.app",
+        "https://*.herokuapp.com"
+    ] if os.getenv("DEBUG", "False").lower() == "true" else [
+        "chrome-extension://*",
+        "https://youtube.com", 
+        "https://www.youtube.com"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

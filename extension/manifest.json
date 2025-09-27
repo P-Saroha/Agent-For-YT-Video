@@ -10,7 +10,11 @@
   ],
   "host_permissions": [
     "https://www.youtube.com/*",
-    "http://localhost:8000/*"
+    "http://localhost:8000/*",
+    "https://*.vercel.app/*",
+    "https://*.railway.app/*",
+    "https://*.herokuapp.com/*",
+    "https://*.your-domain.com/*"
   ],
   "action": {
     "default_popup": "popup.html",

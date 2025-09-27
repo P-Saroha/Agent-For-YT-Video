@@ -1,5 +1,8 @@
 // YouTube AI Assistant Popup Script
-const API_BASE_URL = 'http://localhost:8000';
+// Update this URL when deploying to production
+const API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:8000' 
+    : 'https://your-deployed-app.vercel.app'; // Replace with your deployed URL
 
 class YouTubeAIAssistant {
     constructor() {
