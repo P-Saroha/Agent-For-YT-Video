@@ -10,11 +10,24 @@ pydantic-settings==2.1.0
 # YouTube transcript extraction
 youtube-transcript-api==0.6.1
 
-# Direct Google Gemini API (no LangChain conflicts)
-google-generativeai==0.8.5
+# LangChain framework - COMPATIBLE VERSIONS
+langchain==0.2.16
+langchain-google-genai==1.0.10
+langchain-community==0.2.16
+langchain-core==0.2.38
+langchain-text-splitters==0.2.4
+
+# Vector stores and embeddings
+langchain-huggingface==0.0.3
+sentence-transformers==2.2.2
+faiss-cpu==1.7.4
 
 # HTTP requests
 requests==2.31.0
 
 # Environment variables
 python-dotenv==1.0.0
+
+# Additional utilities
+pyyaml==6.0.1
+numpy==1.24.4

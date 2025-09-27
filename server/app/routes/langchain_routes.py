@@ -10,37 +10,79 @@ from app.models.schemas import (
     QuestionResponse,
     ErrorResponse
 )
-from app.services.simple_ai_service import get_simple_service
 
 router = APIRouter(prefix="/langchain", tags=["langchain"])
 
+# Initialize LangChain service lazily to avoid startup issues
+_langchain_service = None
+
+def get_langchain_service():
+    """Get LangChain service with lazy initialization"""
+    global _langchain_service
+    if _langchain_service is None:
+        try:
+            print("🔧 Initializing LangChain YouTube service...")
+            from app.services.langchain_service import LangChainYouTubeService
+            _langchain_service = LangChainYouTubeService()
+            print("✅ LangChain YouTube service initialized successfully")
+        except Exception as e:
+            print(f"❌ Failed to initialize LangChain service: {e}")
+            # Fallback to simple service if LangChain fails
+            from app.services.simple_ai_service import get_simple_service
+            _langchain_service = get_simple_service()
+            print("🔄 Using simple AI service as fallback")
+    return _langchain_service
+
 @router.post("/ask-question", response_model=QuestionResponse)
 async def ask_question_langchain(request: QuestionRequest):
-    """Ask a question about a YouTube video using simple AI"""
+    """Ask a question about a YouTube video using LangChain RAG"""
     try:
         print(f"❓ Question: {request.question}")
         print(f"🎬 Video: {request.video_url}")
         
         start_time = time.time()
         
-        # Use simple service instead of LangChain
-        simple_service = get_simple_service()
-        result = await simple_service.process_video_question(request.video_url, request.question)
+        # Get LangChain service (with fallback)
+        service = get_langchain_service()
         
-        processing_time = time.time() - start_time
-        
-        if not result["success"]:
-            raise HTTPException(status_code=400, detail=result.get("error", "Processing failed"))
-        
-        return QuestionResponse(
-            answer=result["answer"],
-            video_id=result["video_id"],
-            question=request.question,
-            processing_time=processing_time,
-            answered_at=datetime.now(),
-            confidence=0.85,  # Default confidence
-            source_type="simple_ai"
-        )
+        # Use appropriate method based on service type
+        if hasattr(service, 'process_video_question'):
+            # Simple AI service fallback
+            result = await service.process_video_question(request.video_url, request.question)
+            if not result["success"]:
+                raise HTTPException(status_code=400, detail=result.get("error", "Processing failed"))
+            
+            processing_time = time.time() - start_time
+            return QuestionResponse(
+                answer=result["answer"],
+                video_id=result["video_id"],
+                question=request.question,
+                processing_time=processing_time,
+                answered_at=datetime.now(),
+                confidence=0.85,
+                source_type="simple_ai_fallback"
+            )
+        else:
+            # Full LangChain service
+            # Process video first
+            video_result = await service.process_video(request.video_url)
+            if video_result["status"] != "processed":
+                raise HTTPException(status_code=400, detail="Video processing failed")
+            
+            # Ask question with RAG
+            answer_result = await service.ask_question(request.question, request.video_url)
+            
+            processing_time = time.time() - start_time
+            
+            return QuestionResponse(
+                answer=answer_result["answer"],
+                video_id=video_result["video_id"],
+                question=request.question,
+                processing_time=processing_time,
+                answered_at=datetime.now(),
+                confidence=answer_result.get("confidence", 0.85),
+                source_type="langchain_rag"
+            )
         
     except HTTPException:
         raise
@@ -50,39 +92,42 @@ async def ask_question_langchain(request: QuestionRequest):
 
 @router.post("/process-video", response_model=VideoProcessResponse)
 async def process_video_langchain(request: VideoProcessRequest):
-    """Process a YouTube video using simple AI"""
+    """Process a YouTube video using LangChain with embeddings and vector storage"""
     try:
-        print(f"🎬 Processing video: {request.video_url}")
-        simple_service = get_simple_service()
+        print(f"🎬 Processing video with LangChain: {request.video_url}")
+        service = get_langchain_service()
         
-        # Just extract video info for compatibility
-        video_id = simple_service.extract_video_id(request.video_url)
-        
-        return VideoProcessResponse(
-            video_id=video_id,
-            title="Video processed",
-            channel="Unknown",
-            processed_at=datetime.now(),
-            chunks_count=1,
-            status="processed",
-            language="unknown"
-        )
+        if hasattr(service, 'process_video'):
+            # Full LangChain service
+            result = await service.process_video(request.video_url)
+            
+            return VideoProcessResponse(
+                video_id=result["video_id"],
+                title=result.get("title", "Video processed"),
+                channel=result.get("channel", "Unknown"),
+                processed_at=datetime.now(),
+                chunks_count=result.get("chunks_count", 1),
+                status=result["status"],
+                language=result.get("language", "unknown")
+            )
+        else:
+            # Simple fallback
+            video_id = service.extract_video_id(request.video_url)
+            return VideoProcessResponse(
+                video_id=video_id,
+                title="Video processed (fallback)",
+                channel="Unknown",
+                processed_at=datetime.now(),
+                chunks_count=1,
+                status="processed",
+                language="unknown"
+            )
         
     except Exception as e:
         print(f"❌ Error processing video: {e}")
         raise HTTPException(status_code=500, detail=f"Video processing failed: {str(e)}")
 
-@router.get("/video/{video_id}/status")
-async def get_video_status_langchain(video_id: str):
-    """Get processing status of a video"""
-    return {"video_id": video_id, "status": "processed", "message": "Video processed"}
-
-@router.delete("/video/{video_id}")
-async def cleanup_video_langchain(video_id: str):
-    """Clean up resources for a processed video"""
-    return {"message": f"Video {video_id} cleaned up successfully"}
-
 @router.get("/health")
 async def health_check():
     """Health check endpoint"""
-    return {"status": "healthy", "service": "simple_ai", "timestamp": datetime.now()}
+    return {"status": "healthy", "service": "langchain_with_fallback", "timestamp": datetime.now()}
