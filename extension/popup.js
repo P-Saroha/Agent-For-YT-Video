@@ -145,6 +145,7 @@ class YouTubeAIAssistant {
 
         this.isProcessing = true;
         this.addMessage(question, 'user');
+        this.addTypingIndicator();
         this.elements.questionInput.value = '';
         this.elements.sendQuestionBtn.disabled = true;
 
@@ -165,10 +166,19 @@ class YouTubeAIAssistant {
             }
 
             const result = await response.json();
+            
+            // Remove typing indicator
+            this.removeTypingIndicator();
+            
+            // Add AI response with markdown rendering
             this.addMessage(result.answer, 'ai');
 
         } catch (error) {
             console.error('Error asking question:', error);
+            
+            // Remove typing indicator
+            this.removeTypingIndicator();
+            
             this.addMessage('Sorry, I encountered an error while processing your question. Please try again.', 'ai');
         } finally {
             this.isProcessing = false;
@@ -182,7 +192,34 @@ class YouTubeAIAssistant {
         
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
-        contentDiv.textContent = content;
+        
+        if (sender === 'ai') {
+            // Configure marked for better rendering
+            marked.setOptions({
+                breaks: true,  // Convert line breaks to <br>
+                gfm: true,     // GitHub Flavored Markdown
+                headerIds: false,
+                mangle: false
+            });
+            
+            // Render markdown for AI responses
+            try {
+                contentDiv.innerHTML = marked.parse(content);
+                
+                // Apply syntax highlighting if highlight.js is available
+                if (typeof hljs !== 'undefined') {
+                    contentDiv.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightElement(block);
+                    });
+                }
+            } catch (error) {
+                console.error('Markdown parsing error:', error);
+                contentDiv.textContent = content; // Fallback to plain text
+            }
+        } else {
+            // Plain text for user messages
+            contentDiv.textContent = content;
+        }
         
         messageDiv.appendChild(contentDiv);
         this.elements.chatContainer.appendChild(messageDiv);
@@ -200,6 +237,29 @@ class YouTubeAIAssistant {
     showLoading(message = 'Loading...') {
         this.elements.loading.querySelector('p').textContent = message;
         this.elements.loading.classList.remove('hidden');
+    }
+
+    addTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message ai typing-indicator';
+        typingDiv.id = 'typing-indicator';
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        contentDiv.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+        
+        typingDiv.appendChild(contentDiv);
+        this.elements.chatContainer.appendChild(typingDiv);
+        
+        // Scroll to bottom
+        this.elements.chatContainer.scrollTop = this.elements.chatContainer.scrollHeight;
+    }
+
+    removeTypingIndicator() {
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
     }
 
     hideLoading() {
