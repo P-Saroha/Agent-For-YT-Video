@@ -15,7 +15,7 @@ class VideoProcessResponse(BaseModel):
     language: str
 
 class QuestionRequest(BaseModel):
-    video_url: str  # Change from video_id to video_url
+    video_id: str
     question: str
 
 class QuestionResponse(BaseModel):

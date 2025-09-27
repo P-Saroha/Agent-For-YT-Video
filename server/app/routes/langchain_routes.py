@@ -38,17 +38,20 @@ async def ask_question_langchain(request: QuestionRequest):
     """Ask a question about a YouTube video using LangChain RAG"""
     try:
         print(f"❓ Question: {request.question}")
-        print(f"🎬 Video: {request.video_url}")
+        print(f"🎬 Video ID: {request.video_id}")
         
         start_time = time.time()
         
         # Get LangChain service (with fallback)
         service = get_langchain_service()
         
+        # Convert video_id back to URL for the service
+        video_url = f"https://www.youtube.com/watch?v={request.video_id}"
+        
         # Use appropriate method based on service type
         if hasattr(service, 'process_video_question'):
             # Simple AI service fallback
-            result = await service.process_video_question(request.video_url, request.question)
+            result = await service.process_video_question(video_url, request.question)
             if not result["success"]:
                 raise HTTPException(status_code=400, detail=result.get("error", "Processing failed"))
             
@@ -64,19 +67,14 @@ async def ask_question_langchain(request: QuestionRequest):
             )
         else:
             # Full LangChain service
-            # Process video first
-            video_result = await service.process_video(request.video_url)
-            if video_result["status"] != "processed":
-                raise HTTPException(status_code=400, detail="Video processing failed")
-            
-            # Ask question with RAG
-            answer_result = await service.ask_question(request.question, request.video_url)
+            # Ask question directly with video_id
+            answer_result = await service.ask_question(request.video_id, request.question)
             
             processing_time = time.time() - start_time
             
             return QuestionResponse(
                 answer=answer_result["answer"],
-                video_id=video_result["video_id"],
+                video_id=request.video_id,
                 question=request.question,
                 processing_time=processing_time,
                 answered_at=datetime.now(),
