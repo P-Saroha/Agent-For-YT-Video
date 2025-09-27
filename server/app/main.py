@@ -23,24 +23,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Add CORS middleware
+# Add CORS middleware - Allow all for development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "chrome-extension://*",  # Allow all Chrome extensions
-        "http://localhost:3000",
-        "http://localhost:8000",
-        "https://youtube.com",
-        "https://www.youtube.com",
-        # Add your deployed domains here
-        "https://*.vercel.app",
-        "https://*.railway.app",
-        "https://*.herokuapp.com"
-    ] if os.getenv("DEBUG", "False").lower() == "true" else [
-        "chrome-extension://*",
-        "https://youtube.com", 
-        "https://www.youtube.com"
-    ],
+    allow_origins=["*"],  # Allow all origins for development
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -61,6 +47,7 @@ async def root():
         "message": "YouTube AI Assistant API",
         "version": "1.0.0",
         "status": "running",
+        "web_interface": "http://127.0.0.1:8000/static/youtube-ai-web.html",
         "test_ui": "http://127.0.0.1:8000/static/test.html"
     }
 

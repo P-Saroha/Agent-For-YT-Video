@@ -1,1 +1,1 @@
-web: cd server && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+web: cd server && python start_production.py

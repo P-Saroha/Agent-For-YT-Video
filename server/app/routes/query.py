@@ -19,12 +19,27 @@ from app.services.chunking import ChunkingService
 
 router = APIRouter(tags=["query"])
 
-# Initialize services
-transcript_service = TranscriptService()
-embedding_service = EmbeddingService()
-vectorstore_service = VectorStoreService()
-qa_service = GeminiQuestionAnsweringService()
-chunking_service = ChunkingService()
+# Services will be initialized lazily
+transcript_service = None
+embedding_service = None
+vectorstore_service = None
+qa_service = None
+chunking_service = None
+
+def get_services():
+    """Initialize services lazily when first needed"""
+    global transcript_service, embedding_service, vectorstore_service, qa_service, chunking_service
+    
+    if transcript_service is None:
+        print("🔧 Initializing services...")
+        transcript_service = TranscriptService()
+        embedding_service = EmbeddingService()
+        vectorstore_service = VectorStoreService()
+        qa_service = GeminiQuestionAnsweringService()
+        chunking_service = ChunkingService()
+        print("✅ Services initialized successfully")
+    
+    return transcript_service, embedding_service, vectorstore_service, qa_service, chunking_service
 
 # Store processed videos (in production, use a database)
 processed_videos: Dict[str, Dict[str, Any]] = {}
@@ -71,6 +86,9 @@ async def process_video_background(video_id: str, video_url: str):
     """Background task to process video"""
     try:
         print(f"Starting to process video: {video_id}")
+        
+        # Get services (lazy initialization)
+        transcript_service, embedding_service, vectorstore_service, qa_service, chunking_service = get_services()
         
         # Get transcript
         transcript_data = await transcript_service.get_transcript(video_id)
@@ -120,6 +138,9 @@ async def ask_question(request: QuestionRequest):
         video_data = processed_videos[request.video_id]
         if "error" in video_data:
             raise HTTPException(status_code=400, detail=f"Video processing failed: {video_data['error']}")
+        
+        # Get services (lazy initialization)
+        transcript_service, embedding_service, vectorstore_service, qa_service, chunking_service = get_services()
         
         # Get relevant chunks from vector store
         relevant_chunks = await vectorstore_service.search_similar_chunks(

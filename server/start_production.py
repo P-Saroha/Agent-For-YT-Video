@@ -1,6 +1,5 @@
 import os
 import uvicorn
-from app.main import app
 
 if __name__ == "__main__":
     # Get configuration from environment variables
@@ -10,18 +9,30 @@ if __name__ == "__main__":
     workers = int(os.getenv("WORKERS", 1))
     
     # Production configuration
-    config = {
-        "app": app,
-        "host": host,
-        "port": port,
-        "reload": debug,
-        "access_log": True,
-        "log_level": "info" if not debug else "debug"
-    }
-    
-    # Add workers for production
-    if not debug and workers > 1:
-        config["workers"] = workers
+    if debug:
+        # Development mode - use import string for reload
+        config = {
+            "app": "app.main:app",  # Import string instead of app object
+            "host": host,
+            "port": port,
+            "reload": True,
+            "access_log": True,
+            "log_level": "debug"
+        }
+    else:
+        # Production mode - import app object for better performance
+        from app.main import app
+        config = {
+            "app": app,
+            "host": host,
+            "port": port,
+            "reload": False,
+            "access_log": True,
+            "log_level": "info"
+        }
+        # Add workers for production
+        if workers > 1:
+            config["workers"] = workers
     
     print(f"🚀 Starting YouTube AI Assistant...")
     print(f"📡 Host: {host}")
