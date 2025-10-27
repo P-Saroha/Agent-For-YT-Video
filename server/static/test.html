@@ -3,51 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube AI Assistant - Test Interface</title>
-    <!-- Marked.js for Markdown rendering -->
-    <script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
-    <!-- Highlight.js for code syntax highlighting -->
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/lib/highlight.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/styles/github.min.css">
+    <title>Redirecting to Universal AI Assistant</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
         }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
+        .redirect-container {
             background: white;
+            padding: 40px;
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-            color: white;
-            padding: 30px;
             text-align: center;
+            max-width: 500px;
         }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
+        .redirect-container h1 {
+            color: #333;
+            margin-bottom: 20px;
         }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 1.1em;
+        .redirect-container p {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
         }
+        .loading {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <script>
+        // Redirect to the new universal interface after 3 seconds
+        setTimeout(function() {
+            window.location.href = '/static/youtube-ai-web.html';
+        }, 3000);
+    </script>
+</head>
+<body>
+    <div class="redirect-container">
+        <h1>🚀 Upgrading to Universal AI Assistant</h1>
+        <p>This interface has been upgraded! You'll now be redirected to the new Universal AI Assistant that supports both YouTube videos AND any website content analysis.</p>
+        <div class="loading"></div>
+        <p style="margin-top: 20px; font-size: 0.9em; color: #888;">
+            Redirecting in 3 seconds...<br>
+            <a href="/static/youtube-ai-web.html" style="color: #667eea;">Click here to go directly</a>
+        </p>
+    </div>
+</body>
+</html>
 
         .content {
             padding: 30px;

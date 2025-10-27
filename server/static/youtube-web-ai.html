@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube + Web AI Assistant</title>
+    <!-- Include Marked.js for Markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
+    <script>
+        // Advanced Marked.js Configuration for AI Responses
+        marked.setOptions({
+            breaks: true,           // Convert \n to <br>
+            gfm: true,             // GitHub Flavored Markdown
+            sanitize: false,       // Allow HTML (we trust our AI)
+            smartLists: true,      // Better list handling
+            smartypants: true,     // Smart quotes and dashes
+            headerIds: true,       // Add IDs to headers for navigation
+            mangle: false          // Don't mangle email addresses
+        });
+
+        // Custom renderer for enhanced formatting
+        const renderer = new marked.Renderer();
+        
+        // Enhance header rendering with better styling
+        renderer.heading = function(text, level) {
+            const cleanText = text.trim();
+            const id = cleanText.toLowerCase()
+                .replace(/[^\w\s-]/g, '') // Remove special chars except hyphens
+                .replace(/\s+/g, '-');    // Replace spaces with hyphens
+                
+            return `<h${level} id="${id}" class="ai-header level-${level}">${cleanText}</h${level}>`;
+        };
+        
+        // Enhance paragraph rendering
+        renderer.paragraph = function(text) {
+            return `<p class="ai-paragraph">${text.trim()}</p>`;
+        };
+        
+        // Enhance list rendering
+        renderer.list = function(body, ordered) {
+            const tag = ordered ? 'ol' : 'ul';
+            return `<${tag} class="ai-list ai-${tag}">${body}</${tag}>`;
+        };
+        
+        // Apply custom renderer
+        marked.use({ renderer });
+
+        // Advanced text preprocessing function
+        function preprocessAIText(text) {
+            if (!text) return '';
+            
+            // Fix common AI formatting issues on frontend
+            text = text.trim();
+            
+            // Ensure emojis are properly spaced
+            text = text.replace(/([^\s])([🌟🎯🚀📊💡⚡🎨✨🔥📝🎥🧩🎪🎭🌈🎊])/g, '$1 $2');
+            text = text.replace(/([🌟🎯🚀📊💡⚡🎨✨🔥📝🎥🧩🎪🎭🌈🎊])([^\s])/g, '$1 $2');
+            
+            // Fix spacing around headers
+            text = text.replace(/([^\n])(#{1,6}\s)/g, '$1\n\n$2');
+            text = text.replace(/(#{1,6}[^\n]*)\n([^\n#])/g, '$1\n\n$2');
+            
+            // Ensure proper paragraph breaks
+            text = text.replace(/\n{3,}/g, '\n\n');
+            
+            return text;
+        }
+
+        // Enhanced rendering function with animations
+        function renderAIResponseWithAnimation(aiText, containerId) {
+            // Step 1: Preprocess the text
+            const preprocessed = preprocessAIText(aiText);
+            
+            // Step 2: Convert markdown to HTML
+            const html = marked.parse(preprocessed);
+            
+            // Step 3: Update container
+            const container = document.getElementById(containerId);
+            container.innerHTML = html;
+            container.classList.add('ai-response-container');
+            
+            // Step 4: Add smooth animations
+            const elements = container.querySelectorAll('p, h1, h2, h3, h4, h5, h6, ul, ol');
+            elements.forEach((el, index) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    el.style.transition = 'all 0.4s ease-out';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+        .mode-selector {
+            display: flex;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 5px;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: rgb(247, 141, 141);
+            transition: all 0.3s;
+        }
+        .mode-btn.active {
+            background: #007bff;
+            color: rgb(247, 141, 141);
+            box-shadow: 0 2px 10px rgba(0,123,255,0.3);
+        }
+        .form-section {
+            display: none;
+        }
+        .form-section.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+            font-size: 16px;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 10px rgba(0,123,255,0.1);
+        }
+        button {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 0;
+            border-radius: 8px;
+            line-height: 1.5;
+        }
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        .error {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        .loading {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            color: #0c5460;
+            text-align: center;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .quick-examples {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .quick-examples h4 {
+            margin-top: 0;
+            color: #856404;
+        }
+        .example-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 8px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .example-item:hover {
+            background: #e9ecef;
+        }
+        .response-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        .ai-response {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+            line-height: 1.5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .ai-response h2 {
+            color: #2c3e50;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 6px;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+        .ai-response h3 {
+            color: #34495e;
+            margin-top: 12px;
+            margin-bottom: 6px;
+        }
+        .ai-response h4 {
+            color: #5a6c7d;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+        .ai-response ul, .ai-response ol {
+            margin: 6px 0;
+            padding-left: 20px;
+        }
+        .ai-response li {
+            margin-bottom: 3px;
+        }
+        .ai-response p {
+            margin-bottom: 8px;
+        }
+        .ai-response strong {
+            color: #2980b9;
+        }
+        .ai-response code {
+            background: #f8f9fa;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .share-btn {
+            margin-top: 5px;
+            padding: 5px 10px;
+            font-size: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .share-btn:hover {
+            background: #5a6268;
+        }
+        .url-info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .url-info strong {
+            color: #1565c0;
+        }
+
+        /* Enhanced AI Response Styling */
+        .ai-response-container {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            color: #333;
+        }
+        
+        .ai-header {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 8px;
+        }
+        
+        .ai-header.level-1 {
+            font-size: 2.2em;
+            color: #1a73e8;
+            text-align: center;
+            border-bottom: 3px solid #1a73e8;
+            margin-bottom: 25px;
+        }
+        
+        .ai-header.level-2 {
+            font-size: 1.6em;
+            color: #34a853;
+            margin-top: 35px;
+        }
+        
+        .ai-header.level-3 {
+            font-size: 1.3em;
+            color: #ea4335;
+            margin-top: 25px;
+        }
+        
+        .ai-paragraph {
+            margin-bottom: 18px;
+            text-align: justify;
+            padding: 8px 0;
+        }
+        
+        .ai-paragraph:first-of-type {
+            font-size: 1.1em;
+            color: #495057;
+            font-weight: 500;
+            margin-bottom: 25px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #1a73e8;
+        }
+        
+        .ai-list {
+            margin: 20px 0;
+            padding-left: 0;
+        }
+        
+        .ai-ul li {
+            margin: 12px 0;
+            padding-left: 25px;
+            position: relative;
+            list-style: none;
+        }
+        
+        .ai-ul li::before {
+            content: "▶️";
+            position: absolute;
+            left: 0;
+            color: #1a73e8;
+            font-weight: bold;
+        }
+        
+        .ai-ol {
+            counter-reset: list-counter;
+        }
+        
+        .ai-ol li {
+            margin: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            list-style: none;
+            counter-increment: list-counter;
+        }
+        
+        .ai-ol li::before {
+            content: counter(list-counter) ".";
+            position: absolute;
+            left: 0;
+            color: #34a853;
+            font-weight: bold;
+            background: #e8f5e8;
+            padding: 2px 8px;
+            border-radius: 50%;
+            font-size: 0.9em;
+        }
+        
+        .ai-response-container strong {
+            color: #1a73e8;
+            font-weight: 600;
+        }
+        
+        .ai-response-container em {
+            color: #ea4335;
+            font-style: italic;
+        }
+        
+        .ai-response-container code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #d63384;
+            border: 1px solid #dee2e6;
+        }
+        
+        .ai-code {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow-x: auto;
+            border-left: 4px solid #4299e1;
+        }
+        
+        /* Smooth animations for content reveal */
+        .ai-response-container h1,
+        .ai-response-container h2,
+        .ai-response-container h3,
+        .ai-response-container p,
+        .ai-response-container ul,
+        .ai-response-container ol {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease-out;
+        }
+        
+        /* Responsive improvements */
+        @media (max-width: 768px) {
+            .ai-header.level-1 {
+                font-size: 1.8em;
+            }
+            
+            .ai-header.level-2 {
+                font-size: 1.4em;
+            }
+            
+            .ai-paragraph {
+                text-align: left;
+            }
+            
+            .ai-ul li,
+            .ai-ol li {
+                padding-left: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Assistant</h1>
+        <p class="subtitle">Analyze YouTube videos and websites with AI</p>
+
+        <!-- Mode Selector -->
+        <div class="mode-selector">
+            <button class="mode-btn active" onclick="switchMode('youtube')">
+                YouTube Analysis
+            </button>
+            <button class="mode-btn" onclick="switchMode('web')">
+                Website Analysis
+            </button>
+        </div>
+
+        <!-- YouTube Section -->
+        <div id="youtube-section" class="form-section active">
+            <div class="quick-examples">
+                <h4>Quick Examples (Click to try):</h4>
+                <div class="example-item" onclick="setYouTubeUrl('https://www.youtube.com/watch?v=dQw4w9WgXcQ')">
+                    Music video example
+                </div>
+                <div class="example-item" onclick="setYouTubeUrl('https://youtu.be/dQw4w9WgXcQ')">
+                    Short URL format
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="youtube-url">YouTube Video URL:</label>
+                <input type="text" id="youtube-url" placeholder="Paste YouTube video URL here..." value="">
+                <button type="button" onclick="copyYouTubeLink()" class="share-btn">
+                    Copy Shareable Link
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label for="youtube-question">Your Question (optional):</label>
+                <textarea id="youtube-question" rows="3" placeholder="Ask anything about the video... (leave empty to get video summary)"></textarea>
+            </div>
+
+            <button onclick="processYouTube()">Analyze Video</button>
+        </div>
+
+        <!-- Website Section -->
+        <div id="web-section" class="form-section">
+            <div class="quick-examples">
+                <h4>Popular Websites (Click to try):</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div class="example-item" onclick="setWebUrl('https://en.wikipedia.org/wiki/Artificial_intelligence')">
+                        Wikipedia: AI article (Recommended)
+                    </div>
+                    <div class="example-item" onclick="setWebUrl('https://www.bbc.com/news')">
+                        BBC News
+                    </div>
+                    <div class="example-item" onclick="setWebUrl('https://stackoverflow.com/questions/tagged/python')">
+                        Stack Overflow Python Questions
+                    </div>
+                    <div class="example-item" onclick="setWebUrl('https://www.reddit.com/r/MachineLearning/')">
+                        Reddit Machine Learning
+                    </div>
+                    <div class="example-item" onclick="setWebUrl('https://blog.openai.com/')">
+                        OpenAI Blog
+                    </div>
+                    <div class="example-item" onclick="setWebUrl('https://www.reuters.com/world/')">
+                        Reuters World News
+                    </div>
+                </div>
+                <p style="margin-top: 10px; font-size: 12px; color: #666;">
+                    <strong>Note:</strong> Some sites like MSN and CNN use advanced loading and may not work. Wikipedia, BBC, Reuters work best.
+                </p>
+            </div>
+
+            <div class="form-group">
+                <label for="web-url">Website URL:</label>
+                <input type="text" id="web-url" placeholder="Enter any website URL..." value="">
+                <button type="button" onclick="copyWebLink()" class="share-btn">
+                    Copy Shareable Link
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label for="web-action">Action:</label>
+                <select id="web-action" onchange="toggleWebQuestion()">
+                    <option value="extract">Extract website content</option>
+                    <option value="question">Ask question about website</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="web-question-group" style="display: none;">
+                <label for="web-question">Your Question:</label>
+                <textarea id="web-question" rows="3" placeholder="What would you like to know about this website?"></textarea>
+            </div>
+
+            <button onclick="processWebsite()">Analyze Website</button>
+        </div>
+
+        <!-- Results -->
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function switchMode(mode) {
+            // Update buttons
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide sections
+            document.querySelectorAll('.form-section').forEach(section => section.classList.remove('active'));
+            document.getElementById(mode + '-section').classList.add('active');
+            
+            // Clear results
+            document.getElementById('result').innerHTML = '';
+        }
+
+        function setYouTubeUrl(url) {
+            document.getElementById('youtube-url').value = url;
+        }
+
+        function setWebUrl(url) {
+            document.getElementById('web-url').value = url;
+        }
+
+        function toggleWebQuestion() {
+            const action = document.getElementById('web-action').value;
+            const questionGroup = document.getElementById('web-question-group');
+            questionGroup.style.display = action === 'question' ? 'block' : 'none';
+        }
+
+        function showLoading() {
+            document.getElementById('result').innerHTML = `<div class="result loading"><div class="spinner"></div><p>Analyzing content... Please wait</p></div>`;
+        }
+
+        function showError(message) {
+            document.getElementById('result').innerHTML = `<div class="result error"><h3>Error</h3><p>${message}</p></div>`;
+        }
+
+        function showSuccess(content) {
+            document.getElementById('result').innerHTML = `<div class="result success">${content}</div>`;
+        }
+
+        async function processYouTube() {
+            const url = document.getElementById('youtube-url').value.trim();
+            const question = document.getElementById('youtube-question').value.trim();
+
+            if (!url) {
+                showError('Please enter a YouTube URL');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const endpoint = question ? '/ask' : '/summarize';
+                const body = question ? { video_url: url, question: question } : { video_url: url };
+
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const title = question ? 'YouTube Video Analysis' : 'YouTube Video Summary';
+                    const responseText = data.summary || data.answer || 'No response received';
+                    
+                    // Use enhanced rendering with animations
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = 'result success';
+                    
+                    const titleEl = document.createElement('h3');
+                    titleEl.textContent = title;
+                    resultDiv.appendChild(titleEl);
+                    
+                    // Create container for AI response
+                    const responseContainer = document.createElement('div');
+                    responseContainer.id = 'youtube-response-' + Date.now();
+                    resultDiv.appendChild(responseContainer);
+                    
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'response-section';
+                    
+                    const videoP = document.createElement('p');
+                    videoP.innerHTML = `<strong>Video:</strong> ${url}`;
+                    sectionDiv.appendChild(videoP);
+                    
+                    if (question) {
+                        const questionP = document.createElement('p');
+                        questionP.innerHTML = `<strong>Question:</strong> ${question}`;
+                        sectionDiv.appendChild(questionP);
+                    }
+                    
+                    const responseH4 = document.createElement('h4');
+                    responseH4.textContent = 'AI Response:';
+                    sectionDiv.appendChild(responseH4);
+                    
+                    const responseDiv = document.createElement('div');
+                    responseDiv.className = 'ai-response';
+                    responseDiv.id = responseContainer.id + '-content';
+                    sectionDiv.appendChild(responseDiv);
+                    
+                    resultDiv.appendChild(sectionDiv);
+                    
+                    document.getElementById('result').innerHTML = '';
+                    document.getElementById('result').appendChild(resultDiv);
+                    
+                    // Use enhanced rendering with animations
+                    renderAIResponseWithAnimation(responseText.trim(), responseDiv.id);
+                } else {
+                    showError(`YouTube processing failed: ${data.detail || 'Unknown error'}`);
+                }
+            } catch (error) {
+                showError(`Network error: ${error.message}`);
+            }
+        }
+
+        async function processWebsite() {
+            const url = document.getElementById('web-url').value.trim();
+            const action = document.getElementById('web-action').value;
+            const question = document.getElementById('web-question').value.trim();
+
+            if (!url) {
+                showError('Please enter a website URL');
+                return;
+            }
+
+            if (action === 'question' && !question) {
+                showError('Please enter a question');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                if (action === 'extract') {
+                    const response = await fetch('/web/extract-content', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ url: url })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Debug: Log the actual response data
+                        console.log('Web scraping response data:', data);
+                        
+                        // Build clean HTML content using DOM methods
+                        const resultDiv = document.createElement('div');
+                        resultDiv.className = 'result success';
+                        
+                        const titleEl = document.createElement('h3');
+                        titleEl.textContent = 'Website Content Extracted';
+                        resultDiv.appendChild(titleEl);
+                        
+                        const sectionDiv = document.createElement('div');
+                        sectionDiv.className = 'response-section';
+                        
+                        const urlP = document.createElement('p');
+                        urlP.innerHTML = `<strong>URL:</strong> ${url}`;
+                        sectionDiv.appendChild(urlP);
+                        
+                        const titleP = document.createElement('p');
+                        titleP.innerHTML = `<strong>Title:</strong> ${data.title || 'No title'}`;
+                        sectionDiv.appendChild(titleP);
+                        
+                        const lengthP = document.createElement('p');
+                        lengthP.innerHTML = `<strong>Length:</strong> ${data.content ? data.content.length : 0} characters`;
+                        sectionDiv.appendChild(lengthP);
+                        
+                        const wordsP = document.createElement('p');
+                        wordsP.innerHTML = `<strong>Words:</strong> ${data.word_count || 0} words`;
+                        sectionDiv.appendChild(wordsP);
+                        
+                        const previewH4 = document.createElement('h4');
+                        previewH4.textContent = 'Content Preview:';
+                        sectionDiv.appendChild(previewH4);
+                        
+                        const previewDiv = document.createElement('div');
+                        previewDiv.className = 'ai-response';
+                        previewDiv.style.maxHeight = '400px';
+                        previewDiv.style.overflowY = 'auto';
+                        previewDiv.textContent = data.content ? data.content.substring(0, 2000) + (data.content.length > 2000 ? '...' : '') : 'No content extracted';
+                        sectionDiv.appendChild(previewDiv);
+                        
+                        resultDiv.appendChild(sectionDiv);
+                        
+                        document.getElementById('result').innerHTML = '';
+                        document.getElementById('result').appendChild(resultDiv);
+                    } else {
+                        showError(`Website extraction failed: ${data.detail || 'Unknown error'}`);
+                    }
+                } else {
+                    const response = await fetch('/web/ask-question', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                            url: url,
+                            question: question
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        const responseText = data.answer || 'No response received';
+                        
+                        // Build clean HTML content
+                        const resultDiv = document.createElement('div');
+                        resultDiv.className = 'result success';
+                        
+                        const titleEl = document.createElement('h3');
+                        titleEl.textContent = 'Website Analysis Complete';
+                        resultDiv.appendChild(titleEl);
+                        
+                        const sectionDiv = document.createElement('div');
+                        sectionDiv.className = 'response-section';
+                        
+                        const websiteP = document.createElement('p');
+                        websiteP.innerHTML = `<strong>Website:</strong> ${url}`;
+                        sectionDiv.appendChild(websiteP);
+                        
+                        const questionP = document.createElement('p');
+                        questionP.innerHTML = `<strong>Question:</strong> ${question}`;
+                        sectionDiv.appendChild(questionP);
+                        
+                        const responseH4 = document.createElement('h4');
+                        responseH4.textContent = 'AI Response:';
+                        sectionDiv.appendChild(responseH4);
+                        
+                        const responseDiv = document.createElement('div');
+                        responseDiv.className = 'ai-response';
+                        responseDiv.id = 'website-response-' + Date.now();
+                        sectionDiv.appendChild(responseDiv);
+                        
+                        resultDiv.appendChild(sectionDiv);
+                        
+                        document.getElementById('result').innerHTML = '';
+                        document.getElementById('result').appendChild(resultDiv);
+                        
+                        // Use enhanced rendering with animations
+                        renderAIResponseWithAnimation(responseText.trim(), responseDiv.id);
+                    } else {
+                        showError(`Website analysis failed: ${data.detail || 'Unknown error'}`);
+                    }
+                }
+            } catch (error) {
+                showError(`Network error: ${error.message}`);
+            }
+        }
+
+        // Auto-fill URL from parameters on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const youtubeUrl = urlParams.get('youtube');
+            const webUrl = urlParams.get('website') || urlParams.get('url');
+            const question = urlParams.get('question') || urlParams.get('q');
+            
+            if (youtubeUrl) {
+                // Switch to YouTube mode and fill URL
+                switchModeByName('youtube');
+                document.getElementById('youtube-url').value = youtubeUrl;
+                if (question) {
+                    document.getElementById('youtube-question').value = question;
+                }
+            } else if (webUrl) {
+                // Switch to website mode and fill URL
+                switchModeByName('web');
+                document.getElementById('web-url').value = webUrl;
+                if (question) {
+                    document.getElementById('web-action').value = 'question';
+                    toggleWebQuestion();
+                    document.getElementById('web-question').value = question;
+                }
+            }
+        });
+
+        function switchModeByName(mode) {
+            // Update buttons
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            if (mode === 'youtube') {
+                document.querySelector('.mode-btn[onclick*="youtube"]').classList.add('active');
+            } else {
+                document.querySelector('.mode-btn[onclick*="web"]').classList.add('active');
+            }
+            
+            // Show/hide sections
+            document.querySelectorAll('.form-section').forEach(section => section.classList.remove('active'));
+            document.getElementById(mode + '-section').classList.add('active');
+        }
+
+        // Function to generate shareable URLs
+        function copyYouTubeLink() {
+            const url = document.getElementById('youtube-url').value.trim();
+            const question = document.getElementById('youtube-question').value.trim();
+            if (!url) {
+                alert('Please enter a YouTube URL first');
+                return;
+            }
+            
+            let shareUrl = `${window.location.origin}${window.location.pathname}?youtube=${encodeURIComponent(url)}`;
+            if (question) {
+                shareUrl += `&question=${encodeURIComponent(question)}`;
+            }
+            
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                alert('Link copied to clipboard! Share this link to open the app with your URL pre-filled.');
+            });
+        }
+
+        function copyWebLink() {
+            const url = document.getElementById('web-url').value.trim();
+            const question = document.getElementById('web-question').value.trim();
+            if (!url) {
+                alert('Please enter a website URL first');
+                return;
+            }
+            
+            let shareUrl = `${window.location.origin}${window.location.pathname}?website=${encodeURIComponent(url)}`;
+            if (question && document.getElementById('web-action').value === 'question') {
+                shareUrl += `&question=${encodeURIComponent(question)}`;
+            }
+            
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                alert('Link copied to clipboard! Share this link to open the app with your URL pre-filled.');
+            });
+        }
+    </script>
+</body>
+</html>

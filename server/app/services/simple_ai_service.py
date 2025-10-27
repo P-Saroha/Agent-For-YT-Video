@@ -6,8 +6,60 @@ import os
 import asyncio
 import requests
 import json
+import re
 from typing import Dict, Any, List
 from youtube_transcript_api import YouTubeTranscriptApi
+
+
+def clean_ai_response(text: str) -> str:
+    """
+    Production-ready AI response cleaning with advanced formatting.
+    
+    Fixes common Gemini API formatting problems while preserving markdown structure:
+    - Malformed headers and excessive spacing
+    - Proper paragraph and list formatting
+    - Emoji spacing and unicode handling
+    - Robust edge case handling
+    """
+    if not text:
+        return ""
+    
+    # Initial cleanup
+    text = text.strip()
+    
+    # Fix common Gemini formatting issues
+    text = re.sub(r'# #\s*', '## ', text)      # Fix malformed headers
+    text = re.sub(r'###+', '###', text)        # Fix excessive hash marks
+    
+    # Smart paragraph handling - preserve intentional breaks
+    text = re.sub(r'\n{4,}', '\n\n\n', text)   # Max 3 newlines
+    text = re.sub(r'\n\n\n+', '\n\n', text)    # But usually just 2
+    
+    # Clean up spacing while preserving structure
+    text = re.sub(r'[ \t]+\n', '\n', text)     # Remove trailing spaces
+    text = re.sub(r'\n[ \t]+', '\n', text)     # Remove leading spaces on new lines
+    text = re.sub(r'[ \t]{2,}', ' ', text)     # Collapse multiple spaces
+    
+    # Ensure proper spacing around headers
+    text = re.sub(r'([^\n])(#{1,6}\s+[^\n]*)', r'\1\n\n\2', text)
+    text = re.sub(r'(#{1,6}\s+[^\n]*)\n([^\n#\s])', r'\1\n\n\2', text)
+    
+    # Fix list formatting with proper spacing
+    text = re.sub(r'\n([-*+]\s)', r'\n\n\1', text)      # Space before lists
+    text = re.sub(r'([-*+]\s[^\n]*)\n([^\n-*+\s])', r'\1\n\n\2', text)  # Space after lists
+    
+    # Ensure proper spacing around numbered lists
+    text = re.sub(r'\n(\d+\.\s)', r'\n\n\1', text)
+    text = re.sub(r'(\d+\.\s[^\n]*)\n([^\n\d\s])', r'\1\n\n\2', text)
+    
+    # Fix emoji spacing for better readability
+    text = re.sub(r'([^\s])([🌟🎯🚀📊💡⚡🎨✨🔥📝🎥🧩🎪🎭🎪🌈🎊])', r'\1 \2', text)
+    text = re.sub(r'([🌟🎯🚀📊💡⚡🎨✨🔥📝🎥🧩🎪🎭🎪🌈🎊])([^\s])', r'\1 \2', text)
+    
+    # Final cleanup - ensure no excessive newlines remain
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    
+    return text
 
 
 class SimpleYouTubeAIService:
@@ -15,7 +67,7 @@ class SimpleYouTubeAIService:
     
     def __init__(self):
         self.gemini_api_key = os.getenv("GEMINI_API_KEY", "AIzaSyDvhlqz_tSdNpkG6OZyryXyp5qUYjwDGcc")
-        self.model = "gemini-1.5-flash"
+        self.model = "gemini-2.5-flash"  # NEWER FREE Flash model (2.5 version)
         self.api_url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
         
         print("Simple YouTube AI Service initialized for deployment")
@@ -39,9 +91,24 @@ class SimpleYouTubeAIService:
     async def get_transcript(self, video_id: str) -> str:
         """Get transcript for video"""
         try:
-            transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
-            transcript_text = " ".join([entry['text'] for entry in transcript_list])
+            print(f"Processing video: {video_id}")
+            # Use the correct API - create instance and call list, then find transcript
+            from youtube_transcript_api._api import YouTubeTranscriptApi
+            api = YouTubeTranscriptApi()
+            transcript_list = api.list(video_id)
+            
+            # Find English transcript or fallback to any available
+            try:
+                transcript = transcript_list.find_transcript(['en'])
+            except:
+                transcript = transcript_list.find_transcript(['hi', 'es', 'fr', 'de', 'auto'])
+            
+            # Fetch the actual transcript data
+            transcript_data = transcript.fetch()
+            transcript_text = " ".join([entry.text for entry in transcript_data])  # Use .text instead of ['text']
+            print(f"Successfully got transcript: {len(transcript_text)} characters")
             return transcript_text
+            
         except Exception as e:
             print(f"Error getting transcript: {e}")
             return ""
@@ -53,21 +120,44 @@ class SimpleYouTubeAIService:
                 'Content-Type': 'application/json',
             }
             
-            prompt = f"""Based on this YouTube video transcript, please answer the question.
+            prompt = f"""Based on this YouTube video transcript, answer the question with an engaging, well-formatted response.
 
-Transcript:
-{transcript[:4000]}  # Limit to avoid token limits
+Transcript: {transcript[:6000]}
 
 Question: {question}
 
-Please provide a comprehensive answer based only on the information in the transcript."""
+Format your response exactly like this:
+
+## 🎥 [Creative Title Related to the Content]
+
+Start with a compelling paragraph that immediately captures what this video is about. Make it interesting and engaging.
+
+## 📝 Key Points
+
+Write 2-3 natural paragraphs here explaining the main content. Use normal sentences, not bullet points. Make it flow like a story or article that someone would actually want to read.
+
+## 💡 Important Details  
+
+Add another 2-3 paragraphs with more specific information, insights, or interesting details from the video. Keep it conversational and engaging.
+
+## ✨ Summary
+
+End with a strong conclusion paragraph that ties everything together and gives the reader clear takeaways.
+
+CRITICAL: Each section must be 2-3 full paragraphs, NOT bullet points. Write like you're telling an interesting story."""
             
             payload = {
                 "contents": [{
                     "parts": [{
                         "text": prompt
                     }]
-                }]
+                }],
+                "generationConfig": {
+                    "temperature": 0.7,
+                    "topP": 0.9,
+                    "maxOutputTokens": 4096,
+                    "responseMimeType": "text/plain"
+                }
             }
             
             response = requests.post(
@@ -80,7 +170,8 @@ Please provide a comprehensive answer based only on the information in the trans
             if response.status_code == 200:
                 data = response.json()
                 if 'candidates' in data and len(data['candidates']) > 0:
-                    return data['candidates'][0]['content']['parts'][0]['text']
+                    raw_response = data['candidates'][0]['content']['parts'][0]['text']
+                    return clean_ai_response(raw_response)
                 else:
                     return "Sorry, I couldn't generate an answer from the video content."
             else:
@@ -89,7 +180,93 @@ Please provide a comprehensive answer based only on the information in the trans
                 
         except Exception as e:
             print(f"Error asking Gemini: {e}")
-            return "Sorry, there was an error processing your question."
+            return f"Sorry, there was an error processing your question: {str(e)}"
+    
+    async def ask_question_simple(self, content: str, question: str) -> Dict[str, Any]:
+        """Ask a question about any text content (for web scraping service)"""
+        try:
+            headers = {
+                'Content-Type': 'application/json',
+            }
+            
+            prompt = f"""Based on the following content, answer the question with a well-formatted, engaging response.
+
+Content: {content[:6000]}
+
+Question: {question}
+
+Format exactly like this:
+
+## 🌟 [Creative Title]
+
+Write an engaging opening paragraph that immediately answers the main question and captures the reader's interest.
+
+## 📊 Main Information
+
+Write 2-3 natural paragraphs explaining the key points. Use complete sentences and make it flow like an interesting article, not bullet points.
+
+## 💡 Key Details
+
+Add 2-3 more paragraphs with important details, insights, or specific information. Keep it conversational and engaging.
+
+## ✨ Summary
+
+End with a strong conclusion that summarizes the main takeaways and gives the reader clear value.
+
+IMPORTANT: Write in full paragraphs, NOT bullet lists. Make it engaging and story-like."""
+            
+            payload = {
+                "contents": [{
+                    "parts": [{
+                        "text": prompt
+                    }]
+                }],
+                "generationConfig": {
+                    "temperature": 0.7,
+                    "topP": 0.9,
+                    "maxOutputTokens": 4096,
+                    "responseMimeType": "text/plain"
+                }
+            }
+            
+            response = requests.post(
+                f"{self.api_url}?key={self.gemini_api_key}",
+                headers=headers,
+                json=payload,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if 'candidates' in data and len(data['candidates']) > 0:
+                    raw_answer = data['candidates'][0]['content']['parts'][0]['text']
+                    clean_answer = clean_ai_response(raw_answer)
+                    return {
+                        "response": clean_answer,
+                        "confidence": 0.8,
+                        "success": True
+                    }
+                else:
+                    return {
+                        "response": "Sorry, I couldn't generate an answer from the provided content.",
+                        "confidence": 0.0,
+                        "success": False
+                    }
+            else:
+                print(f"Gemini API error: {response.status_code} - {response.text}")
+                return {
+                    "response": "Sorry, there was an error processing your question.",
+                    "confidence": 0.0,
+                    "success": False
+                }
+                
+        except Exception as e:
+            print(f"Error asking question: {e}")
+            return {
+                "response": f"Sorry, there was an error processing your question: {str(e)}",
+                "confidence": 0.0,
+                "success": False
+            }
     
     async def process_video_question(self, video_url: str, question: str) -> Dict[str, Any]:
         """Main method to process video question"""

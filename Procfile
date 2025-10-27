@@ -1,1 +1,0 @@
-web: cd server && python start_production.py
