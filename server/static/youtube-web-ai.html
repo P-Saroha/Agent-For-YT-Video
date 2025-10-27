@@ -969,7 +969,7 @@
                         else if (domain.includes('news') || domain.includes('bbc') || domain.includes('cnn')) contentType = '📰';
 
                         const previewH4 = document.createElement('h4');
-                        previewH4.textContent = `${contentType} Content Preview:`;
+                        previewH4.textContent = `${contentType} AI Summary:`;
                         sectionDiv.appendChild(previewH4);
                         
                         // Add metadata
@@ -982,7 +982,7 @@
                         
                         const previewDiv = document.createElement('div');
                         previewDiv.className = 'ai-response';
-                        previewDiv.style.maxHeight = '500px';
+                        previewDiv.style.maxHeight = '80vh'; // Use viewport height for better scrolling
                         previewDiv.style.overflowY = 'auto';
                         previewDiv.style.whiteSpace = 'pre-wrap';
                         previewDiv.style.fontSize = '14px';

@@ -17,17 +17,17 @@ router = APIRouter(prefix="/web", tags=["web-content"])
 _web_service = None
 
 def get_web_service():
-    """Get web scraping service with lazy initialization"""
+    """Get RAG web service following proper approach: chunking → embeddings → vector store → similarity search"""
     global _web_service
     if _web_service is None:
         try:
-            print("Initializing web scraping service...")
-            from app.services.web_scraping_service import get_web_service
-            _web_service = get_web_service()
-            print("Web scraping service initialized successfully")
+            print("Initializing RAG-based web content service...")
+            from app.services.rag_web_service import get_rag_web_service
+            _web_service = get_rag_web_service()
+            print("RAG web content service initialized successfully")
         except Exception as e:
-            print(f"Failed to initialize web service: {e}")
-            raise HTTPException(status_code=500, detail="Web service initialization failed")
+            print(f"Failed to initialize RAG web service: {e}")
+            raise HTTPException(status_code=500, detail="RAG web service initialization failed")
     return _web_service
 
 @router.post("/extract-content", response_model=WebContentResponse)
@@ -46,21 +46,20 @@ async def extract_web_content(request: WebContentRequest):
         
         processing_time = time.time() - start_time
         
-        # Create better preview with more context
-        content = content_data["content"]
-        preview_length = 1000 if len(content) > 500 else len(content)
-        content_preview = content[:preview_length]
+        # Generate summary using proper RAG approach
+        print(f"🔄 Processing web content with RAG: chunking → embeddings → vector store")
+        content_preview = await service.summarize_with_rag(request.url)
         
-        if len(content) > preview_length:
-            content_preview += "\n\n... (content truncated, total length: {} characters)".format(len(content))
+        # Get metadata from processed content
+        processed_data = await service.process_web_content_with_rag(request.url)
         
         return WebContentResponse(
-            url=content_data["url"],
-            title=content_data["title"],
+            url=processed_data["url"],
+            title=processed_data["title"],
             content_preview=content_preview,
-            word_count=content_data["word_count"],
+            word_count=len(content_preview.split()),
             extracted_at=datetime.now(),
-            metadata=content_data["metadata"],
+            metadata=processed_data["metadata"],
             status="success"
         )
         
@@ -76,16 +75,25 @@ async def ask_question_about_web_content(request: WebQuestionRequest):
     """Ask a question about content from any website URL"""
     try:
         print(f"Processing question about web content")
+        print(f"Request received: {request}")
         print(f"URL: {request.url}")
         print(f"Question: {request.question}")
+        
+        # Validate inputs
+        if not request.url or not request.url.strip():
+            raise HTTPException(status_code=400, detail="URL is required")
+        
+        if not request.question or not request.question.strip():
+            raise HTTPException(status_code=400, detail="Question is required")
         
         start_time = time.time()
         
         # Get web service
         service = get_web_service()
         
-        # Process question
-        result = await service.ask_question_about_url(request.url, request.question)
+        # Use RAG approach: embed query → cosine similarity → retrieve chunks → context-aware LLM
+        print(f"🔍 Processing question with RAG approach")
+        result = await service.ask_question_with_rag(request.url, request.question)
         
         processing_time = time.time() - start_time
         

@@ -114,13 +114,37 @@ class SimpleYouTubeAIService:
             return ""
     
     async def ask_gemini(self, question: str, transcript: str) -> str:
-        """Ask Gemini AI about the video content"""
+        """Ask Gemini AI about the video content - provides concise answers for questions"""
         try:
             headers = {
                 'Content-Type': 'application/json',
             }
             
-            prompt = f"""Based on this YouTube video transcript, answer the question with an engaging, well-formatted response.
+            # Check if this is a specific question or a general summary request
+            question_lower = question.lower()
+            is_specific_question = any(word in question_lower for word in [
+                'what', 'when', 'where', 'who', 'how', 'why', 'which', 'how much', 'how many'
+            ])
+            
+            if is_specific_question:
+                # Provide a concise, direct answer
+                prompt = f"""Based on this YouTube video transcript, answer the specific question directly and concisely.
+
+Transcript: {transcript[:6000]}
+
+Question: {question}
+
+Instructions:
+1. Answer the question directly in 1-3 sentences
+2. If relevant, provide a brief context or explanation 
+3. Keep the response focused and to the point
+4. Don't use section headers or lengthy formatting
+5. Just give a clear, helpful answer
+
+Answer:"""
+            else:
+                # Use the detailed format for summaries
+                prompt = f"""Based on this YouTube video transcript, answer the question with an engaging, well-formatted response.
 
 Transcript: {transcript[:6000]}
 
@@ -302,6 +326,70 @@ IMPORTANT: Write in full paragraphs, NOT bullet lists. Make it engaging and stor
                 "success": False,
                 "error": f"Error processing request: {str(e)}"
             }
+    
+    async def ask_gemini_direct(self, prompt: str) -> str:
+        """Direct AI call for web content summarization"""
+        try:
+            print(f"Making direct Gemini API call...")
+            
+            if not self.gemini_api_key or self.gemini_api_key == "":
+                print("ERROR: No Gemini API key configured!")
+                return "AI service configuration error: No API key"
+            
+            headers = {
+                'Content-Type': 'application/json',
+            }
+            
+            payload = {
+                "contents": [{
+                    "parts": [{
+                        "text": prompt
+                    }]
+                }],
+                "generationConfig": {
+                    "temperature": 0.7,
+                    "topP": 0.9,
+                    "maxOutputTokens": 2048,
+                    "responseMimeType": "text/plain"
+                }
+            }
+            
+            print(f"Calling API URL: {self.api_url}")
+            
+            response = requests.post(
+                f"{self.api_url}?key={self.gemini_api_key}",
+                headers=headers,
+                json=payload,
+                timeout=30
+            )
+            
+            print(f"API Response status: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                print(f"API Response data keys: {list(data.keys())}")
+                
+                if 'candidates' in data and len(data['candidates']) > 0:
+                    raw_answer = data['candidates'][0]['content']['parts'][0]['text']
+                    clean_answer = clean_ai_response(raw_answer)
+                    print(f"Generated answer: {len(clean_answer)} characters")
+                    return clean_answer
+                else:
+                    print(f"No candidates in response: {data}")
+                    return "Unable to generate answer - no response from AI"
+            else:
+                error_text = response.text
+                print(f"Gemini API error: {response.status_code} - {error_text}")
+                return f"AI service error: {response.status_code}"
+                
+        except requests.exceptions.Timeout:
+            print(f"Gemini API timeout")
+            return "AI service timeout - please try again"
+        except Exception as e:
+            print(f"Error calling Gemini directly: {e}")
+            import traceback
+            traceback.print_exc()
+            return f"Failed to generate answer: {str(e)}"
 
 
 # Global instance
