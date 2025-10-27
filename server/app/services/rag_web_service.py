@@ -49,15 +49,24 @@ class RAGWebContentService:
             temperature=0.7
         )
         
-        # Prompt template for RAG
+        # Improved prompt template for RAG - cleaner formatting
         self.prompt_template = PromptTemplate(
-            template="""Based on the following context from the web content, provide a comprehensive and engaging answer to the question.
+            template="""Based on the following context, provide a clear and well-structured answer to the question.
 
 Context: {context}
 
 Question: {question}
 
-Provide a detailed, well-structured answer based on the context above. If the context doesn't contain enough information to fully answer the question, say so clearly.""",
+Instructions:
+- Answer directly and concisely
+- Use clear headers (##) for main sections
+- Use simple dashes (-) for bullet points, NOT asterisks (*)
+- Keep paragraphs short and readable
+- Focus on the most relevant information
+- Structure your response clearly with proper spacing
+- Do NOT use asterisks (*) for formatting - use markdown headers (##) and dashes (-) only
+
+Answer:""",
             input_variables=["context", "question"]
         )
         
@@ -76,6 +85,42 @@ Provide a detailed, well-structured answer based on the context above. If the co
             self.session = aiohttp.ClientSession(timeout=timeout, headers=headers)
         return self.session
     
+    async def extract_content_from_url(self, url: str) -> Dict[str, Any]:
+        """Extract and clean content from URL for basic content extraction"""
+        try:
+            session = await self.get_session()
+            
+            async with session.get(url) as response:
+                if response.status != 200:
+                    return {
+                        "error": f"Failed to fetch URL. Status: {response.status}",
+                        "status_code": response.status
+                    }
+                
+                html_content = await response.text()
+                soup = BeautifulSoup(html_content, 'html.parser')
+                
+                # Extract title
+                title = soup.find('title')
+                title_text = title.get_text(strip=True) if title else "No Title"
+                
+                # Extract main content
+                main_content = await self._extract_main_content(soup, url)
+                
+                return {
+                    "title": title_text,
+                    "content": main_content,
+                    "url": url,
+                    "word_count": len(main_content.split()),
+                    "char_count": len(main_content)
+                }
+                
+        except Exception as e:
+            return {
+                "error": f"Error extracting content: {str(e)}",
+                "url": url
+            }
+    
     async def process_web_content_with_rag(self, url: str) -> Dict[str, Any]:
         """
         Step 1-4 of RAG approach:
@@ -86,11 +131,12 @@ Provide a detailed, well-structured answer based on the context above. If the co
         """
         try:
             print(f"🌐 Extracting content from: {url}")
+            start_time = time.time()
             
             # Check if already processed
             url_hash = hash(url)
             if url_hash in self.processed_content:
-                print("♻️ Using cached content")
+                print(f"♻️ Using cached content (took {time.time() - start_time:.2f}s)")
                 return self.processed_content[url_hash]
             
             # Step 1: Extract and clean content
@@ -117,9 +163,11 @@ Provide a detailed, well-structured answer based on the context above. If the co
             if len(content) < 100:
                 raise Exception("Insufficient content extracted from webpage")
             
-            print(f"📄 Extracted {len(content)} characters of content")
+            extraction_time = time.time() - start_time
+            print(f"📄 Extracted {len(content)} characters of content (took {extraction_time:.2f}s)")
             
             # Step 2: Create document and divide into structured chunks
+            chunking_start = time.time()
             document = Document(
                 page_content=content,
                 metadata={
@@ -132,25 +180,29 @@ Provide a detailed, well-structured answer based on the context above. If the co
             
             # Divide into structured chunks
             chunks = self.text_splitter.split_documents([document])
-            print(f"📊 Divided content into {len(chunks)} structured chunks")
+            chunking_time = time.time() - chunking_start
+            print(f"📊 Divided content into {len(chunks)} structured chunks (took {chunking_time:.2f}s)")
             
             # Step 3-4: Create embeddings and store in vector database
             temp_dir = tempfile.mkdtemp(prefix=f"web_content_{url_hash}_")
             
+            embedding_start = time.time()
             print(f"🔢 Creating vector embeddings using transformer model...")
             vectorstore = Chroma.from_documents(
                 documents=chunks,
                 embedding=self.embeddings,
                 persist_directory=temp_dir
             )
+            embedding_time = time.time() - embedding_start
+            print(f"⚡ Vector embeddings created (took {embedding_time:.2f}s)")
             
-            # Create retrieval QA chain
+            # Create retrieval QA chain (optimized for speed)
             qa_chain = RetrievalQA.from_chain_type(
                 llm=self.llm,
                 chain_type="stuff",
                 retriever=vectorstore.as_retriever(
                     search_type="similarity",
-                    search_kwargs={"k": 5}  # Retrieve top 5 similar chunks
+                    search_kwargs={"k": 3}  # Retrieve top 3 similar chunks (faster)
                 ),
                 chain_type_kwargs={"prompt": self.prompt_template},
                 return_source_documents=True
@@ -171,7 +223,8 @@ Provide a detailed, well-structured answer based on the context above. If the co
                 }
             }
             
-            print(f"✅ Content processed and stored in vector database")
+            total_time = time.time() - start_time
+            print(f"✅ Content processed and stored in vector database (total: {total_time:.2f}s)")
             
             return self.processed_content[url_hash]
             
@@ -208,6 +261,10 @@ Provide a detailed, well-structured answer based on the context above. If the co
                 "answer": answer,
                 "url": url,
                 "title": content_data["title"],
+                "question": question,
+                "confidence": min(0.9, 0.5 + (len(source_docs) * 0.1)),  # Simple confidence based on chunks used
+                "source_type": "web_rag",
+                "word_count": len(answer.split()),
                 "chunks_used": len(source_docs),
                 "total_chunks": content_data["chunks_count"],
                 "metadata": content_data["metadata"]
@@ -253,24 +310,35 @@ Provide a detailed, well-structured answer based on the context above. If the co
                 if len(content) > 500:
                     return content
         
-        # Standard content extraction
-        selectors = ['main', 'article', '.content', '#content', '.post-content', '.entry-content']
+        # COMPREHENSIVE content extraction with expanded selectors
+        selectors = [
+            'main', 'article', '.content', '#content', '.post-content', '.entry-content',
+            '.blog-post', '.post', '.single-post', '.page-content', '.article-content',
+            '.elementor-widget-container', '.elementor-text-editor', '.wp-content',
+            '.blog-content', '.article-body', '.post-body'
+        ]
+        
+        print(f"🔍 Trying {len(selectors)} content selectors...")
+        
         for selector in selectors:
             elements = soup.select(selector)
             for elem in elements:
-                text = elem.get_text(separator=' ', strip=True)
-                if len(text) > 200:
-                    content += text + " "
-            if len(content) > 500:
+                text = elem.get_text(separator='\n', strip=True)
+                if len(text) > 100:  # Lower threshold for more content
+                    content += text + "\n\n"
+                    print(f"✅ Found content with selector '{selector}': {len(text)} chars")
+            if len(content) > 1000:  # Continue until we get substantial content
                 break
         
-        # Fallback to paragraphs
-        if len(content) < 200:
-            paragraphs = soup.find_all('p')
-            for p in paragraphs:
-                text = p.get_text(strip=True)
-                if len(text) > 30:
-                    content += text + " "
+        # Enhanced fallback - get ALL meaningful elements
+        if len(content) < 1000:
+            print("🔄 Using enhanced fallback extraction...")
+            for tag in ['div', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'span']:
+                elements = soup.find_all(tag)
+                for elem in elements:
+                    text = elem.get_text(strip=True)
+                    if len(text) > 20 and text not in content:  # Avoid duplicates
+                        content += text + "\n"
         
         # Clean content
         content = re.sub(r'\s+', ' ', content)

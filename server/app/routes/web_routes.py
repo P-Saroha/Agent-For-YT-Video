@@ -13,21 +13,25 @@ from app.models.schemas import (
 
 router = APIRouter(prefix="/web", tags=["web-content"])
 
-# Initialize web service lazily
+# Initialize web service lazily - using fast service for better performance
 _web_service = None
 
 def get_web_service():
-    """Get RAG web service following proper approach: chunking → embeddings → vector store → similarity search"""
+    """Get RAG web service for comprehensive content extraction and analysis"""
     global _web_service
     if _web_service is None:
         try:
-            print("Initializing RAG-based web content service...")
-            from app.services.rag_web_service import get_rag_web_service
-            _web_service = get_rag_web_service()
+            print("Initializing RAG web content service...")
+            from app.services.rag_web_service import RAGWebContentService
+            _web_service = RAGWebContentService()
             print("RAG web content service initialized successfully")
         except Exception as e:
             print(f"Failed to initialize RAG web service: {e}")
-            raise HTTPException(status_code=500, detail="RAG web service initialization failed")
+            # Fallback to fast service if RAG fails
+            print("Falling back to fast web service...")
+            from app.services.fast_web_service import get_fast_web_service
+            _web_service = get_fast_web_service()
+            print("Fast web content service initialized as fallback")
     return _web_service
 
 @router.post("/extract-content", response_model=WebContentResponse)
@@ -46,20 +50,18 @@ async def extract_web_content(request: WebContentRequest):
         
         processing_time = time.time() - start_time
         
-        # Generate summary using proper RAG approach
-        print(f"🔄 Processing web content with RAG: chunking → embeddings → vector store")
-        content_preview = await service.summarize_with_rag(request.url)
+        if "error" in content_data:
+            raise HTTPException(status_code=500, detail=content_data["error"])
         
-        # Get metadata from processed content
-        processed_data = await service.process_web_content_with_rag(request.url)
-        
+        # Use the extracted content directly for faster response
         return WebContentResponse(
-            url=processed_data["url"],
-            title=processed_data["title"],
-            content_preview=content_preview,
-            word_count=len(content_preview.split()),
+            url=content_data["url"],
+            title=content_data["title"],
+            content_preview=content_data["content"],  # Return full content instead of truncated
+            word_count=content_data["word_count"],
+            char_count=content_data.get("char_count", len(content_data["content"])),  # Add char count
             extracted_at=datetime.now(),
-            metadata=processed_data["metadata"],
+            metadata={"processing_time": processing_time, "method": "fast_extraction"},
             status="success"
         )
         
@@ -91,9 +93,13 @@ async def ask_question_about_web_content(request: WebQuestionRequest):
         # Get web service
         service = get_web_service()
         
-        # Use RAG approach: embed query → cosine similarity → retrieve chunks → context-aware LLM
-        print(f"🔍 Processing question with RAG approach")
-        result = await service.ask_question_with_rag(request.url, request.question)
+        # Try RAG approach first, fallback to simple search
+        if hasattr(service, 'ask_question_with_rag'):
+            print(f"🔍 Processing question with RAG approach (full vector search)")
+            result = await service.ask_question_with_rag(request.url, request.question)
+        else:
+            print(f"🔍 Processing question with simple search approach")
+            result = await service.ask_question_with_simple_search(request.url, request.question)
         
         processing_time = time.time() - start_time
         

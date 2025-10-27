@@ -34,8 +34,9 @@ class WebContentRequest(BaseModel):
 class WebContentResponse(BaseModel):
     url: str
     title: str
-    content_preview: str  # First 500 chars
+    content_preview: str  # Full content (no longer truncated)
     word_count: int
+    char_count: Optional[int] = None  # Character count
     extracted_at: datetime
     metadata: Dict[str, Any]
     status: str

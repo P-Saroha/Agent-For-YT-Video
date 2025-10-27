@@ -52,16 +52,40 @@
             // Fix common AI formatting issues on frontend
             text = text.trim();
             
-            // Ensure emojis are properly spaced
-            text = text.replace(/([^\s])([🌟🎯🚀📊💡⚡🎨✨🔥📝🎥🧩🎪🎭🌈🎊])/g, '$1 $2');
-            text = text.replace(/([🌟🎯🚀📊💡⚡🎨✨🔥📝🎥🧩🎪🎭🌈🎊])([^\s])/g, '$1 $2');
+            // AGGRESSIVE Unicode symbol removal - remove ALL problematic characters
+            text = text.replace(/[��]/g, ''); // Remove diamond question marks
+            text = text.replace(/[\u{FFFD}]/gu, ''); // Remove replacement characters
+            text = text.replace(/[\u{FFF9}-\u{FFFB}]/gu, ''); // Remove interlinear annotation characters
+            text = text.replace(/[\u{200B}-\u{200D}]/gu, ''); // Remove zero-width characters
+            text = text.replace(/[\u{FEFF}]/gu, ''); // Remove BOM
+            text = text.replace(/[\u{2000}-\u{200F}]/gu, ''); // Remove all space characters
+            text = text.replace(/[\u{2028}-\u{202F}]/gu, ''); // Remove line/paragraph separators
+            text = text.replace(/[\u{205F}-\u{206F}]/gu, ''); // Remove format characters
+            text = text.replace(/[\u{FE00}-\u{FE0F}]/gu, ''); // Remove variation selectors
+            text = text.replace(/[\u{E000}-\u{F8FF}]/gu, ''); // Remove private use area
             
-            // Fix spacing around headers
+            // Remove any remaining non-printable characters except newlines and basic spaces
+            text = text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '');
+            
+            // Remove specific problematic symbols that might appear in headings
+            text = text.replace(/[⭐★☆✨🌟💫⚡🔥💡🎯🚀📊��📝📋📌📍🎪🎭🎨🎬🎥🎞️����]/g, '');
+            
+            // Clean up spacing issues
+            text = text.replace(/\s{3,}/g, '\n\n'); // Replace 3+ spaces with double newline
+            text = text.replace(/\n{4,}/g, '\n\n\n'); // Limit to max 3 newlines
+            
+            // Fix header formatting - ensure proper spacing around headers
             text = text.replace(/([^\n])(#{1,6}\s)/g, '$1\n\n$2');
             text = text.replace(/(#{1,6}[^\n]*)\n([^\n#])/g, '$1\n\n$2');
             
-            // Ensure proper paragraph breaks
-            text = text.replace(/\n{3,}/g, '\n\n');
+            // Ensure proper list formatting
+            text = text.replace(/\n([•\-\*]|\d+\.)\s/g, '\n\n$1 ');
+            
+            // Clean up multiple spaces in content
+            text = text.replace(/[ \t]{2,}/g, ' ');
+            
+            // Final cleanup
+            text = text.replace(/^\s+|\s+$/g, ''); // Trim start and end
             
             return text;
         }
@@ -91,6 +115,154 @@
                 }, index * 100);
             });
         }
+        
+        // Enhanced function for web content extraction that properly handles markdown
+        function renderWebContent(content, containerId) {
+            if (!content) return;
+            
+            // Advanced content preprocessing for better markdown rendering
+            let processedContent = content.trim();
+            
+            // Remove problematic Unicode symbols first
+            processedContent = preprocessAIText(processedContent);
+            
+            // AGGRESSIVE ASTERISK REMOVAL - NO MORE * SYMBOLS
+            processedContent = processedContent
+                // COMPLETELY REMOVE asterisk patterns
+                .replace(/\*\s*\*\*([^*]+?)\*\*\s*\*/g, '\n## $1\n')          // * **text** * -> ## text
+                .replace(/\*\*([^*\n]+?)\*\*/g, '**$1**')                      // Keep bold formatting
+                .replace(/^\s*\*\s+([^\n*]+)/gm, '- $1')                      // * text -> - text (lists)
+                .replace(/\*([^*\n]+?)\*/g, '$1')                             // *text* -> text (remove emphasis)
+                .replace(/\s\*\s/g, ' ')                                       // Remove standalone *
+                .replace(/\*+/g, '')                                           // Remove ALL remaining asterisks
+                
+                // BETTER HEADER DETECTION
+                .replace(/^([A-Z][^:\n]{5,40}):\s*$/gm, '\n## $1\n')          // "Title:" -> ## Title
+                .replace(/^(The Overflow Blog|Featured on Meta|Hot Network Questions|Specific User Query|Question Feeds)/gm, '\n## $&\n')
+                
+                // NORMALIZE SPACING
+                .replace(/\n{3,}/g, '\n\n')                                   // Max 2 line breaks
+                .replace(/([^\n])\n(#{1,6})/g, '$1\n\n$2')                   // Space before headers
+                .replace(/([^\n])\n(-)/g, '$1\n\n$2')                        // Space before lists
+                ;
+            
+            console.log('🔍 ORIGINAL CONTENT LENGTH:', content.length);
+            console.log('🔧 PROCESSED CONTENT LENGTH:', processedContent.length);
+            console.log('📋 ORIGINAL SAMPLE:', content.substring(0, 300));
+            console.log('✨ PROCESSED SAMPLE:', processedContent.substring(0, 300));
+            
+            // Convert to HTML using marked.js with enhanced options
+            const html = marked.parse(processedContent, {
+                breaks: true,
+                gfm: true,
+                headerIds: false,
+                mangle: false,
+                sanitize: false
+            });
+            
+            // Update container
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.innerHTML = html;
+                container.classList.add('ai-response-container');
+                
+                // Force white text color on all elements
+                const allElements = container.querySelectorAll('*');
+                allElements.forEach(el => {
+                    el.style.color = '#ffffff';
+                });
+                
+                // Add animations
+                const elements = container.querySelectorAll('p, h1, h2, h3, h4, h5, h6, ul, ol, li');
+                elements.forEach((el, index) => {
+                    el.style.opacity = '0';
+                    el.style.transform = 'translateY(10px)';
+                    setTimeout(() => {
+                        el.style.transition = 'all 0.3s ease-out';
+                        el.style.opacity = '1';
+                        el.style.transform = 'translateY(0)';
+                    }, index * 30);
+                });
+            }
+        }
+        
+        // Specialized function for RAG responses - handles structured bullet points
+        function renderRAGResponse(aiText, containerId) {
+            if (!aiText) return;
+            
+            console.log('🎯 PROCESSING RAG RESPONSE');
+            console.log('📋 ORIGINAL RAG TEXT:', aiText.substring(0, 300));
+            
+            // AGGRESSIVE asterisk and bullet formatting for RAG responses
+            let processedContent = preprocessAIText(aiText);
+            
+            // SPECIALIZED RAG FORMATTING - handles structured responses
+            processedContent = processedContent
+                // Handle RAG-style structured bullets: "* text:" -> "## text"
+                .replace(/^\s*\*\s*([^:*\n]+):\s*$/gm, '\n## $1\n')
+                
+                // Handle nested RAG bullets: "* text" -> "- text"  
+                .replace(/^\s*\*\s+([^*\n]+)/gm, '- $1')
+                
+                // Remove standalone asterisks completely
+                .replace(/^\s*\*\s*$/gm, '')
+                
+                // Clean up multiple asterisks and any remaining ones
+                .replace(/\*+/g, '')
+                
+                // Handle "Based on" patterns
+                .replace(/^(Based on [^:]+:)\s*/gm, '\n## $1\n')
+                
+                // Handle "Conclusion:" patterns  
+                .replace(/^(Conclusion:)\s*/gm, '\n## $1\n')
+                
+                // Handle "Types of colors to choose:" patterns
+                .replace(/^(Types of [^:]+:)\s*/gm, '\n## $1\n')
+                
+                // Clean up excessive spacing
+                .replace(/\n{3,}/g, '\n\n')
+                .replace(/([^\n])\n(#{1,6})/g, '$1\n\n$2')
+                .replace(/([^\n])\n(-)/g, '$1\n\n$2')
+                ;
+            
+            console.log('✨ PROCESSED RAG CONTENT:', processedContent.substring(0, 300));
+            
+            // Convert to HTML with enhanced settings for RAG content
+            const html = marked.parse(processedContent, {
+                breaks: true,
+                gfm: true,
+                headerIds: false,
+                mangle: false,
+                sanitize: false
+            });
+            
+            console.log('🎨 FINAL RAG HTML LENGTH:', html.length);
+            
+            // Update container
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.innerHTML = html;
+                container.classList.add('ai-response-container');
+                
+                // Ensure all text is white for dark theme
+                const allElements = container.querySelectorAll('*');
+                allElements.forEach(el => {
+                    el.style.color = '#ffffff !important';
+                });
+                
+                // Add smooth reveal animations
+                const elements = container.querySelectorAll('h1, h2, h3, p, ul, ol, li');
+                elements.forEach((el, index) => {
+                    el.style.opacity = '0';
+                    el.style.transform = 'translateY(10px)';
+                    setTimeout(() => {
+                        el.style.transition = 'all 0.3s ease-out';
+                        el.style.opacity = '1';
+                        el.style.transform = 'translateY(0)';
+                    }, index * 50);
+                });
+            }
+        }
     </script>
     <style>
         * {
@@ -101,23 +273,27 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 50%, #1a202c 100%);
             min-height: 100vh;
             color: #e2e8f0;
             line-height: 1.6;
         }
         
         .container {
-            width: 100%;
-            margin: 0;
-            padding: 20px;
+            width: 80%;
+            max-width: none;
+            margin: 0 auto;
+            padding: 30px 40px;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
         }
         
         .header {
             text-align: center;
             margin-bottom: 30px;
-            background: rgba(30, 41, 59, 0.9);
+            background: rgba(45, 55, 72, 0.9);
             -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             padding: 30px;
@@ -145,21 +321,23 @@
         }
         
         .main-content {
-            background: rgba(30, 41, 59, 0.8);
+            background: rgba(45, 55, 72, 0.8);
             -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             border-radius: 15px;
-            padding: 30px;
+            padding: 40px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(148, 163, 184, 0.2);
             flex: 1;
+            width: 100%;
+            margin: 0;
         }
         
         .mode-selector {
             display: flex;
             gap: 8px;
             margin-bottom: 40px;
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(30, 41, 59, 0.8);
             border-radius: 16px;
             padding: 6px;
             border: 1px solid rgba(148, 163, 184, 0.2);
@@ -223,7 +401,7 @@
             border-radius: 12px;
             font-size: 16px;
             font-family: inherit;
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(30, 41, 59, 0.8);
             color: #e2e8f0;
             transition: all 0.3s ease;
             resize: vertical;
@@ -237,7 +415,7 @@
             outline: none;
             border-color: #60a5fa;
             box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
-            background: rgba(15, 23, 42, 0.9);
+            background: rgba(45, 55, 72, 0.9);
         }
         
         input:hover, textarea:hover, select:hover {
@@ -289,8 +467,13 @@
         .success {
             background: rgba(34, 197, 94, 0.1);
             border: 2px solid #22c55e;
-            color: #86efac;
+            color: #ffffff;
             padding: 24px;
+        }
+        
+        .success h3 {
+            color: #ffffff !important;
+            margin-bottom: 16px;
         }
         
         .error {
@@ -359,21 +542,21 @@
             cursor: pointer;
             font-size: 14px;
             transition: all 0.2s ease;
-            color: #e2e8f0;
+            color: #cbd5e1;
         }
         
         .example-item:hover {
-            background: rgba(59, 130, 246, 0.2);
+            background: rgba(59, 130, 246, 0.1);
             border-color: #60a5fa;
             transform: translateY(-1px);
-            box-shadow: 0 4px 20px rgba(96, 165, 250, 0.3);
+            box-shadow: 0 4px 20px rgba(96, 165, 250, 0.2);
         }
         
         #web-question-group {
             display: none;
         }
         .response-section {
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(45, 55, 72, 0.6);
             border-radius: 16px;
             padding: 24px;
             margin-top: 20px;
@@ -448,7 +631,7 @@
             padding: 8px 16px;
             font-size: 13px;
             background: rgba(107, 114, 128, 0.8);
-            color: #e2e8f0;
+            color: #ffffff;
             border: none;
             border-radius: 8px;
             cursor: pointer;
@@ -480,127 +663,161 @@
         /* Enhanced AI Response Styling */
         .ai-response-container {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.7;
-            color: #333;
+            line-height: 1.6;
+            color: #ffffff !important; /* White text for dark background */
+        }
+        
+        /* Ensure ALL text elements are visible on dark background */
+        .ai-response-container * {
+            color: #ffffff !important; /* Force white text for everything */
+        }
+        
+        .ai-response-container p,
+        .ai-response-container div,
+        .ai-response-container span,
+        .ai-response-container li,
+        .ai-response-container h1,
+        .ai-response-container h2,
+        .ai-response-container h3,
+        .ai-response-container h4,
+        .ai-response-container h5,
+        .ai-response-container h6 {
+            color: #ffffff !important; /* White text for all text elements */
+            margin-bottom: 12px;
         }
         
         .ai-header {
-            margin-top: 30px;
-            margin-bottom: 15px;
+            margin-top: 24px;
+            margin-bottom: 16px;
             font-weight: 600;
-            color: #2c3e50;
-            border-bottom: 2px solid #e9ecef;
-            padding-bottom: 8px;
+            color: #ffffff !important; /* White text for headers */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 6px;
+            padding-top: 4px;
         }
         
         .ai-header.level-1 {
-            font-size: 1.15em;
-            color: #1a73e8;
+            font-size: 1.3em;
+            color: #ffffff !important;
             text-align: left;
-            border-bottom: 2px solid #1a73e8;
-            margin-bottom: 15px;
+            border-bottom: 2px solid #60a5fa;
+            margin-bottom: 18px;
+            margin-top: 28px;
         }
         
         .ai-header.level-2 {
-            font-size: 1.05em;
-            color: #34a853;
-            margin-top: 20px;
+            font-size: 1.15em;
+            color: #ffffff !important;
+            margin-top: 22px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid #34d399;
         }
         
         .ai-header.level-3 {
-            font-size: 1.0em;
-            color: #ea4335;
-            margin-top: 15px;
+            font-size: 1.05em;
+            color: #ffffff !important;
+            margin-top: 18px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .ai-paragraph {
-            margin-bottom: 18px;
-            text-align: justify;
-            padding: 8px 0;
+            margin-bottom: 16px;
+            text-align: left;
+            padding: 4px 0;
+            color: #ffffff !important; /* White text for paragraphs */
+            line-height: 1.7;
         }
         
         .ai-paragraph:first-of-type {
-            font-size: 1.1em;
-            color: #495057;
-            font-weight: 500;
-            margin-bottom: 25px;
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #1a73e8;
+            font-size: 1.0em;
+            color: #ffffff !important; /* White text for dark background */
+            font-weight: 400;
+            margin-bottom: 20px;
+            background: rgba(30, 41, 59, 0.6) !important; /* Subtle dark background */
+            padding: 12px 16px;
+            border-radius: 6px;
+            border-left: 3px solid #60a5fa; /* Blue accent */
         }
         
         .ai-list {
-            margin: 20px 0;
+            margin: 16px 0;
             padding-left: 0;
         }
         
         .ai-ul li {
-            margin: 12px 0;
-            padding-left: 25px;
+            margin: 10px 0;
+            padding-left: 20px;
             position: relative;
             list-style: none;
+            line-height: 1.6;
         }
         
         .ai-ul li::before {
-            content: "▶️";
+            content: "•";
             position: absolute;
             left: 0;
-            color: #1a73e8;
+            color: #60a5fa !important; /* Blue bullet points */
             font-weight: bold;
+            font-size: 1.2em;
         }
         
         .ai-ol {
             counter-reset: list-counter;
+            margin: 16px 0;
         }
         
         .ai-ol li {
-            margin: 12px 0;
-            padding-left: 30px;
+            margin: 10px 0;
+            padding-left: 25px;
             position: relative;
             list-style: none;
             counter-increment: list-counter;
+            line-height: 1.6;
         }
         
         .ai-ol li::before {
             content: counter(list-counter) ".";
             position: absolute;
             left: 0;
-            color: #34a853;
+            color: #ffffff !important; /* White text */
             font-weight: bold;
-            background: #e8f5e8;
-            padding: 2px 8px;
+            background: #059669 !important; /* Green background */
+            padding: 1px 6px;
             border-radius: 50%;
-            font-size: 0.9em;
+            font-size: 0.85em;
+            min-width: 18px;
+            text-align: center;
         }
         
         .ai-response-container strong {
-            color: #1a73e8;
-            font-weight: 600;
+            color: #60a5fa !important; /* Bright blue for emphasis */
+            font-weight: bold !important;
         }
         
         .ai-response-container em {
-            color: #ea4335;
-            font-style: italic;
+            color: #34d399 !important; /* Green for emphasis instead of red */
+            font-style: italic !important;
         }
         
         .ai-response-container code {
-            background: #f8f9fa;
+            color: #fbbf24 !important; /* Yellow for code */
+            background: rgba(15, 23, 42, 0.9) !important; /* Dark background for code */
             padding: 2px 6px;
             border-radius: 4px;
             font-family: 'Courier New', monospace;
-            color: #d63384;
-            border: 1px solid #dee2e6;
+            border: 1px solid rgba(148, 163, 184, 0.3);
         }
         
         .ai-code {
-            background: #2d3748;
+            background: #1e293b;
             color: #e2e8f0;
-            padding: 20px;
+            padding: 16px;
             border-radius: 8px;
-            margin: 20px 0;
+            margin: 16px 0;
             overflow-x: auto;
-            border-left: 4px solid #4299e1;
+            border-left: 3px solid #4299e1;
+            font-family: 'Courier New', monospace;
         }
         
         /* Smooth animations for content reveal */
@@ -611,14 +828,15 @@
         .ai-response-container ul,
         .ai-response-container ol {
             opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.4s ease-out;
+            transform: translateY(10px);
+            transition: all 0.3s ease-out;
         }
         
         /* Responsive Design */
         @media (max-width: 768px) {
             .container {
-                padding: 15px;
+                padding: 20px 15px;
+                width: 95%;
             }
             
             .header {
@@ -667,6 +885,108 @@
             .primary-btn {
                 padding: 16px 24px;
             }
+        }
+        
+        @media (min-width: 1400px) {
+            .container {
+                width: 80%;
+                padding: 60px 40px;
+            }
+            
+            .main-content {
+                padding: 50px;
+            }
+            
+            .header {
+                padding: 40px;
+            }
+        }
+        
+        /* SUPER AGGRESSIVE TEXT VISIBILITY FIX - Force white text everywhere for dark background */
+        .ai-response,
+        .ai-response *,
+        .ai-response-container,
+        .ai-response-container *,
+        .response-section,
+        .response-section *,
+        .result.success,
+        .result.success * {
+            color: #ffffff !important;
+            background: transparent !important;
+        }
+        
+        /* Override any inherited colors */
+        .ai-response p,
+        .ai-response div,
+        .ai-response span,
+        .ai-response li,
+        .ai-response h1,
+        .ai-response h2,
+        .ai-response h3,
+        .ai-response h4,
+        .ai-response h5,
+        .ai-response h6,
+        .ai-response-container p,
+        .ai-response-container div,
+        .ai-response-container span,
+        .ai-response-container li,
+        .ai-response-container h1,
+        .ai-response-container h2,
+        .ai-response-container h3,
+        .ai-response-container h4,
+        .ai-response-container h5,
+        .ai-response-container h6,
+        .result.success h1,
+        .result.success h2,
+        .result.success h3,
+        .result.success h4,
+        .result.success h5,
+        .result.success h6,
+        .result.success p,
+        .result.success div,
+        .result.success span {
+            color: #ffffff !important;
+        }
+        
+        /* Accent colors - using bright colors for better visibility */
+        .ai-response strong,
+        .ai-response-container strong {
+            color: #60a5fa !important; /* Bright blue for emphasis */
+            font-weight: bold !important;
+        }
+        
+        .ai-response em,
+        .ai-response-container em {
+            color: #f87171 !important; /* Bright red for emphasis */
+            font-style: italic !important;
+        }
+        
+        .ai-response code,
+        .ai-response-container code {
+            color: #fbbf24 !important; /* Yellow for code */
+            background: rgba(15, 23, 42, 0.9) !important; /* Dark background for code */
+        }
+        
+        /* Header colors - bright colors for better hierarchy */
+        .ai-header.level-1,
+        .ai-header.level-2,
+        .ai-header.level-3 {
+            color: #ffffff !important; /* White text for headers */
+        }
+        
+        /* FINAL OVERRIDE - Force white text on everything AI related */
+        .ai-response,
+        .ai-response *,
+        .ai-response-container,
+        .ai-response-container *,
+        .response-section *,
+        .ai-header,
+        .ai-paragraph,
+        .ai-list *,
+        .ai-ul *,
+        .ai-ol * {
+            color: #ffffff !important;
+            text-shadow: none !important;
         }
         
         /* Additional utility classes */
@@ -930,7 +1250,9 @@
 
                     if (response.ok) {
                         // Debug: Log the actual response data
-                        console.log('Web scraping response data:', data);
+                        console.log('🔍 WEB SCRAPING RESPONSE:', data);
+                        console.log('📊 RESPONSE CONTENT LENGTH:', data.content ? data.content.length : 'NO CONTENT');
+                        console.log('📊 RESPONSE CONTENT_PREVIEW LENGTH:', data.content_preview ? data.content_preview.length : 'NO PREVIEW');
                         
                         // Build clean HTML content using DOM methods
                         const resultDiv = document.createElement('div');
@@ -952,7 +1274,7 @@
                         sectionDiv.appendChild(titleP);
                         
                         const lengthP = document.createElement('p');
-                        lengthP.innerHTML = `<strong>Length:</strong> ${data.content_preview ? data.content_preview.length : 0} characters`;
+                        lengthP.innerHTML = `<strong>Length:</strong> ${data.char_count || (data.content_preview ? data.content_preview.length : 0)} characters`;
                         sectionDiv.appendChild(lengthP);
                         
                         const wordsP = document.createElement('p');
@@ -984,12 +1306,14 @@
                         previewDiv.className = 'ai-response';
                         previewDiv.style.maxHeight = '80vh'; // Use viewport height for better scrolling
                         previewDiv.style.overflowY = 'auto';
-                        previewDiv.style.whiteSpace = 'pre-wrap';
                         previewDiv.style.fontSize = '14px';
                         previewDiv.style.lineHeight = '1.6';
+                        previewDiv.id = 'web-content-' + Date.now();
                         
-                        // Better content formatting
-                        let content = data.content_preview ? data.content_preview : 'No content extracted';
+                        sectionDiv.appendChild(previewDiv);
+                        
+                        // Better content formatting using the new rendering function
+                        let content = data.content || data.content_preview || 'No content extracted';
                         
                         // If content is very short, show a helpful message
                         if (content.length < 100) {
@@ -1002,23 +1326,15 @@
                                      `• Documentation pages\n` +
                                      `• Static blog posts\n\n` +
                                      `Extracted content:\n${content}`;
-                        } else {
-                            // Clean up the content for better readability
-                            content = content
-                                // Remove truncation message from middle if present
-                                .replace(/\.\.\.\s*\(content truncated.*?\)/, '... [Content continues]')
-                                // Fix spacing around punctuation
-                                .replace(/\s+([,.;:!?])/g, '$1')
-                                // Add proper spacing after punctuation
-                                .replace(/([.!?])([A-Z])/g, '$1 $2')
-                                // Clean up excessive whitespace
-                                .replace(/\s{3,}/g, ' ')
-                                // Add paragraph breaks for better reading
-                                .replace(/([.!?])\s+([A-Z][^.!?]{80,})/g, '$1\n\n$2');
                         }
                         
-                        previewDiv.textContent = content;
-                        sectionDiv.appendChild(previewDiv);
+                        resultDiv.appendChild(sectionDiv);
+                        
+                        document.getElementById('result').innerHTML = '';
+                        document.getElementById('result').appendChild(resultDiv);
+                        
+                        // Use the enhanced web content rendering function
+                        renderWebContent(content, previewDiv.id);
                         
                         // Add content length info
                         const lengthInfo = document.createElement('p');
@@ -1086,8 +1402,8 @@
                         document.getElementById('result').innerHTML = '';
                         document.getElementById('result').appendChild(resultDiv);
                         
-                        // Use enhanced rendering with animations
-                        renderAIResponseWithAnimation(responseText.trim(), responseDiv.id);
+                        // Use enhanced rendering with animations and RAG response processing
+                        renderRAGResponse(responseText.trim(), responseDiv.id);
                     } else {
                         showError(`Website analysis failed: ${data.detail || 'Unknown error'}`);
                     }

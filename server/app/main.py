@@ -7,8 +7,7 @@ from typing import Optional
 import os
 from dotenv import load_dotenv
 
-from app.routes import health, query, langchain_routes, extension_routes, web_routes, simple_routes
-from app.routes import enhanced_web_routes  # Add enhanced web functionality
+from app.routes import health, langchain_routes, web_routes, simple_routes
 from app.config import get_settings
 
 # Load environment variables
@@ -40,11 +39,8 @@ app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
 # Include routers
 app.include_router(health.router)
-app.include_router(query.router)
 app.include_router(langchain_routes.router)
-app.include_router(extension_routes.router)
-app.include_router(web_routes.router)  # Original web routes
-app.include_router(enhanced_web_routes.router)  # Enhanced web routes
+app.include_router(web_routes.router)
 app.include_router(simple_routes.router)
 
 @app.get("/")

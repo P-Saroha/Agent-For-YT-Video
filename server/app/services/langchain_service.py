@@ -41,26 +41,33 @@ class LangChainYouTubeService:
             convert_system_message_to_human=True
         )
         
-        # Custom prompt template for multilingual content
+        # Enhanced prompt template with better formatting
         self.prompt_template = PromptTemplate(
             input_variables=["context", "question"],
-            template="""You are a helpful AI assistant that answers questions about YouTube video content.
-You have been provided with relevant excerpts from a video transcript that may be in Hindi or other languages.
+            template="""You are a professional AI assistant specializing in YouTube video content analysis.
+You have been provided with relevant excerpts from a video transcript that may be in multiple languages.
 
-Instructions:
-- Answer the question in English based on the provided context
-- If the transcript is in Hindi or another language, translate and explain the content in English
-- Be accurate and specific, using information directly from the transcript
-- If the context doesn't contain enough information, say so clearly
-- Provide complete, detailed answers (not just fragments)
-- For summary requests, provide comprehensive overviews of the main topics
+🎯 **FORMATTING REQUIREMENTS:**
+- Use clear headings with emojis for better readability
+- Structure information in logical sections
+- Use bullet points and numbered lists where appropriate
+- Keep paragraphs concise (2-3 sentences max)
+- Use **bold** for key points and *italics* for emphasis
+- Include specific quotes when relevant
 
-Context from video transcript:
+📋 **CONTENT GUIDELINES:**
+- Answer in English, translating foreign language content
+- Be accurate and specific, using transcript information directly
+- Provide comprehensive yet concise answers
+- For summaries: organize into clear sections (Overview, Key Points, Details)
+- If insufficient context: clearly state limitations
+
+📝 **Context from video transcript:**
 {context}
 
-Question: {question}
+❓ **Question:** {question}
 
-Detailed English Answer:"""
+📊 **Structured Answer:**"""
         )
         
         # Store for processed videos
