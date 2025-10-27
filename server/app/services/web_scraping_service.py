@@ -137,7 +137,7 @@ class WebScrapingService:
         for element in soup(['script', 'style', 'nav', 'header', 'footer', 'aside', 'advertisement', 'iframe', 'noscript']):
             element.decompose()
         
-        # Enhanced selectors including MSN-specific ones
+        # Enhanced selectors including Reddit and social media specific ones
         main_selectors = [
             'main',
             'article',
@@ -148,6 +148,24 @@ class WebScrapingService:
             '.entry-content',
             '.article-body',
             '.story-body',
+            # Reddit-specific selectors
+            '[data-testid="post-content"]',
+            '.Post',
+            '[data-click-id="body"]',
+            '.thing .entry',
+            '.usertext-body',
+            '.md',
+            '.expando',
+            '.sitetable',
+            # Social media and forum selectors
+            '.feed',
+            '.timeline',
+            '.posts',
+            '.discussions',
+            '.threads',
+            '[class*="post"]',
+            '[class*="feed"]',
+            '[data-testid*="post"]',
             '.article-content',
             '.post-body',
             '.content-body',
@@ -184,15 +202,37 @@ class WebScrapingService:
             except Exception:
                 continue
         
-        # If still no good content, try more aggressive extraction with MSN patterns
+        # If still no good content, try more aggressive extraction with Reddit/social media patterns
         if len(content_text.strip()) < 200:
             # Try paragraphs and headings with better filtering
-            content_elements = soup.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
+            content_elements = soup.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div', 'span'])
             for element in content_elements:
                 text = element.get_text(strip=True)
-                # More lenient filtering for MSN-style content
-                if len(text) > 15 and not self._is_noise_text(text):
+                # More lenient filtering for social media content
+                if len(text) > 10 and not self._is_noise_text(text):
                     content_text += text + " "
+                    
+        # Reddit-specific extraction for posts and comments
+        if len(content_text.strip()) < 200:
+            reddit_selectors = [
+                '[data-testid*="comment"]',
+                '.thing',
+                '.entry',
+                '.usertext',
+                '.md-container',
+                'div[class*="Post"]',
+                'div[class*="Comment"]'
+            ]
+            
+            for selector in reddit_selectors:
+                try:
+                    elements = soup.select(selector)
+                    for element in elements:
+                        text = element.get_text(separator=' ', strip=True)
+                        if len(text) > 20 and not self._is_noise_text(text):
+                            content_text += text + " "
+                except Exception:
+                    continue
         
         # Enhanced fallback: look for data attributes and specific patterns
         if len(content_text.strip()) < 100:
@@ -252,7 +292,9 @@ class WebScrapingService:
             'follow us', 'social media', 'share this', 'all rights reserved',
             'copyright', '© 2024', '© 2025', 'loading', 'please wait',
             'sign in', 'sign up', 'login', 'register', 'download app',
-            'view more', 'show more', 'load more', 'continue reading'
+            'view more', 'show more', 'load more', 'continue reading',
+            # Reddit-specific noise (but be more selective)
+            'sort by:', 'best hot new top rising', 'community highlights'
         ]
         
         # Check if text is mostly noise indicators
@@ -271,37 +313,62 @@ class WebScrapingService:
         return False
 
     def _clean_content(self, content: str) -> str:
-        """Clean and normalize extracted content"""
-        # Remove excessive newlines but preserve paragraph structure
-        content = re.sub(r'\n\s*\n+', '\n\n', content)
-        
-        # Remove excessive spaces but preserve single spaces
+        """Clean and normalize extracted content with better formatting"""
+        if not content:
+            return ""
+            
+        # First, normalize whitespace but preserve sentence structure
         content = re.sub(r'[ \t]+', ' ', content)
         
-        # Remove leading/trailing whitespace on each line
-        lines = [line.strip() for line in content.split('\n')]
-        content = '\n'.join(line for line in lines if line)
+        # Fix broken sentences and words
+        content = re.sub(r'\s+([,.;:!?])', r'\1', content)
+        content = re.sub(r'([.!?])\s*([A-Z])', r'\1 \2', content)
         
-        # Enhanced noise patterns for MSN and similar sites
+        # Clean up excessive line breaks but preserve paragraphs
+        content = re.sub(r'\n\s*\n\s*\n+', '\n\n', content)
+        content = re.sub(r'\n\s+', '\n', content)
+        
+        # Remove lines that are just noise or navigation
+        lines = []
+        for line in content.split('\n'):
+            line = line.strip()
+            if line and len(line) > 5 and not self._is_noise_line(line):
+                lines.append(line)
+        
+        # Join lines with proper spacing
+        content = ' '.join(lines)
+        
+        # Clean up sentence structure
+        content = re.sub(r'\s+([.!?])\s+', r'\1 ', content)
+        content = re.sub(r'([.!?])\s*([A-Z])', r'\1 \2', content)
+        
+        # Add paragraph breaks at natural points
+        content = re.sub(r'([.!?])\s+([A-Z][^.!?]{50,})', r'\1\n\n\2', content)
+        
+        return content.strip()
+        
+    def _is_noise_line(self, line: str) -> bool:
+        """Check if a line is likely noise content"""
+        line_lower = line.lower()
+        
+        # Skip very short lines
+        if len(line.strip()) < 8:
+            return True
+            
+        # Navigation and UI elements
         noise_patterns = [
-            r'cookie.*?policy',
-            r'terms.*?service',
-            r'privacy.*?policy',
-            r'subscribe.*?newsletter',
-            r'follow.*?social',
-            r'share.*?story',
-            r'download.*?app',
-            r'sign.*?in',
-            r'create.*?account',
-            r'view.*?gallery',
-            r'load.*?more',
-            r'continue.*?reading'
+            'edit', 'talk page', 'learn how and when to remove',
+            'citation needed', 'this article', 'help improve',
+            'discuss these issues', 'remove this message',
+            'cookie', 'privacy', 'terms of service',
+            'subscribe', 'newsletter', 'follow us'
         ]
         
         for pattern in noise_patterns:
-            content = re.sub(pattern, '', content, flags=re.IGNORECASE)
-        
-        return content.strip()
+            if pattern in line_lower:
+                return True
+                
+        return False
     
     async def ask_question_about_url(self, url: str, question: str) -> Dict[str, Any]:
         """Ask a question about content from any URL"""

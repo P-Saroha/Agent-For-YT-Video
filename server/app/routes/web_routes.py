@@ -46,10 +46,18 @@ async def extract_web_content(request: WebContentRequest):
         
         processing_time = time.time() - start_time
         
+        # Create better preview with more context
+        content = content_data["content"]
+        preview_length = 1000 if len(content) > 500 else len(content)
+        content_preview = content[:preview_length]
+        
+        if len(content) > preview_length:
+            content_preview += "\n\n... (content truncated, total length: {} characters)".format(len(content))
+        
         return WebContentResponse(
             url=content_data["url"],
             title=content_data["title"],
-            content_preview=content_data["content"][:500] + "..." if len(content_data["content"]) > 500 else content_data["content"],
+            content_preview=content_preview,
             word_count=content_data["word_count"],
             extracted_at=datetime.now(),
             metadata=content_data["metadata"],

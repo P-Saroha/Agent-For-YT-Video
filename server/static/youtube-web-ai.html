@@ -93,244 +93,388 @@
         }
     </script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            max-width: 900px;
-            margin: 0 auto;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 100%;
+            margin: 0;
             padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
         }
-        .container {
-            background: white;
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(30, 41, 59, 0.9);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(148, 163, 184, 0.2);
         }
+        
         h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 10px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #60a5fa, #c084fc, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(96, 165, 250, 0.3);
         }
+        
         .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 18px;
+            font-size: 1.2rem;
+            color: #cbd5e1;
+            font-weight: 400;
         }
+        
+        .main-content {
+            background: rgba(30, 41, 59, 0.8);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            flex: 1;
+        }
+        
         .mode-selector {
             display: flex;
-            margin-bottom: 30px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 5px;
+            gap: 8px;
+            margin-bottom: 40px;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 16px;
+            padding: 6px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
         }
+        
         .mode-btn {
             flex: 1;
-            padding: 15px;
+            padding: 16px 24px;
             border: none;
             background: transparent;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
             font-size: 16px;
-            font-weight: bold;
-            color: rgb(247, 141, 141);
-            transition: all 0.3s;
+            font-weight: 600;
+            color: #94a3b8;
+            transition: all 0.3s ease;
+            position: relative;
         }
+        
+        .mode-btn:hover {
+            color: #60a5fa;
+            background: rgba(96, 165, 250, 0.1);
+        }
+        
         .mode-btn.active {
-            background: #007bff;
-            color: rgb(247, 141, 141);
-            box-shadow: 0 2px 10px rgba(0,123,255,0.3);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
+            color: white;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+            transform: translateY(-1px);
         }
         .form-section {
             display: none;
+            animation: fadeIn 0.3s ease-in;
         }
+        
         .form-section.active {
             display: block;
         }
-        .form-group {
-            margin-bottom: 20px;
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
+        
+        .form-group {
+            margin-bottom: 28px;
+        }
+        
         label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
-            font-size: 16px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #e2e8f0;
+            font-size: 15px;
         }
+        
         input, textarea, select {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
+            padding: 16px 20px;
+            border: 2px solid rgba(148, 163, 184, 0.3);
+            border-radius: 12px;
             font-size: 16px;
-            box-sizing: border-box;
+            font-family: inherit;
+            background: rgba(15, 23, 42, 0.8);
+            color: #e2e8f0;
+            transition: all 0.3s ease;
+            resize: vertical;
         }
+        
+        input::placeholder, textarea::placeholder {
+            color: #64748b;
+        }
+        
         input:focus, textarea:focus, select:focus {
             outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 10px rgba(0,123,255,0.1);
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+            background: rgba(15, 23, 42, 0.9);
         }
-        button {
-            background: linear-gradient(135deg, #007bff, #0056b3);
+        
+        input:hover, textarea:hover, select:hover {
+            border-color: #94a3b8;
+        }
+        
+        .primary-btn {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             color: white;
-            padding: 15px 30px;
+            padding: 18px 32px;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 16px;
+            font-weight: 600;
             width: 100%;
-            transition: transform 0.2s;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
-        button:hover {
+        
+        .primary-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+            background: linear-gradient(135deg, #2563eb, #1e40af);
         }
-        button:disabled {
-            background: #ccc;
+        
+        .primary-btn:active {
+            transform: translateY(0);
+        }
+        
+        .primary-btn:disabled {
+            background: #9ca3af;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
         }
         .result {
-            margin-top: 15px;
-            padding: 0;
-            border-radius: 8px;
-            line-height: 1.5;
+            margin-top: 30px;
+            border-radius: 16px;
+            overflow: hidden;
+            animation: slideUp 0.4s ease-out;
         }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
         .success {
-            background: #d4edda;
-            border-left: 4px solid #28a745;
-            color: #155724;
-            padding: 15px;
-            border-radius: 6px;
+            background: rgba(34, 197, 94, 0.1);
+            border: 2px solid #22c55e;
+            color: #86efac;
+            padding: 24px;
         }
+        
         .error {
-            background: #f8d7da;
-            border-left: 4px solid #dc3545;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 6px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid #ef4444;
+            color: #fca5a5;
+            padding: 24px;
         }
+        
         .loading {
-            background: #d1ecf1;
-            border-left: 4px solid #17a2b8;
-            color: #0c5460;
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid #3b82f6;
+            color: #93c5fd;
             text-align: center;
-            padding: 15px;
-            border-radius: 6px;
+            padding: 32px;
         }
+        
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #007bff;
+            border: 3px solid rgba(148, 163, 184, 0.3);
+            border-top: 3px solid #60a5fa;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             animation: spin 1s linear infinite;
-            margin: 10px auto;
+            margin: 0 auto 16px;
         }
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
         .quick-examples {
-            background: #fff3cd;
-            border-left: 5px solid #ffc107;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid rgba(96, 165, 250, 0.3);
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 32px;
         }
+        
         .quick-examples h4 {
             margin-top: 0;
-            color: #856404;
+            margin-bottom: 16px;
+            color: #60a5fa;
+            font-size: 16px;
+            font-weight: 600;
         }
+        
+        .examples-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .examples-note {
+            margin-top: 16px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+        
         .example-item {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            padding: 10px;
-            border-radius: 5px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            padding: 14px 16px;
+            border-radius: 10px;
             cursor: pointer;
-            margin: 8px 0;
-            font-family: monospace;
             font-size: 14px;
+            transition: all 0.2s ease;
+            color: #e2e8f0;
         }
+        
         .example-item:hover {
-            background: #e9ecef;
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #60a5fa;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(96, 165, 250, 0.3);
+        }
+        
+        #web-question-group {
+            display: none;
         }
         .response-section {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 10px;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 20px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
         }
+        
         .ai-response {
-            background: white;
-            padding: 15px;
-            border-radius: 6px;
-            border-left: 4px solid #007bff;
-            line-height: 1.5;
+            background: rgba(30, 41, 59, 0.8);
+            padding: 24px;
+            border-radius: 12px;
+            border-left: 4px solid #60a5fa;
+            line-height: 1.7;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            color: #e2e8f0;
         }
+        
         .ai-response h2 {
-            color: #2c3e50;
-            border-bottom: 1px solid #e9ecef;
-            padding-bottom: 6px;
-            margin-top: 15px;
-            margin-bottom: 10px;
+            color: #f1f5f9;
+            border-bottom: 2px solid rgba(148, 163, 184, 0.3);
+            padding-bottom: 8px;
+            margin-top: 24px;
+            margin-bottom: 16px;
+            font-size: 1.4em;
         }
+        
         .ai-response h3 {
-            color: #34495e;
-            margin-top: 12px;
-            margin-bottom: 6px;
+            color: #cbd5e1;
+            margin-top: 20px;
+            margin-bottom: 12px;
+            font-size: 1.2em;
         }
+        
         .ai-response h4 {
-            color: #5a6c7d;
-            margin-top: 10px;
-            margin-bottom: 5px;
+            color: #94a3b8;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            font-size: 1.1em;
         }
+        
         .ai-response ul, .ai-response ol {
-            margin: 6px 0;
-            padding-left: 20px;
+            margin: 16px 0;
+            padding-left: 24px;
         }
+        
         .ai-response li {
-            margin-bottom: 3px;
-        }
-        .ai-response p {
             margin-bottom: 8px;
         }
+        
+        .ai-response p {
+            margin-bottom: 16px;
+            color: #e2e8f0;
+        }
+        
         .ai-response strong {
-            color: #2980b9;
+            color: #60a5fa;
+            font-weight: 600;
         }
+        
         .ai-response code {
-            background: #f8f9fa;
-            padding: 2px 5px;
-            border-radius: 3px;
-            font-family: 'Courier New', monospace;
+            background: rgba(15, 23, 42, 0.8);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #fbbf24;
+            border: 1px solid rgba(148, 163, 184, 0.2);
         }
+        
         .share-btn {
-            margin-top: 5px;
-            padding: 5px 10px;
-            font-size: 12px;
-            background: #6c757d;
-            color: white;
+            margin-top: 8px;
+            padding: 8px 16px;
+            font-size: 13px;
+            background: rgba(107, 114, 128, 0.8);
+            color: #e2e8f0;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(148, 163, 184, 0.2);
         }
+        
         .share-btn:hover {
-            background: #5a6268;
+            background: rgba(75, 85, 99, 0.9);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
+        
         .url-info {
-            background: #e3f2fd;
-            border-left: 4px solid #2196f3;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 4px;
+            background: #eff6ff;
+            border: 2px solid #3b82f6;
+            padding: 20px;
+            margin-bottom: 24px;
+            border-radius: 12px;
             font-size: 14px;
-            line-height: 1.5;
+            line-height: 1.6;
         }
+        
         .url-info strong {
-            color: #1565c0;
+            color: #1e40af;
         }
 
         /* Enhanced AI Response Styling */
@@ -350,23 +494,23 @@
         }
         
         .ai-header.level-1 {
-            font-size: 2.2em;
+            font-size: 1.15em;
             color: #1a73e8;
-            text-align: center;
-            border-bottom: 3px solid #1a73e8;
-            margin-bottom: 25px;
+            text-align: left;
+            border-bottom: 2px solid #1a73e8;
+            margin-bottom: 15px;
         }
         
         .ai-header.level-2 {
-            font-size: 1.6em;
+            font-size: 1.05em;
             color: #34a853;
-            margin-top: 35px;
+            margin-top: 20px;
         }
         
         .ai-header.level-3 {
-            font-size: 1.3em;
+            font-size: 1.0em;
             color: #ea4335;
-            margin-top: 25px;
+            margin-top: 15px;
         }
         
         .ai-paragraph {
@@ -471,14 +615,40 @@
             transition: all 0.4s ease-out;
         }
         
-        /* Responsive improvements */
+        /* Responsive Design */
         @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 25px 20px;
+                margin-bottom: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 25px 20px;
+            }
+            
+            .mode-selector {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .examples-grid {
+                grid-template-columns: 1fr;
+            }
+            
             .ai-header.level-1 {
-                font-size: 1.8em;
+                font-size: 1.3em;
             }
             
             .ai-header.level-2 {
-                font-size: 1.4em;
+                font-size: 1.2em;
             }
             
             .ai-paragraph {
@@ -489,23 +659,40 @@
             .ai-ol li {
                 padding-left: 20px;
             }
+            
+            input, textarea, select {
+                padding: 14px 16px;
+            }
+            
+            .primary-btn {
+                padding: 16px 24px;
+            }
         }
+        
+        /* Additional utility classes */
+        .text-center { text-align: center; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mt-4 { margin-top: 1rem; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>AI Assistant</h1>
-        <p class="subtitle">Analyze YouTube videos and websites with AI</p>
-
-        <!-- Mode Selector -->
-        <div class="mode-selector">
-            <button class="mode-btn active" onclick="switchMode('youtube')">
-                YouTube Analysis
-            </button>
-            <button class="mode-btn" onclick="switchMode('web')">
-                Website Analysis
-            </button>
+        <div class="header">
+            <h1>AI Assistant</h1>
+            <p class="subtitle">Analyze YouTube videos and websites with AI</p>
         </div>
+
+        <div class="main-content">
+            <!-- Mode Selector -->
+            <div class="mode-selector">
+                <button class="mode-btn active" onclick="switchMode('youtube')">
+                    YouTube Analysis
+                </button>
+                <button class="mode-btn" onclick="switchMode('web')">
+                    Website Analysis
+                </button>
+            </div>
 
         <!-- YouTube Section -->
         <div id="youtube-section" class="form-section active">
@@ -532,14 +719,14 @@
                 <textarea id="youtube-question" rows="3" placeholder="Ask anything about the video... (leave empty to get video summary)"></textarea>
             </div>
 
-            <button onclick="processYouTube()">Analyze Video</button>
+            <button class="primary-btn" onclick="processYouTube()">Analyze Video</button>
         </div>
 
         <!-- Website Section -->
         <div id="web-section" class="form-section">
             <div class="quick-examples">
                 <h4>Popular Websites (Click to try):</h4>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div class="examples-grid">
                     <div class="example-item" onclick="setWebUrl('https://en.wikipedia.org/wiki/Artificial_intelligence')">
                         Wikipedia: AI article (Recommended)
                     </div>
@@ -559,7 +746,7 @@
                         Reuters World News
                     </div>
                 </div>
-                <p style="margin-top: 10px; font-size: 12px; color: #666;">
+                <p class="examples-note">
                     <strong>Note:</strong> Some sites like MSN and CNN use advanced loading and may not work. Wikipedia, BBC, Reuters work best.
                 </p>
             </div>
@@ -580,16 +767,17 @@
                 </select>
             </div>
 
-            <div class="form-group" id="web-question-group" style="display: none;">
+            <div class="form-group" id="web-question-group">
                 <label for="web-question">Your Question:</label>
                 <textarea id="web-question" rows="3" placeholder="What would you like to know about this website?"></textarea>
             </div>
 
-            <button onclick="processWebsite()">Analyze Website</button>
+            <button class="primary-btn" onclick="processWebsite()">Analyze Website</button>
         </div>
 
         <!-- Results -->
         <div id="result"></div>
+        </div>
     </div>
 
     <script>
@@ -764,23 +952,82 @@
                         sectionDiv.appendChild(titleP);
                         
                         const lengthP = document.createElement('p');
-                        lengthP.innerHTML = `<strong>Length:</strong> ${data.content ? data.content.length : 0} characters`;
+                        lengthP.innerHTML = `<strong>Length:</strong> ${data.content_preview ? data.content_preview.length : 0} characters`;
                         sectionDiv.appendChild(lengthP);
                         
                         const wordsP = document.createElement('p');
                         wordsP.innerHTML = `<strong>Words:</strong> ${data.word_count || 0} words`;
                         sectionDiv.appendChild(wordsP);
                         
+                        // Determine content type icon
+                        let contentType = '📄';
+                        const domain = url.toLowerCase();
+                        if (domain.includes('wikipedia')) contentType = '📚';
+                        else if (domain.includes('reddit')) contentType = '💬';
+                        else if (domain.includes('github')) contentType = '💻';
+                        else if (domain.includes('youtube')) contentType = '📺';
+                        else if (domain.includes('news') || domain.includes('bbc') || domain.includes('cnn')) contentType = '📰';
+
                         const previewH4 = document.createElement('h4');
-                        previewH4.textContent = 'Content Preview:';
+                        previewH4.textContent = `${contentType} Content Preview:`;
                         sectionDiv.appendChild(previewH4);
+                        
+                        // Add metadata
+                        const metadataP = document.createElement('p');
+                        metadataP.style.fontSize = '12px';
+                        metadataP.style.opacity = '0.7';
+                        metadataP.style.margin = '5px 0';
+                        metadataP.textContent = `Source: ${new URL(url).hostname}`;
+                        sectionDiv.appendChild(metadataP);
                         
                         const previewDiv = document.createElement('div');
                         previewDiv.className = 'ai-response';
-                        previewDiv.style.maxHeight = '400px';
+                        previewDiv.style.maxHeight = '500px';
                         previewDiv.style.overflowY = 'auto';
-                        previewDiv.textContent = data.content ? data.content.substring(0, 2000) + (data.content.length > 2000 ? '...' : '') : 'No content extracted';
+                        previewDiv.style.whiteSpace = 'pre-wrap';
+                        previewDiv.style.fontSize = '14px';
+                        previewDiv.style.lineHeight = '1.6';
+                        
+                        // Better content formatting
+                        let content = data.content_preview ? data.content_preview : 'No content extracted';
+                        
+                        // If content is very short, show a helpful message
+                        if (content.length < 100) {
+                            const domain = new URL(url).hostname;
+                            content = `⚠️ Limited content extracted (${content.length} characters).\n\n` +
+                                     `This may be because ${domain} uses JavaScript to load content dynamically.\n\n` +
+                                     `For better results, try:\n` +
+                                     `• Wikipedia articles\n` +
+                                     `• BBC News articles\n` +
+                                     `• Documentation pages\n` +
+                                     `• Static blog posts\n\n` +
+                                     `Extracted content:\n${content}`;
+                        } else {
+                            // Clean up the content for better readability
+                            content = content
+                                // Remove truncation message from middle if present
+                                .replace(/\.\.\.\s*\(content truncated.*?\)/, '... [Content continues]')
+                                // Fix spacing around punctuation
+                                .replace(/\s+([,.;:!?])/g, '$1')
+                                // Add proper spacing after punctuation
+                                .replace(/([.!?])([A-Z])/g, '$1 $2')
+                                // Clean up excessive whitespace
+                                .replace(/\s{3,}/g, ' ')
+                                // Add paragraph breaks for better reading
+                                .replace(/([.!?])\s+([A-Z][^.!?]{80,})/g, '$1\n\n$2');
+                        }
+                        
+                        previewDiv.textContent = content;
                         sectionDiv.appendChild(previewDiv);
+                        
+                        // Add content length info
+                        const lengthInfo = document.createElement('p');
+                        lengthInfo.style.fontSize = '11px';
+                        lengthInfo.style.opacity = '0.6';
+                        lengthInfo.style.marginTop = '10px';
+                        lengthInfo.style.textAlign = 'right';
+                        lengthInfo.textContent = `${content.length} characters extracted`;
+                        sectionDiv.appendChild(lengthInfo);
                         
                         resultDiv.appendChild(sectionDiv);
                         
