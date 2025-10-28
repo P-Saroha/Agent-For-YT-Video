@@ -50,7 +50,14 @@ class LangChainYouTubeService:
 
 Question: {question}
 
-Answer in plain text, no formatting, no emojis, no headers. Just list the facts directly."""
+Provide a clear, well-structured answer:
+- Start with a brief overview (2-3 sentences)
+- Use bullet points for lists or key facts
+- Keep paragraphs short (2-3 sentences maximum)
+- Use section breaks for different topics
+- Be concise but complete
+
+Answer:"""
         )
         
         # Store for processed videos
