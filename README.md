@@ -1,676 +1,1350 @@
-# 🎬 YouTube + Web AI Assistant# 🎬 YouTube AI Assistant - Optimized for Chrome Extension
+<div align="center"># 🎬 YouTube + Web AI Assistant# 🎬 YouTube AI Assistant - Optimized for Chrome Extension
 
 
 
-**AI-powered content analysis for YouTube videos and web pages with advanced RAG (Retrieval Augmented Generation) system**## 🚀 **Optimized Storage & Performance System**
+# 🎬 YouTube + Web AI Assistant
 
 
 
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)### 📊 **Your Questions Answered**
+### *Intelligent Content Analysis Powered by Advanced RAG Technology***AI-powered content analysis for YouTube videos and web pages with advanced RAG (Retrieval Augmented Generation) system**## 🚀 **Optimized Storage & Performance System**
 
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
+
+
+<p align="center">
+
+  <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python"/>
+
+  <img src="https://img.shields.io/badge/FastAPI-0.104+-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI"/>[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)### 📊 **Your Questions Answered**
+
+  <img src="https://img.shields.io/badge/LangChain-Latest-121212?style=for-the-badge" alt="LangChain"/>
+
+  <img src="https://img.shields.io/badge/Gemini-2.5_Flash-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Gemini"/>[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
+
+</p>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)**Q: Do you store video transcripts when users provide video links?**
 
-✅ **YES** - Smart caching system:
+<p align="center">
 
----- Transcripts are processed and stored in chunks
+  <img src="https://img.shields.io/github/license/P-Saroha/Agent-For-YT-Video?style=flat-square" alt="License"/>✅ **YES** - Smart caching system:
+
+  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square" alt="PRs Welcome"/>
+
+  <img src="https://img.shields.io/github/stars/P-Saroha/Agent-For-YT-Video?style=flat-square" alt="Stars"/>---- Transcripts are processed and stored in chunks
+
+</p>
 
 - Uses SQLite database for lightweight persistence
 
-## 📋 Table of Contents- Implements LRU (Least Recently Used) cache management
+<h3>
 
-- [Overview](#-overview)
+  <a href="#-quick-start">Quick Start</a> •## 📋 Table of Contents- Implements LRU (Least Recently Used) cache management
 
-- [Key Features](#-key-features)**Q: Are you using vector database to store transcripts?**  
+  <a href="#-features">Features</a> •
+
+  <a href="#-how-it-works">How It Works</a> •- [Overview](#-overview)
+
+  <a href="#-demo">Demo</a> •
+
+  <a href="#-api">API</a>- [Key Features](#-key-features)**Q: Are you using vector database to store transcripts?**  
+
+</h3>
 
 - [How It Works](#-how-it-works)✅ **YES** - Optimized Chroma vector database:
 
+</div>
+
 - [Architecture](#-architecture)- HuggingFace embeddings for similarity search
-
-- [Installation](#-installation)- Temporary vector stores per video
-
-- [Usage](#-usage)- Smart cleanup to prevent storage bloat
-
-- [API Documentation](#-api-documentation)
-
-- [Troubleshooting](#-troubleshooting)**Q: Won't storing transcripts for every video be too large?**
-
-✅ **SOLVED** - Multiple optimizations implemented:
 
 ---
 
+- [Installation](#-installation)- Temporary vector stores per video
+
+## 🌟 What Makes This Special?
+
+- [Usage](#-usage)- Smart cleanup to prevent storage bloat
+
+<table>
+
+<tr>- [API Documentation](#-api-documentation)
+
+<td width="50%">
+
+- [Troubleshooting](#-troubleshooting)**Q: Won't storing transcripts for every video be too large?**
+
+### 🎯 **Dual-Mode Analysis**
+
+Analyze both **YouTube videos** and **web pages** seamlessly. One interface, unlimited possibilities.✅ **SOLVED** - Multiple optimizations implemented:
+
+
+
+### 🧠 **Advanced RAG Pipeline**---
+
+State-of-the-art Retrieval Augmented Generation with vector embeddings and semantic search.
+
 ## 🎯 **Extension Optimizations**
 
-## 🎯 Overview
+### ⚡ **Lightning Fast**
 
-### 📏 **Size Limits**
+Optimized chunk retrieval (10 for YouTube, 8 for web) delivers comprehensive answers in seconds.## 🎯 Overview
+
+
+
+</td>### 📏 **Size Limits**
+
+<td width="50%">
 
 This project provides an intelligent AI assistant that can:- **50KB max transcript** per video (truncated if larger)
 
-- **Analyze YouTube videos** by processing transcripts- **800 characters max** per chunk (vs 1000 in original)
+### 🎨 **Natural Responses**
 
-- **Scrape and analyze web content** from any URL- **20 chunks max** per video (vs unlimited)
+ChatGPT-style formatting with perfect mix of paragraphs, bullets, and clear structure.- **Analyze YouTube videos** by processing transcripts- **800 characters max** per chunk (vs 1000 in original)
+
+
+
+### 🔒 **Production Ready**- **Scrape and analyze web content** from any URL- **20 chunks max** per video (vs unlimited)
+
+Clean code, proper error handling, no debug artifacts. Deploy with confidence.
 
 - **Answer questions** using advanced RAG with vector similarity search- **5 videos max** in memory cache (LRU eviction)
 
-- **Provide natural, ChatGPT-style responses** with mixed formatting
+### 🎭 **Beautiful UI**
 
-### 🗄️ **Smart Storage**
+Modern glassmorphism design with dark mode. Stunning user experience.- **Provide natural, ChatGPT-style responses** with mixed formatting
 
-### What Makes This Special?- **SQLite database** for metadata (lightweight vs full embeddings)
 
-- **Temporary vector stores** (cleaned up automatically)
 
-✅ **Advanced RAG Pipeline** - Proper chunking, embeddings, and vector search  - **3-day auto cleanup** of old cache entries
+</td>### 🗄️ **Smart Storage**
 
-✅ **Dual Content Support** - Both YouTube videos and web pages  - **LRU cache management** for memory efficiency
+</tr>
 
-✅ **Clean Responses** - Natural mix of paragraphs and bullet points like ChatGPT  
+</table>### What Makes This Special?- **SQLite database** for metadata (lightweight vs full embeddings)
 
-✅ **High Performance** - Optimized chunk retrieval (10 chunks for YouTube, 8 for web)  ### ⚡ **Performance Optimizations**
 
-✅ **Production Ready** - Clean code, no debug emojis, proper error handling  - **15-second timeout** for extension responsiveness
 
-✅ **Modern UI** - Beautiful glassmorphism design with dark mode  - **Smaller embedding model** (`all-MiniLM-L6-v2` vs multilingual large)
+---- **Temporary vector stores** (cleaned up automatically)
 
-- **3 similar chunks** for answers (vs 5)
 
----- **No source documents** returned to save memory
 
-- **Async processing** with timeouts
+## 🚀 Quick Start✅ **Advanced RAG Pipeline** - Proper chunking, embeddings, and vector search  - **3-day auto cleanup** of old cache entries
 
-## 🚀 Key Features
 
-### 🧹 **Automatic Cleanup**
 
-### 1. **YouTube Video Analysis**- Old videos auto-removed after 3 days
+```bash✅ **Dual Content Support** - Both YouTube videos and web pages  - **LRU cache management** for memory efficiency
 
-- Automatic transcript extraction (multiple language support)- Memory cache limited to 5 videos
+# Clone the repository
 
-- Intelligent chunking with 800-character segments- Temp directories cleaned up on exit
-
-- 100-character overlap for context preservation- Database optimization built-in
-
-- Vector embeddings using `paraphrase-multilingual-MiniLM-L12-v2`
-
-- Retrieves top 10 most relevant chunks per query## 🛠️ **Three Implementation Levels**
-
-- Caches processed videos for instant re-querying
-
-| Feature | Custom | LangChain | Extension Optimized |
-
-### 2. **Web Content Analysis**|---------|---------|-----------|-------------------|
-
-- Advanced web scraping with BeautifulSoup4| **Memory Usage** | High | Medium | **Low** ✅ |
-
-- JavaScript-rendered content support| **Storage** | File-based | Chroma | **SQLite + Temp** ✅ |
-
-- Intelligent content extraction (removes nav, footer, ads)| **Cache Size** | Unlimited | Unlimited | **5 videos max** ✅ |
-
-- 1000-character chunks with 200-character overlap| **Chunk Size** | 1500 chars | 1000 chars | **800 chars** ✅ |
-
-- Vector embeddings using `all-mpnet-base-v2`| **Cleanup** | Manual | Manual | **Auto (3 days)** ✅ |
-
-- Retrieves top 8 most relevant chunks per query| **Timeout** | None | None | **15 seconds** ✅ |
-
-- URL caching for fast repeated analysis| **Transcript Limit** | None | None | **50KB max** ✅ |
-
-
-
-### 3. **AI Response Quality**## 📡 **API Endpoints**
-
-- Powered by **Google Gemini 2.5 Flash** (latest model)
-
-- Temperature 0.0 for deterministic, factual answers### 🎬 **Extension Endpoints** (`/extension/*`)
-
-- Natural ChatGPT-style formatting:```
-
-  - Brief overview paragraphs (2-3 sentences)POST /extension/process-video     # Process video (optimized)
-
-  - Bullet points for key facts and listsPOST /extension/ask-question      # Ask question (fast response)
-
-  - Clear section breaks for readabilityGET  /extension/cache/stats       # View cache statistics
-
-  - No excessive formatting or emojisPOST /extension/cache/cleanup     # Manual cleanup
-
-- Aggressive post-processing to strip unwanted formattingGET  /extension/video/{id}/status # Check video status
-
-DELETE /extension/video/{id}      # Remove specific video
-
----GET  /extension/health            # Health check
-
-```
-
-## 🔧 How It Works
-
-### 🧠 **LangChain Endpoints** (`/langchain/*`)
-
-### **RAG Pipeline Explained**```
-
-POST /langchain/process-video     # Full LangChain processing
-
-#### For YouTube Videos:POST /langchain/ask-question      # Advanced RAG with sources
-
-GET  /langchain/health            # LangChain health
-
-``````
-
-1. User submits YouTube URL
-
-   ↓### ⚙️ **Original Endpoints** (`/api/*`)
-
-2. Extract video ID and fetch transcript```
-
-   ↓POST /api/process-video           # Original custom implementation
-
-3. Split transcript into 800-char chunks (overlap: 100 chars)POST /api/ask-question            # Original Q&A system
-
-   ↓```
-
-4. Generate embeddings using HuggingFace transformer
-
-   ↓## 🧪 **Testing Interfaces**
-
-5. Store in Chroma vector database (temporary directory)
-
-   ↓1. **Extension Testing**: `http://127.0.0.1:8000/static/extension-test.html`
-
-6. User asks question → Embed query   - Optimized for Chrome extension
-
-   ↓   - Cache statistics monitoring
-
-7. Cosine similarity search → Retrieve top 10 chunks   - Performance metrics
-
-   ↓   - Cleanup controls
-
-8. Pass to Gemini 2.5 Flash with structured prompt
-
-   ↓2. **LangChain Comparison**: `http://127.0.0.1:8000/static/test-langchain.html`
-
-9. Post-process response (strip markdown, emojis, excess formatting)   - Side-by-side comparison
-
-   ↓   - Performance benchmarking
-
-10. Return clean, natural answer to user   - Feature comparison
-
-```
-
-3. **Original Testing**: `http://127.0.0.1:8000/static/test.html`
-
-#### For Web Pages:   - Original implementation testing
-
-
-
-```## 🚀 **Quick Start**
-
-1. User submits URL
-
-   ↓### 1. **Start Server**
-
-2. Fetch HTML with aiohttp (async)```powershell
-
-   ↓cd f:\YT\video-ai-assistant
-
-3. Parse with BeautifulSoup4 → Remove scripts, nav, footer.\myenv\Scripts\Activate.ps1
-
-   ↓cd server
-
-4. Extract main content (article, main, body tags)python start_server.py
-
-   ↓```
-
-5. Split into 1000-char chunks (overlap: 200 chars)
-
-   ↓### 2. **Test Extension Optimization**
-
-6. Generate embeddings using all-mpnet-base-v2```javascript
-
-   ↓// Process video (optimized)
-
-7. Store in Chroma vector database (temporary directory)fetch('http://127.0.0.1:8000/extension/process-video', {
-
-   ↓    method: 'POST',
-
-8. User asks question → Same RAG process as YouTube    headers: {'Content-Type': 'application/json'},
-
-   ↓    body: JSON.stringify({video_url: 'https://youtube.com/watch?v=...'})
-
-9. Retrieve top 8 most relevant chunks})
-
-   ↓
-
-10. Generate and return natural answer// Ask question (fast)
-
-```fetch('http://127.0.0.1:8000/extension/ask-question', {
-
-    method: 'POST', 
-
-### **Key Technical Decisions**    headers: {'Content-Type': 'application/json'},
-
-    body: JSON.stringify({video_id: 'abc123', question: 'What is this about?'})
-
-| Component | Choice | Why? |})
-
-|-----------|--------|------|
-
-| **LLM** | Gemini 2.5 Flash | Latest, fast, cost-effective |// Check cache stats
-
-| **Temperature** | 0.0 | Deterministic, factual responses |fetch('http://127.0.0.1:8000/extension/cache/stats')
-
-| **Embeddings (YouTube)** | paraphrase-multilingual-MiniLM-L12-v2 | Supports multiple languages |```
-
-| **Embeddings (Web)** | all-mpnet-base-v2 | Best quality for English content |
-
-| **Vector DB** | Chroma | Easy, lightweight, fast |### 3. **Monitor Cache**
-
-| **Chunk Size (YT)** | 800 chars | Balances context vs. precision |- View real-time cache statistics
-
-| **Chunk Size (Web)** | 1000 chars | More content needed for web pages |- Monitor memory usage
-
-| **Retrieval (YT)** | k=10 chunks | Comprehensive answers |- Track processing times
-
-| **Retrieval (Web)** | k=8 chunks | Sufficient for most web content |- Automatic cleanup logs
-
-
-
----## 🎯 **Perfect for Chrome Extension**
-
-
-
-## 🏗️ Architecture### ✅ **Why This Works for Extensions**
-
-- **Lightweight**: SQLite database (not heavy vector files)
-
-### **Tech Stack**- **Fast**: 15-second timeouts, optimized chunks
-
-- **Clean**: Auto-cleanup prevents storage bloat
-
-**Backend:**- **Smart**: LRU cache, size limits, efficient processing
-
-- **FastAPI** - Modern async Python web framework- **Reliable**: Error handling, fallbacks, health monitoring
-
-- **LangChain** - RAG orchestration framework
-
-- **Google Gemini AI** - Latest 2.5 Flash model### 📱 **Extension Integration**
-
-- **HuggingFace Transformers** - Embedding models```javascript
-
-- **Chroma** - Vector database// Your Chrome extension can call:
-
-- **BeautifulSoup4** - Web scrapingchrome.runtime.sendMessage({
-
-- **aiohttp** - Async HTTP client    action: "processVideo",
-
-- **youtube-transcript-api** - Transcript extraction    url: "https://youtube.com/watch?v=..."
-
-});
-
-**Frontend:**
-
-- **Vanilla JavaScript** - No frameworks, pure performancechrome.runtime.sendMessage({
-
-- **Modern CSS** - Glassmorphism design    action: "askQuestion", 
-
-- **Responsive UI** - Works on all devices    videoId: "abc123",
-
-    question: "What is this video about?"
-
-### **Project Structure**});
-
-```
-
-```
-
-video-ai-assistant/## 📊 **Storage Comparison**
-
-├── server/                          # Backend server
-
-│   ├── app/| Implementation | Storage Type | Size per Video | Cleanup |
-
-│   │   ├── main.py                 # FastAPI application entry|---------------|--------------|----------------|---------|
-
-│   │   ├── config.py               # Configuration settings| **Extension** ✅ | SQLite + Temp | ~2-5MB | Auto (3 days) |
-
-│   │   ├── routes/                 # API endpoints| LangChain | Chroma DB | ~10-20MB | Manual |
-
-│   │   │   ├── langchain_routes.py # YouTube analysis endpoints| Custom | File-based | ~5-15MB | Manual |
-
-│   │   │   ├── web_routes.py       # Web scraping endpoints
-
-│   │   │   ├── simple_routes.py    # Alternative endpoints## 🎉 **Ready for Production**
-
-│   │   │   └── health.py           # Health check
-
-│   │   ├── services/               # Core business logicYour YouTube AI Assistant is now optimized for Chrome extension deployment with:
-
-│   │   │   ├── langchain_service.py    # YouTube RAG service- ✅ Smart storage management
-
-│   │   │   ├── rag_web_service.py      # Web content RAG service- ✅ Performance optimization  
-
-│   │   │   ├── fast_web_service.py     # Lightweight web service- ✅ Automatic cleanup
-
-│   │   │   └── simple_ai_service.py    # Fallback service- ✅ Size limitations
-
-│   │   └── models/                 # Data models- ✅ Fast responses
-
-│   ├── static/                     # Frontend files- ✅ Production-ready caching
-
-│   │   ├── youtube-web-ai-clean.html   # Main UI
-
-│   │   ├── css/Test the optimized version at: **http://127.0.0.1:8000/static/extension-test.html**
-
-│   │   │   └── youtube-web-ai.css      # Styles
-
-│   │   └── js/An intelligent Chrome extension that allows users to ask questions about YouTube video content using AI. The extension extracts video transcripts, processes them with AI, and provides accurate answers based on the video content.
-
-│   │       └── youtube-web-ai.js       # Frontend logic
-
-│   ├── requirements.txt            # Python dependencies## Features
-
-│   └── start_server.py            # Server startup script
-
-├── extension/                      # Chrome extension (optional)- 🎥 **YouTube Integration**: Automatically detects YouTube videos and extracts transcripts
-
-│   ├── manifest.json- 🤖 **AI-Powered Q&A**: Ask any question about video content and get intelligent answers
-
-│   ├── popup.html- 🔍 **Semantic Search**: Find relevant sections of videos based on your questions
-
-│   ├── popup.js- 💬 **Chat Interface**: Intuitive chat-style interface for asking questions
-
-│   └── background/- ⚡ **Real-time Processing**: Fast response times with efficient text chunking and embedding
-
-├── myenv/                          # Python virtual environment- 🔒 **Privacy Focused**: Process videos on-demand, no permanent storage of personal data
-
-├── README.md                       # This file
-
-└── LICENSE                         # MIT License## Architecture
-
-```
-
-### Frontend (Chrome Extension)
-
----- **Manifest V3** Chrome extension
-
-- **Content Scripts** for YouTube integration
-
-## 📦 Installation- **Popup Interface** for user interaction
-
-- **Background Service Worker** for coordination
-
-### **Prerequisites**
-
-- Python 3.11 or higher### Backend (FastAPI)
-
-- pip (Python package manager)- **FastAPI** web framework
-
-- 8GB RAM minimum (for embedding models)- **YouTube Transcript API** for video content extraction
-
-- Internet connection (for API calls)- **OpenAI GPT** for question answering
-
-- **Sentence Transformers** for text embeddings
-
-### **Step 1: Clone Repository**- **FAISS** for vector similarity search
-
-```bash
-
-git clone https://github.com/P-Saroha/Agent-For-YT-Video.git## Quick Start
+git clone https://github.com/P-Saroha/Agent-For-YT-Video.git✅ **Clean Responses** - Natural mix of paragraphs and bullet points like ChatGPT  
 
 cd video-ai-assistant
 
-```### Prerequisites
+✅ **High Performance** - Optimized chunk retrieval (10 chunks for YouTube, 8 for web)  ### ⚡ **Performance Optimizations**
 
-- Python 3.11+
+# Create virtual environment
 
-### **Step 2: Create Virtual Environment**- Node.js (optional, for development)
+python -m venv myenv✅ **Production Ready** - Clean code, no debug emojis, proper error handling  - **15-second timeout** for extension responsiveness
 
-```bash- OpenAI API key
+myenv\Scripts\activate  # Windows
 
-python -m venv myenv- YouTube API key (optional, for enhanced metadata)
+# source myenv/bin/activate  # macOS/Linux✅ **Modern UI** - Beautiful glassmorphism design with dark mode  - **Smaller embedding model** (`all-MiniLM-L6-v2` vs multilingual large)
 
 
 
-# On Windows### Installation
+# Install dependencies- **3 similar chunks** for answers (vs 5)
 
-myenv\Scripts\activate
+cd server
 
-1. **Clone the repository**
+pip install -r requirements.txt---- **No source documents** returned to save memory
 
-# On macOS/Linux   ```bash
 
-source myenv/bin/activate   git clone <repository-url>
 
-```   cd video-ai-assistant
+# Configure API key (create .env file)- **Async processing** with timeouts
 
-   ```
+echo "GEMINI_API_KEY=your_key_here" > .env
 
-### **Step 3: Install Dependencies**
+## 🚀 Key Features
 
-```bash2. **Set up the backend**
+# Start server
 
-cd server   ```bash
-
-pip install -r requirements.txt   cd server
-
-```   python -m venv venv
-
-   
-
-### **Step 4: Configure API Key**   # On Windows
-
-Create a `.env` file in the `server` directory:   venv\Scripts\activate
-
-```env   # On macOS/Linux
-
-GEMINI_API_KEY=your_gemini_api_key_here   source venv/bin/activate
-
-```   
-
-   pip install -r requirements.txt
-
-**Get your Gemini API key:**   ```
-
-1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
-
-2. Click "Create API Key"3. **Configure environment variables**
-
-3. Copy and paste into `.env` file   ```bash
-
-   cp .env.example .env
-
-### **Step 5: Start Server**   # Edit .env with your API keys
-
-```bash   ```
-
-# From server directory
-
-python start_server.py4. **Start the backend server**
-
-   ```bash
-
-# Or using uvicorn directly   uvicorn app.main:app --reload
-
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000   ```
+python start_server.py### 🧹 **Automatic Cleanup**
 
 ```
 
-5. **Build and install the extension**
+### 1. **YouTube Video Analysis**- Old videos auto-removed after 3 days
 
-Server will start at: **http://localhost:8000**   ```bash
+**🎉 Open browser:** `http://localhost:8000/static/youtube-web-ai-clean.html`
 
-   # Build the extension
+- Automatic transcript extraction (multiple language support)- Memory cache limited to 5 videos
 
----   cd ../
+---
 
-   chmod +x scripts/build_ext.sh
+- Intelligent chunking with 800-character segments- Temp directories cleaned up on exit
 
-## 🎮 Usage   ./scripts/build_ext.sh
+## ✨ Features
 
-   ```
+- 100-character overlap for context preservation- Database optimization built-in
 
-### **Web Interface**
+<div align="center">
 
-6. **Load extension in Chrome**
+- Vector embeddings using `paraphrase-multilingual-MiniLM-L12-v2`
 
-1. Open browser and navigate to:   - Open Chrome and go to `chrome://extensions/`
+| 🎬 YouTube Analysis | 🌐 Web Analysis | 🤖 AI Intelligence |
 
-   ```   - Enable "Developer mode"
+|:---:|:---:|:---:|- Retrieves top 10 most relevant chunks per query## 🛠️ **Three Implementation Levels**
 
-   http://localhost:8000/static/youtube-web-ai-clean.html   - Click "Load unpacked" and select `extension/build/` folder
+| Multi-language transcript support | Smart content extraction | Google Gemini 2.5 Flash |
 
-   ```
+| 800-char intelligent chunking | Removes ads & navigation | Temperature 0.0 (factual) |- Caches processed videos for instant re-querying
 
-## Usage
+| Multilingual embeddings | 1000-char web chunks | Natural ChatGPT-style output |
 
-2. **For YouTube Videos:**
+| Top 10 chunk retrieval | Handles JS-rendered sites | Context-aware responses || Feature | Custom | LangChain | Extension Optimized |
 
-   - Switch to "YouTube Analysis" mode1. **Navigate to any YouTube video**
+| Instant re-querying cache | URL caching system | Zero hallucinations |
 
-   - Paste any YouTube URL2. **Click the extension icon** to open the AI assistant
+### 2. **Web Content Analysis**|---------|---------|-----------|-------------------|
 
-   - Click "Analyze Video"3. **Process the video** by clicking "Process Video" (or it auto-detects current video)
+</div>
 
-   - Wait for processing (5-15 seconds)4. **Ask questions** about the video content in the chat interface
+- Advanced web scraping with BeautifulSoup4| **Memory Usage** | High | Medium | **Low** ✅ |
 
-   - Ask questions in the text box5. **Get AI-powered answers** based on the video transcript
+### 🎯 **YouTube Video Analysis**
 
-   - Get instant, intelligent answers
+- JavaScript-rendered content support| **Storage** | File-based | Chroma | **SQLite + Temp** ✅ |
 
-## Example Questions
+- ✅ **Automatic Transcript Extraction** - Supports 100+ languages
 
-3. **For Web Pages:**
+- ✅ **Smart Chunking** - 800 characters with 100-char overlap- Intelligent content extraction (removes nav, footer, ads)| **Cache Size** | Unlimited | Unlimited | **5 videos max** ✅ |
 
-   - Switch to "Web Analysis" mode- "What are the main topics discussed in this video?"
+- ✅ **Vector Embeddings** - `paraphrase-multilingual-MiniLM-L12-v2`
 
-   - Paste any website URL- "Can you summarize the key points?"
+- ✅ **Semantic Search** - Cosine similarity for relevance- 1000-character chunks with 200-character overlap| **Chunk Size** | 1500 chars | 1000 chars | **800 chars** ✅ |
 
-   - Click "Analyze Website"- "What did they say about [specific topic]?"
+- ✅ **Intelligent Caching** - Process once, query unlimited times
 
-   - Wait for scraping (3-10 seconds)- "At what time do they discuss [topic]?"
+- Vector embeddings using `all-mpnet-base-v2`| **Cleanup** | Manual | Manual | **Auto (3 days)** ✅ |
 
-   - Ask questions about the content- "What are the conclusions or takeaways?"
+### 🌐 **Web Content Analysis**
 
-   - Get answers based on page content
+- Retrieves top 8 most relevant chunks per query| **Timeout** | None | None | **15 seconds** ✅ |
 
-## API Endpoints
+- ✅ **Advanced Web Scraping** - BeautifulSoup4 + aiohttp async
 
-### **Example Questions**
+- ✅ **Clean Extraction** - Removes navigation, footer, ads, scripts- URL caching for fast repeated analysis| **Transcript Limit** | None | None | **50KB max** ✅ |
 
-### Process Video
+- ✅ **Smart Content Detection** - Focuses on main article/content
 
-**For YouTube Videos:**```http
+- ✅ **Optimal Chunking** - 1000 characters with 200-char overlap
 
-```POST /process-video
+- ✅ **High-Quality Embeddings** - `all-mpnet-base-v2` for English
 
-"What is the main topic of this video?"Content-Type: application/json
+### 3. **AI Response Quality**## 📡 **API Endpoints**
 
-"Summarize the key points"
+### 🤖 **AI Response Quality**
 
-"What does the speaker say about [topic]?"{
+- Powered by **Google Gemini 2.5 Flash** (latest model)
 
-"List the steps mentioned in the tutorial"  "video_url": "https://www.youtube.com/watch?v=VIDEO_ID"
+- ✅ **Latest Model** - Google Gemini 2.5 Flash (Dec 2024)
 
-```}
+- ✅ **Deterministic** - Temperature 0.0 for consistent answers- Temperature 0.0 for deterministic, factual answers### 🎬 **Extension Endpoints** (`/extension/*`)
+
+- ✅ **Natural Format** - Mix of paragraphs and bullet points
+
+- ✅ **Clean Output** - Post-processing strips excess formatting- Natural ChatGPT-style formatting:```
+
+- ✅ **Structured** - Brief overviews, key points, clear sections
+
+  - Brief overview paragraphs (2-3 sentences)POST /extension/process-video     # Process video (optimized)
+
+---
+
+  - Bullet points for key facts and listsPOST /extension/ask-question      # Ask question (fast response)
+
+## 🔧 How It Works
+
+  - Clear section breaks for readabilityGET  /extension/cache/stats       # View cache statistics
+
+<div align="center">
+
+  - No excessive formatting or emojisPOST /extension/cache/cleanup     # Manual cleanup
+
+### **RAG Pipeline Architecture**
+
+- Aggressive post-processing to strip unwanted formattingGET  /extension/video/{id}/status # Check video status
+
+```mermaid
+
+graph LRDELETE /extension/video/{id}      # Remove specific video
+
+    A[User Input] --> B{Content Type}
+
+    B -->|YouTube| C[Extract Transcript]---GET  /extension/health            # Health check
+
+    B -->|Web| D[Scrape Content]
+
+    C --> E[Split into Chunks]```
+
+    D --> E
+
+    E --> F[Generate Embeddings]## 🔧 How It Works
+
+    F --> G[Store in Vector DB]
+
+    G --> H[User Question]### 🧠 **LangChain Endpoints** (`/langchain/*`)
+
+    H --> I[Embed Query]
+
+    I --> J[Similarity Search]### **RAG Pipeline Explained**```
+
+    J --> K[Retrieve Top Chunks]
+
+    K --> L[Pass to Gemini LLM]POST /langchain/process-video     # Full LangChain processing
+
+    L --> M[Generate Answer]
+
+    M --> N[Post-process]#### For YouTube Videos:POST /langchain/ask-question      # Advanced RAG with sources
+
+    N --> O[Return to User]
+
+```GET  /langchain/health            # LangChain health
+
+
+
+</div>``````
+
+
+
+<details>1. User submits YouTube URL
+
+<summary><b>📺 YouTube Processing Pipeline (Click to expand)</b></summary>
+
+   ↓### ⚙️ **Original Endpoints** (`/api/*`)
+
+1. **Extract Video ID** from URL
+
+2. **Fetch Transcript** using youtube-transcript-api2. Extract video ID and fetch transcript```
+
+3. **Intelligent Chunking**
+
+   - 800 characters per chunk   ↓POST /api/process-video           # Original custom implementation
+
+   - 100-character overlap for context
+
+   - Preserves sentence boundaries3. Split transcript into 800-char chunks (overlap: 100 chars)POST /api/ask-question            # Original Q&A system
+
+4. **Generate Embeddings**
+
+   - HuggingFace transformer model   ↓```
+
+   - Multilingual support
+
+   - 384-dimensional vectors4. Generate embeddings using HuggingFace transformer
+
+5. **Vector Storage**
+
+   - Chroma database (temporary)   ↓## 🧪 **Testing Interfaces**
+
+   - Efficient similarity search
+
+   - Automatic cleanup5. Store in Chroma vector database (temporary directory)
+
+6. **Query Processing**
+
+   - Embed user question   ↓1. **Extension Testing**: `http://127.0.0.1:8000/static/extension-test.html`
+
+   - Cosine similarity search
+
+   - Retrieve top 10 chunks6. User asks question → Embed query   - Optimized for Chrome extension
+
+7. **LLM Generation**
+
+   - Gemini 2.5 Flash   ↓   - Cache statistics monitoring
+
+   - Context-aware prompting
+
+   - Natural language output7. Cosine similarity search → Retrieve top 10 chunks   - Performance metrics
+
+8. **Post-Processing**
+
+   - Strip markdown   ↓   - Cleanup controls
+
+   - Remove emojis
+
+   - Format naturally8. Pass to Gemini 2.5 Flash with structured prompt
+
+
+
+</details>   ↓2. **LangChain Comparison**: `http://127.0.0.1:8000/static/test-langchain.html`
+
+
+
+<details>9. Post-process response (strip markdown, emojis, excess formatting)   - Side-by-side comparison
+
+<summary><b>🌐 Web Scraping Pipeline (Click to expand)</b></summary>
+
+   ↓   - Performance benchmarking
+
+1. **Fetch HTML** with async aiohttp
+
+2. **Parse with BeautifulSoup4**10. Return clean, natural answer to user   - Feature comparison
+
+   - Remove scripts, styles, nav, footer
+
+   - Extract main content areas```
+
+   - Clean text encoding
+
+3. **Smart Content Detection**3. **Original Testing**: `http://127.0.0.1:8000/static/test.html`
+
+   - Prioritize `<article>`, `<main>` tags
+
+   - Fallback to body content#### For Web Pages:   - Original implementation testing
+
+   - Filter noise and ads
+
+4. **Chunking Strategy**
+
+   - 1000 characters per chunk
+
+   - 200-character overlap```## 🚀 **Quick Start**
+
+   - Preserve paragraph structure
+
+5. **Embedding Generation**1. User submits URL
+
+   - all-mpnet-base-v2 model
+
+   - 768-dimensional vectors   ↓### 1. **Start Server**
+
+   - Optimized for English
+
+6. **Vector Storage** (same as YouTube)2. Fetch HTML with aiohttp (async)```powershell
+
+7. **Query Processing**
+
+   - Retrieve top 8 chunks   ↓cd f:\YT\video-ai-assistant
+
+   - Context-aware retrieval
+
+8. **Generate & Format** answer3. Parse with BeautifulSoup4 → Remove scripts, nav, footer.\myenv\Scripts\Activate.ps1
+
+
+
+</details>   ↓cd server
+
+
+
+---4. Extract main content (article, main, body tags)python start_server.py
+
+
+
+## 🎨 Architecture   ↓```
+
+
+
+<div align="center">5. Split into 1000-char chunks (overlap: 200 chars)
+
+
+
+### **Technology Stack**   ↓### 2. **Test Extension Optimization**
+
+
+
+<table>6. Generate embeddings using all-mpnet-base-v2```javascript
+
+<tr>
+
+<td align="center" width="20%">   ↓// Process video (optimized)
+
+<img src="https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png" width="60px" height="60px"/><br/>
+
+<b>FastAPI</b><br/>7. Store in Chroma vector database (temporary directory)fetch('http://127.0.0.1:8000/extension/process-video', {
+
+<sub>Async Backend</sub>
+
+</td>   ↓    method: 'POST',
+
+<td align="center" width="20%">
+
+<img src="https://python.langchain.com/img/brand/wordmark.png" width="120px"/><br/>8. User asks question → Same RAG process as YouTube    headers: {'Content-Type': 'application/json'},
+
+<b>LangChain</b><br/>
+
+<sub>RAG Framework</sub>   ↓    body: JSON.stringify({video_url: 'https://youtube.com/watch?v=...'})
+
+</td>
+
+<td align="center" width="20%">9. Retrieve top 8 most relevant chunks})
+
+<img src="https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg" width="60px" height="60px"/><br/>
+
+<b>Gemini AI</b><br/>   ↓
+
+<sub>LLM Power</sub>
+
+</td>10. Generate and return natural answer// Ask question (fast)
+
+<td align="center" width="20%">
+
+<img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" width="60px" height="60px"/><br/>```fetch('http://127.0.0.1:8000/extension/ask-question', {
+
+<b>HuggingFace</b><br/>
+
+<sub>Embeddings</sub>    method: 'POST', 
+
+</td>
+
+<td align="center" width="20%">### **Key Technical Decisions**    headers: {'Content-Type': 'application/json'},
+
+<img src="https://www.trychroma.com/chroma-logo.png" width="60px" height="60px"/><br/>
+
+<b>Chroma</b><br/>    body: JSON.stringify({video_id: 'abc123', question: 'What is this about?'})
+
+<sub>Vector DB</sub>
+
+</td>| Component | Choice | Why? |})
+
+</tr>
+
+</table>|-----------|--------|------|
+
+
+
+</div>| **LLM** | Gemini 2.5 Flash | Latest, fast, cost-effective |// Check cache stats
+
+
+
+### **System Components**| **Temperature** | 0.0 | Deterministic, factual responses |fetch('http://127.0.0.1:8000/extension/cache/stats')
+
+
+
+```| **Embeddings (YouTube)** | paraphrase-multilingual-MiniLM-L12-v2 | Supports multiple languages |```
+
+┌─────────────────────────────────────────────────────────┐
+
+│                     Frontend Layer                       │| **Embeddings (Web)** | all-mpnet-base-v2 | Best quality for English content |
+
+│  • Modern Glassmorphism UI                              │
+
+│  • Vanilla JavaScript (No frameworks)                   │| **Vector DB** | Chroma | Easy, lightweight, fast |### 3. **Monitor Cache**
+
+│  • Responsive Design                                     │
+
+└─────────────────────────────────────────────────────────┘| **Chunk Size (YT)** | 800 chars | Balances context vs. precision |- View real-time cache statistics
+
+                            ↓
+
+┌─────────────────────────────────────────────────────────┐| **Chunk Size (Web)** | 1000 chars | More content needed for web pages |- Monitor memory usage
+
+│                    FastAPI Backend                       │
+
+│  • Async Request Handling                               │| **Retrieval (YT)** | k=10 chunks | Comprehensive answers |- Track processing times
+
+│  • RESTful API Endpoints                                │
+
+│  • CORS Middleware                                       │| **Retrieval (Web)** | k=8 chunks | Sufficient for most web content |- Automatic cleanup logs
+
+└─────────────────────────────────────────────────────────┘
+
+                            ↓
+
+┌─────────────────────────────────────────────────────────┐
+
+│                   Service Layer                          │---## 🎯 **Perfect for Chrome Extension**
+
+│  • langchain_service.py  → YouTube RAG                  │
+
+│  • rag_web_service.py    → Web Content RAG              │
+
+│  • fast_web_service.py   → Lightweight Scraper          │
+
+└─────────────────────────────────────────────────────────┘## 🏗️ Architecture### ✅ **Why This Works for Extensions**
+
+                            ↓
+
+┌─────────────────────────────────────────────────────────┐- **Lightweight**: SQLite database (not heavy vector files)
+
+│                  RAG Components                          │
+
+│  • Text Splitting & Chunking                            │### **Tech Stack**- **Fast**: 15-second timeouts, optimized chunks
+
+│  • HuggingFace Embeddings                               │
+
+│  • Chroma Vector Database                               │- **Clean**: Auto-cleanup prevents storage bloat
+
+│  • Similarity Search Engine                             │
+
+└─────────────────────────────────────────────────────────┘**Backend:**- **Smart**: LRU cache, size limits, efficient processing
+
+                            ↓
+
+┌─────────────────────────────────────────────────────────┐- **FastAPI** - Modern async Python web framework- **Reliable**: Error handling, fallbacks, health monitoring
+
+│                    AI Layer                              │
+
+│  • Google Gemini 2.5 Flash                              │- **LangChain** - RAG orchestration framework
+
+│  • Context-Aware Prompting                              │
+
+│  • Response Post-Processing                             │- **Google Gemini AI** - Latest 2.5 Flash model### 📱 **Extension Integration**
+
+└─────────────────────────────────────────────────────────┘
+
+```- **HuggingFace Transformers** - Embedding models```javascript
+
+
+
+---- **Chroma** - Vector database// Your Chrome extension can call:
+
+
+
+## 📊 Performance Metrics- **BeautifulSoup4** - Web scrapingchrome.runtime.sendMessage({
+
+
+
+<div align="center">- **aiohttp** - Async HTTP client    action: "processVideo",
+
+
+
+| 📈 Metric | ⚡ Performance | 💡 Notes |- **youtube-transcript-api** - Transcript extraction    url: "https://youtube.com/watch?v=..."
+
+|:---|:---:|:---|
+
+| **Transcript Fetch** | 1-3s | Depends on video length |});
+
+| **Chunking + Embeddings** | 2-5s | Based on content size |
+
+| **Vector Search** | <100ms | Lightning fast! |**Frontend:**
+
+| **LLM Generation** | 1-3s | Gemini 2.5 Flash |
+
+| **First Query (Total)** | 5-15s | Full RAG pipeline |- **Vanilla JavaScript** - No frameworks, pure performancechrome.runtime.sendMessage({
+
+| **Cached Query** | 2-5s | No reprocessing needed |
+
+| **Memory Usage** | 1-2GB | Per active session |- **Modern CSS** - Glassmorphism design    action: "askQuestion", 
+
+| **Concurrent Users** | 10+ | FastAPI async handling |
+
+- **Responsive UI** - Works on all devices    videoId: "abc123",
+
+</div>
+
+    question: "What is this video about?"
+
+---
+
+### **Project Structure**});
+
+## 🎮 Usage Examples
 
 ```
 
-**For Web Pages:**
+### **For YouTube Videos:**
 
-```### Ask Question
+```
 
-"What is this article about?"```http
+```python
 
-"What are the main features discussed?"POST /ask-question
+# Ask about video contentvideo-ai-assistant/## 📊 **Storage Comparison**
 
-"Summarize the pricing information"Content-Type: application/json
+"What is the main topic of this video?"
 
-"What requirements are mentioned?"
+"Summarize the key points discussed"├── server/                          # Backend server
 
-```{
+"What does the speaker say about machine learning?"
 
-  "video_id": "VIDEO_ID",
+"List the steps mentioned in the tutorial"│   ├── app/| Implementation | Storage Type | Size per Video | Cleanup |
 
----  "question": "Your question here"
+```
 
-}
+│   │   ├── main.py                 # FastAPI application entry|---------------|--------------|----------------|---------|
 
-## 📚 API Documentation```
+### **For Web Pages:**
+
+│   │   ├── config.py               # Configuration settings| **Extension** ✅ | SQLite + Temp | ~2-5MB | Auto (3 days) |
+
+```python
+
+# Analyze articles, documentation, blogs│   │   ├── routes/                 # API endpoints| LangChain | Chroma DB | ~10-20MB | Manual |
+
+"What is this article about?"
+
+"What are the main features of this product?"│   │   │   ├── langchain_routes.py # YouTube analysis endpoints| Custom | File-based | ~5-15MB | Manual |
+
+"Summarize the pricing information"
+
+"What are the technical requirements?"│   │   │   ├── web_routes.py       # Web scraping endpoints
+
+```
+
+│   │   │   ├── simple_routes.py    # Alternative endpoints## 🎉 **Ready for Production**
+
+---
+
+│   │   │   └── health.py           # Health check
+
+## 📚 API Documentation
+
+│   │   ├── services/               # Core business logicYour YouTube AI Assistant is now optimized for Chrome extension deployment with:
+
+### **Core Endpoints**
+
+│   │   │   ├── langchain_service.py    # YouTube RAG service- ✅ Smart storage management
+
+<details>
+
+<summary><b>POST /langchain/process-video</b> - Process YouTube Video</summary>│   │   │   ├── rag_web_service.py      # Web content RAG service- ✅ Performance optimization  
 
 
 
-### **Health Check**### Health Check
+**Request:**│   │   │   ├── fast_web_service.py     # Lightweight web service- ✅ Automatic cleanup
 
-```http```http
+```json
 
-GET /healthGET /health
+{│   │   │   └── simple_ai_service.py    # Fallback service- ✅ Size limitations
 
-``````
+  "video_url": "https://www.youtube.com/watch?v=VIDEO_ID"
 
-Returns API status and version information.
+}│   │   └── models/                 # Data models- ✅ Fast responses
 
-## Development
+```
 
-### **YouTube Video Processing**
+│   ├── static/                     # Frontend files- ✅ Production-ready caching
 
-```http### Backend Development
+**Response:**
 
-POST /langchain/process-video```bash
-
-Content-Type: application/jsoncd server
-
-pip install -r requirements.txt
-
-{uvicorn app.main:app --reload --log-level debug
-
-  "video_url": "https://www.youtube.com/watch?v=VIDEO_ID"```
-
-}
-
-```### Extension Development
-
-```bash
-
-**Response:**# Build extension
-
-```json./scripts/build_ext.sh
+```json│   │   ├── youtube-web-ai-clean.html   # Main UI
 
 {
 
-  "video_id": "VIDEO_ID",# The extension files are in extension/build/
+  "video_id": "VIDEO_ID",│   │   ├── css/Test the optimized version at: **http://127.0.0.1:8000/static/extension-test.html**
 
-  "title": "Video Title",# Reload the extension in Chrome after changes
+  "title": "Video Title",
 
-  "channel": "Channel Name",```
+  "channel": "Channel Name",│   │   │   └── youtube-web-ai.css      # Styles
 
   "chunks_count": 45,
 
-  "language": "en",### Docker Development
+  "language": "en",│   │   └── js/An intelligent Chrome extension that allows users to ask questions about YouTube video content using AI. The extension extracts video transcripts, processes them with AI, and provides accurate answers based on the video content.
 
-  "status": "processed"```bash
+  "status": "processed"
 
-}cd deploy
-
-```docker-compose up --build
+}│   │       └── youtube-web-ai.js       # Frontend logic
 
 ```
 
+│   ├── requirements.txt            # Python dependencies## Features
+
+</details>
+
+│   └── start_server.py            # Server startup script
+
+<details>
+
+<summary><b>POST /langchain/ask-question</b> - Ask About YouTube Video</summary>├── extension/                      # Chrome extension (optional)- 🎥 **YouTube Integration**: Automatically detects YouTube videos and extracts transcripts
+
+
+
+**Request:**│   ├── manifest.json- 🤖 **AI-Powered Q&A**: Ask any question about video content and get intelligent answers
+
+```json
+
+{│   ├── popup.html- 🔍 **Semantic Search**: Find relevant sections of videos based on your questions
+
+  "video_id": "VIDEO_ID",
+
+  "question": "What is the main topic?"│   ├── popup.js- 💬 **Chat Interface**: Intuitive chat-style interface for asking questions
+
+}
+
+```│   └── background/- ⚡ **Real-time Processing**: Fast response times with efficient text chunking and embedding
+
+
+
+**Response:**├── myenv/                          # Python virtual environment- 🔒 **Privacy Focused**: Process videos on-demand, no permanent storage of personal data
+
+```json
+
+{├── README.md                       # This file
+
+  "question": "What is the main topic?",
+
+  "answer": "The video discusses...\n\nKey points:\n- Point 1\n- Point 2",└── LICENSE                         # MIT License## Architecture
+
+  "confidence": 0.85,
+
+  "method": "langchain_qa",```
+
+  "language": "en"
+
+}### Frontend (Chrome Extension)
+
+```
+
+---- **Manifest V3** Chrome extension
+
+</details>
+
+- **Content Scripts** for YouTube integration
+
+<details>
+
+<summary><b>POST /web/extract-content</b> - Extract Web Content</summary>## 📦 Installation- **Popup Interface** for user interaction
+
+
+
+**Request:**- **Background Service Worker** for coordination
+
+```json
+
+{### **Prerequisites**
+
+  "url": "https://example.com/article"
+
+}- Python 3.11 or higher### Backend (FastAPI)
+
+```
+
+- pip (Python package manager)- **FastAPI** web framework
+
+**Response:**
+
+```json- 8GB RAM minimum (for embedding models)- **YouTube Transcript API** for video content extraction
+
+{
+
+  "url": "https://example.com/article",- Internet connection (for API calls)- **OpenAI GPT** for question answering
+
+  "title": "Article Title",
+
+  "content": "Full extracted text...",- **Sentence Transformers** for text embeddings
+
+  "word_count": 1234,
+
+  "char_count": 7890### **Step 1: Clone Repository**- **FAISS** for vector similarity search
+
+}
+
+``````bash
+
+
+
+</details>git clone https://github.com/P-Saroha/Agent-For-YT-Video.git## Quick Start
+
+
+
+<details>cd video-ai-assistant
+
+<summary><b>POST /web/ask-question</b> - Ask About Web Content</summary>
+
+```### Prerequisites
+
+**Request:**
+
+```json- Python 3.11+
+
+{
+
+  "url": "https://example.com/article",### **Step 2: Create Virtual Environment**- Node.js (optional, for development)
+
+  "question": "What is discussed?"
+
+}```bash- OpenAI API key
+
+```
+
+python -m venv myenv- YouTube API key (optional, for enhanced metadata)
+
+**Response:**
+
+```json
+
+{
+
+  "success": true,# On Windows### Installation
+
+  "answer": "The article covers...",
+
+  "confidence": 0.8,myenv\Scripts\activate
+
+  "chunks_used": 8
+
+}1. **Clone the repository**
+
+```
+
+# On macOS/Linux   ```bash
+
+</details>
+
+source myenv/bin/activate   git clone <repository-url>
+
+---
+
+```   cd video-ai-assistant
+
+## ⚙️ Configuration
+
+   ```
+
+### **Environment Variables**
+
+### **Step 3: Install Dependencies**
+
+Create `.env` file in `server` directory:
+
+```bash2. **Set up the backend**
+
+```env
+
+# Requiredcd server   ```bash
+
+GEMINI_API_KEY=your_gemini_api_key_here
+
+pip install -r requirements.txt   cd server
+
+# Optional (defaults shown)
+
+HOST=0.0.0.0```   python -m venv venv
+
+PORT=8000
+
+RELOAD=True   
+
+LOG_LEVEL=info
+
+```### **Step 4: Configure API Key**   # On Windows
+
+
+
+### **Service Configuration**Create a `.env` file in the `server` directory:   venv\Scripts\activate
+
+
+
+| Service | Chunk Size | Overlap | Retrieval (k) | Model |```env   # On macOS/Linux
+
+|---------|------------|---------|---------------|-------|
+
+| **YouTube** | 800 chars | 100 chars | 10 chunks | paraphrase-multilingual-MiniLM-L12-v2 |GEMINI_API_KEY=your_gemini_api_key_here   source venv/bin/activate
+
+| **Web** | 1000 chars | 200 chars | 8 chunks | all-mpnet-base-v2 |
+
+| **LLM** | - | - | - | gemini-2.5-flash (temp 0.0) |```   
+
+
+
+---   pip install -r requirements.txt
+
+
+
+## 🐛 Troubleshooting**Get your Gemini API key:**   ```
+
+
+
+<table>1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
+
+<tr>
+
+<th>Issue</th>2. Click "Create API Key"3. **Configure environment variables**
+
+<th>Solution</th>
+
+</tr>3. Copy and paste into `.env` file   ```bash
+
+<tr>
+
+<td>❌ "Could not get transcript"</td>   cp .env.example .env
+
+<td>
+
+• Video has no captions<br/>### **Step 5: Start Server**   # Edit .env with your API keys
+
+• Video is private/age-restricted<br/>
+
+• Try a different video```bash   ```
+
+</td>
+
+</tr># From server directory
+
+<tr>
+
+<td>❌ "HTTP 403 Forbidden"</td>python start_server.py4. **Start the backend server**
+
+<td>
+
+• Website blocks scraping<br/>   ```bash
+
+• Use different URL<br/>
+
+• Some sites need JS rendering# Or using uvicorn directly   uvicorn app.main:app --reload
+
+</td>
+
+</tr>uvicorn app.main:app --reload --host 0.0.0.0 --port 8000   ```
+
+<tr>
+
+<td>❌ "Out of memory"</td>```
+
+<td>
+
+• Reduce chunk_size<br/>5. **Build and install the extension**
+
+• Reduce retrieval_k<br/>
+
+• Increase system RAMServer will start at: **http://localhost:8000**   ```bash
+
+</td>
+
+</tr>   # Build the extension
+
+<tr>
+
+<td>❌ "Gemini API error"</td>---   cd ../
+
+<td>
+
+• Check API key in .env<br/>   chmod +x scripts/build_ext.sh
+
+• Verify quota remaining<br/>
+
+• Check internet connection## 🎮 Usage   ./scripts/build_ext.sh
+
+</td>
+
+</tr>   ```
+
+<tr>
+
+<td>❌ "Port already in use"</td>### **Web Interface**
+
+<td>
+
+• <code>netstat -ano | findstr :8000</code><br/>6. **Load extension in Chrome**
+
+• <code>taskkill /PID &lt;id&gt; /F</code><br/>
+
+• Use different port1. Open browser and navigate to:   - Open Chrome and go to `chrome://extensions/`
+
+</td>
+
+</tr>   ```   - Enable "Developer mode"
+
+</table>
+
+   http://localhost:8000/static/youtube-web-ai-clean.html   - Click "Load unpacked" and select `extension/build/` folder
+
+---
+
+   ```
+
+## 🎯 Project Structure
+
+## Usage
+
+```
+
+video-ai-assistant/2. **For YouTube Videos:**
+
+│
+
+├── 📁 server/                      # Backend application   - Switch to "YouTube Analysis" mode1. **Navigate to any YouTube video**
+
+│   ├── 📁 app/
+
+│   │   ├── 📄 main.py             # FastAPI entry point   - Paste any YouTube URL2. **Click the extension icon** to open the AI assistant
+
+│   │   ├── 📄 config.py           # Configuration
+
+│   │   ├── 📁 routes/             # API endpoints   - Click "Analyze Video"3. **Process the video** by clicking "Process Video" (or it auto-detects current video)
+
+│   │   │   ├── langchain_routes.py
+
+│   │   │   ├── web_routes.py   - Wait for processing (5-15 seconds)4. **Ask questions** about the video content in the chat interface
+
+│   │   │   ├── simple_routes.py
+
+│   │   │   └── health.py   - Ask questions in the text box5. **Get AI-powered answers** based on the video transcript
+
+│   │   ├── 📁 services/           # Business logic
+
+│   │   │   ├── langchain_service.py    # YouTube RAG   - Get instant, intelligent answers
+
+│   │   │   ├── rag_web_service.py      # Web RAG
+
+│   │   │   ├── fast_web_service.py     # Fast scraper## Example Questions
+
+│   │   │   └── simple_ai_service.py    # Fallback
+
+│   │   └── 📁 models/             # Data models3. **For Web Pages:**
+
+│   ├── 📁 static/                 # Frontend files
+
+│   │   ├── youtube-web-ai-clean.html   - Switch to "Web Analysis" mode- "What are the main topics discussed in this video?"
+
+│   │   ├── 📁 css/
+
+│   │   └── 📁 js/   - Paste any website URL- "Can you summarize the key points?"
+
+│   ├── 📄 requirements.txt        # Dependencies
+
+│   └── 📄 start_server.py        # Server startup   - Click "Analyze Website"- "What did they say about [specific topic]?"
+
+│
+
+├── 📁 extension/                   # Chrome extension (optional)   - Wait for scraping (3-10 seconds)- "At what time do they discuss [topic]?"
+
+│   ├── manifest.json
+
+│   ├── popup.html   - Ask questions about the content- "What are the conclusions or takeaways?"
+
+│   └── popup.js
+
+│   - Get answers based on page content
+
+├── 📁 myenv/                      # Virtual environment
+
+├── 📄 README.md                   # This file## API Endpoints
+
+└── 📄 LICENSE                     # MIT License
+
+```### **Example Questions**
+
+
+
+---### Process Video
+
+
+
+## 🤝 Contributing**For YouTube Videos:**```http
+
+
+
+We love contributions! Here's how you can help:```POST /process-video
+
+
+
+<div align="center">"What is the main topic of this video?"Content-Type: application/json
+
+
+
+| 🐛 Report Bug | 💡 Request Feature | 🔧 Submit PR |"Summarize the key points"
+
+|:---:|:---:|:---:|
+
+| [Open Issue](https://github.com/P-Saroha/Agent-For-YT-Video/issues/new?template=bug_report.md) | [Open Issue](https://github.com/P-Saroha/Agent-For-YT-Video/issues/new?template=feature_request.md) | [Create PR](https://github.com/P-Saroha/Agent-For-YT-Video/compare) |"What does the speaker say about [topic]?"{
+
+
+
+</div>"List the steps mentioned in the tutorial"  "video_url": "https://www.youtube.com/watch?v=VIDEO_ID"
+
+
+
+### **Development Guidelines**```}
+
+
+
+1. 🔱 Fork the repository```
+
+2. 🌿 Create feature branch (`git checkout -b feature/AmazingFeature`)
+
+3. ✍️ Commit changes (`git commit -m 'Add AmazingFeature'`)**For Web Pages:**
+
+4. 📤 Push to branch (`git push origin feature/AmazingFeature`)
+
+5. 🎉 Open Pull Request```### Ask Question
+
+
+
+---"What is this article about?"```http
+
+
+
+## 📈 Roadmap"What are the main features discussed?"POST /ask-question
+
+
+
+- [ ] 🎬 Multi-video comparison"Summarize the pricing information"Content-Type: application/json
+
+- [ ] 💾 Export conversation history
+
+- [ ] 📄 PDF document analysis"What requirements are mentioned?"
+
+- [ ] 🎤 Audio file transcription
+
+- [ ] 🖼️ Image content extraction (OCR)```{
+
+- [ ] 🌍 Multi-language UI
+
+- [ ] 🔐 User authentication  "video_id": "VIDEO_ID",
+
+- [ ] 📊 Usage analytics dashboard
+
+- [ ] 🐳 Docker containerization---  "question": "Your question here"
+
+- [ ] ☸️ Kubernetes deployment
+
+}
+
+---
+
+## 📚 API Documentation```
+
+## 📜 License
+
+
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+### **Health Check**### Health Check
+
+<div align="center">
+
+```http```http
+
+### **Free to use, modify, and distribute!**
+
+GET /healthGET /health
+
+</div>
+
+``````
+
+---
+
+Returns API status and version information.
+
+## 👏 Acknowledgments
+
+## Development
+
+<div align="center">
+
+### **YouTube Video Processing**
+
+Special thanks to the amazing open-source community!
+
+```http### Backend Development
+
+| Technology | Purpose |
+
+|:---:|:---:|POST /langchain/process-video```bash
+
+| 🤖 **Google Gemini** | Powerful LLM |
+
+| 🔗 **LangChain** | RAG Framework |Content-Type: application/jsoncd server
+
+| 🤗 **HuggingFace** | Embeddings |
+
+| 🎨 **Chroma** | Vector Database |pip install -r requirements.txt
+
+| ⚡ **FastAPI** | Web Framework |
+
+| 🎬 **YouTube API** | Transcripts |{uvicorn app.main:app --reload --log-level debug
+
+
+
+</div>  "video_url": "https://www.youtube.com/watch?v=VIDEO_ID"```
+
+
+
+---}
+
+
+
+## 👤 Author```### Extension Development
+
+
+
+<div align="center">```bash
+
+
+
+### **Pankaj Saroha****Response:**# Build extension
+
+
+
+[![GitHub](https://img.shields.io/badge/GitHub-P--Saroha-181717?style=for-the-badge&logo=github)](https://github.com/P-Saroha)```json./scripts/build_ext.sh
+
+[![Repository](https://img.shields.io/badge/Repository-Agent--For--YT--Video-00ADD8?style=for-the-badge&logo=github)](https://github.com/P-Saroha/Agent-For-YT-Video)
+
+{
+
+</div>
+
+  "video_id": "VIDEO_ID",# The extension files are in extension/build/
+
+---
+
+  "title": "Video Title",# Reload the extension in Chrome after changes
+
+## 📞 Support
+
+  "channel": "Channel Name",```
+
+<div align="center">
+
+  "chunks_count": 45,
+
+Need help? We're here for you!
+
+  "language": "en",### Docker Development
+
+[![Issues](https://img.shields.io/badge/Report_Bug-red?style=for-the-badge&logo=github)](https://github.com/P-Saroha/Agent-For-YT-Video/issues)
+
+[![Discussions](https://img.shields.io/badge/Ask_Question-blue?style=for-the-badge&logo=github)](https://github.com/P-Saroha/Agent-For-YT-Video/discussions)  "status": "processed"```bash
+
+[![Email](https://img.shields.io/badge/Email-Contact-green?style=for-the-badge&logo=gmail)](mailto:your.email@example.com)
+
+}cd deploy
+
+</div>
+
+```docker-compose up --build
+
+---
+
+```
+
+<div align="center">
+
 ### **Ask Question (YouTube)**
+
+## ⭐ **Star History**
 
 ```http## Configuration
 
+[![Star History Chart](https://api.star-history.com/svg?repos=P-Saroha/Agent-For-YT-Video&type=Date)](https://star-history.com/#P-Saroha/Agent-For-YT-Video&Date)
+
 POST /langchain/ask-question
+
+---
 
 Content-Type: application/json### Environment Variables
 
+### 💖 **Made with Love & AI**
 
+
+
+**If you find this project helpful, please give it a ⭐ star!**
 
 {| Variable | Description | Default |
 
+<sub>Built with Python • FastAPI • LangChain • Google Gemini • HuggingFace • Chroma</sub>
+
   "video_id": "VIDEO_ID",|----------|-------------|---------|
+
+---
 
   "question": "What is the main topic?"| `OPENAI_API_KEY` | OpenAI API key for GPT | Required |
 
+*Last Updated: October 2025*
+
 }| `OPENAI_MODEL` | GPT model to use | `gpt-3.5-turbo` |
+
+</div>
 
 ```| `YOUTUBE_API_KEY` | YouTube Data API key | Optional |
 
