@@ -1,344 +1,686 @@
-# YouTube & Web AI Assistant<div align="center"># 🎬 YouTube + Web AI Assistant# 🎬 YouTube AI Assistant - Optimized for Chrome Extension
+# YouTube & Web AI Assistant# YouTube & Web AI Assistant<div align="center"># 🎬 YouTube + Web AI Assistant# 🎬 YouTube AI Assistant - Optimized for Chrome Extension
 
 
 
-Intelligent RAG-powered AI assistant for YouTube videos and web content.
+<div align="center">
+
+  
+
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)Intelligent RAG-powered AI assistant for YouTube videos and web content.
+
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com)
+
+[![LangChain](https://img.shields.io/badge/LangChain-Latest-orange.svg)](https://langchain.com)
+
+[![Gemini AI](https://img.shields.io/badge/Gemini-2.5%20Flash-purple.svg)](https://ai.google.dev)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)## Overview# 🎬 YouTube + Web AI Assistant
 
 
 
-## Overview# 🎬 YouTube + Web AI Assistant
+**Intelligent RAG-Powered Assistant for YouTube Videos and Web Content**
 
 
 
-This application provides intelligent answers about YouTube videos and web content using advanced RAG (Retrieval-Augmented Generation) technology. It extracts transcripts from YouTube videos, scrapes web pages, and uses AI to deliver accurate, context-aware responses.
+*Ask questions, get accurate answers powered by advanced AI*This application provides intelligent answers about YouTube videos and web content using advanced RAG (Retrieval-Augmented Generation) technology. It extracts transcripts from YouTube videos, scrapes web pages, and uses AI to deliver accurate, context-aware responses.
 
 
 
-## Key Features### *Intelligent Content Analysis Powered by Advanced RAG Technology***AI-powered content analysis for YouTube videos and web pages with advanced RAG (Retrieval Augmented Generation) system**## 🚀 **Optimized Storage & Performance System**
+</div>
 
 
 
-**YouTube Processing**
+---## Key Features### *Intelligent Content Analysis Powered by Advanced RAG Technology***AI-powered content analysis for YouTube videos and web pages with advanced RAG (Retrieval Augmented Generation) system**## 🚀 **Optimized Storage & Performance System**
+
+
+
+## 🎯 **What This Does**
+
+
+
+### **🎥 YouTube Video Analysis****YouTube Processing**
+
+**URL:** [http://localhost:8000](http://localhost:8000)
 
 - Automatic transcript extraction with multi-language support
 
+Ask questions about any YouTube video and get intelligent answers based on the actual transcript.
+
 - Semantic chunking for better context understanding<p align="center">
 
-- 10-chunk retrieval for comprehensive answers
+### **🌐 Web Content Analysis**
 
-  <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python"/>
-
-**Web Content Analysis**
-
-- Advanced async web scraping with content cleaning  <img src="https://img.shields.io/badge/FastAPI-0.104+-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI"/>[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)### 📊 **Your Questions Answered**
-
-- Smart text extraction (removes ads and navigation)
-
-- 8-chunk retrieval for detailed responses  <img src="https://img.shields.io/badge/LangChain-Latest-121212?style=for-the-badge" alt="LangChain"/>
+Extract and analyze content from any web page with smart AI responses.- 10-chunk retrieval for comprehensive answers
 
 
 
-**AI Intelligence**  <img src="https://img.shields.io/badge/Gemini-2.5_Flash-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Gemini"/>[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
+---  <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python"/>
 
-- Google Gemini 2.5 Flash model
 
-- Natural ChatGPT-style responses</p>
 
-- Deterministic output (temperature 0.0)
+## ✨ **Key Features****Web Content Analysis**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)**Q: Do you store video transcripts when users provide video links?**
 
-## Technology Stack
 
-<p align="center">
+### **🎬 YouTube Processing**- Advanced async web scraping with content cleaning  <img src="https://img.shields.io/badge/FastAPI-0.104+-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI"/>[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)### 📊 **Your Questions Answered**
 
-- **Backend**: FastAPI with async support
+- Automatic transcript extraction (multi-language support)
 
-- **AI Model**: Google Gemini 2.5 Flash  <img src="https://img.shields.io/github/license/P-Saroha/Agent-For-YT-Video?style=flat-square" alt="License"/>✅ **YES** - Smart caching system:
+- Smart text chunking for better context- Smart text extraction (removes ads and navigation)
 
-- **RAG Framework**: LangChain
+- Retrieves 10 chunks for comprehensive answers
 
-- **Vector Database**: Chroma  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square" alt="PRs Welcome"/>
+- Works with any public YouTube video- 8-chunk retrieval for detailed responses  <img src="https://img.shields.io/badge/LangChain-Latest-121212?style=for-the-badge" alt="LangChain"/>
 
-- **Embeddings**: HuggingFace (paraphrase-multilingual-MiniLM-L12-v2 for YouTube, all-mpnet-base-v2 for web)
+
+
+### **🌍 Web Scraping**
+
+- Advanced async web scraping
+
+- Removes ads, navigation, and clutter**AI Intelligence**  <img src="https://img.shields.io/badge/Gemini-2.5_Flash-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Gemini"/>[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
+
+- Clean text extraction for better analysis
+
+- Retrieves 8 chunks for detailed responses- Google Gemini 2.5 Flash model
+
+
+
+### **🤖 AI Intelligence**- Natural ChatGPT-style responses</p>
+
+- Google Gemini 2.5 Flash (latest model)
+
+- Natural ChatGPT-style responses- Deterministic output (temperature 0.0)
+
+- Temperature 0.0 for consistent, accurate answers
+
+- Automatic formatting cleanup[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)**Q: Do you store video transcripts when users provide video links?**
+
+
+
+---## Technology Stack
+
+
+
+## 🛠️ **Technology Stack**<p align="center">
+
+
+
+| Component | Technology | Purpose |- **Backend**: FastAPI with async support
+
+|-----------|-----------|---------|
+
+| **Backend** | FastAPI | High-performance async API server |- **AI Model**: Google Gemini 2.5 Flash  <img src="https://img.shields.io/github/license/P-Saroha/Agent-For-YT-Video?style=flat-square" alt="License"/>✅ **YES** - Smart caching system:
+
+| **AI Model** | Google Gemini 2.5 Flash | Latest language model for responses |
+
+| **RAG Framework** | LangChain | Retrieval-augmented generation |- **RAG Framework**: LangChain
+
+| **Vector Database** | Chroma | Temporary in-memory vector storage |
+
+| **Embeddings (YouTube)** | paraphrase-multilingual-MiniLM-L12-v2 | 384-dim multilingual embeddings |- **Vector Database**: Chroma  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square" alt="PRs Welcome"/>
+
+| **Embeddings (Web)** | all-mpnet-base-v2 | 768-dim English-optimized embeddings |
+
+| **Web Scraping** | aiohttp + BeautifulSoup4 | Async content extraction |- **Embeddings**: HuggingFace (paraphrase-multilingual-MiniLM-L12-v2 for YouTube, all-mpnet-base-v2 for web)
+
+| **Frontend** | Vanilla JavaScript | Clean glassmorphism UI |
 
 - **Web Scraping**: aiohttp + BeautifulSoup4  <img src="https://img.shields.io/github/stars/P-Saroha/Agent-For-YT-Video?style=flat-square" alt="Stars"/>---- Transcripts are processed and stored in chunks
 
+---
+
 - **Frontend**: Vanilla JavaScript with glassmorphism UI
+
+## 🚀 **Quick Start**
 
 </p>
 
-## Quick Start
+### **Prerequisites**
+
+- Python 3.11 or higher## Quick Start
+
+- Google Gemini API key (free at [ai.google.dev](https://ai.google.dev))
 
 - Uses SQLite database for lightweight persistence
 
+### **Installation**
+
 ### Prerequisites
 
-<h3>
+```bash
 
-- Python 3.11+
+# Clone repository<h3>
 
-- Google Gemini API key  <a href="#-quick-start">Quick Start</a> •## 📋 Table of Contents- Implements LRU (Least Recently Used) cache management
+git clone https://github.com/P-Saroha/Agent-For-YT-Video.git
 
-
-
-### Installation  <a href="#-features">Features</a> •
+cd Agent-For-YT-Video- Python 3.11+
 
 
 
-```bash  <a href="#-how-it-works">How It Works</a> •- [Overview](#-overview)
+# Create virtual environment- Google Gemini API key  <a href="#-quick-start">Quick Start</a> •## 📋 Table of Contents- Implements LRU (Least Recently Used) cache management
 
-# Clone repository
-
-git clone https://github.com/P-Saroha/Agent-For-YT-Video.git  <a href="#-demo">Demo</a> •
-
-cd Agent-For-YT-Video
-
-  <a href="#-api">API</a>- [Key Features](#-key-features)**Q: Are you using vector database to store transcripts?**  
-
-# Create virtual environment
-
-python -m venv myenv</h3>
+python -m venv myenv
 
 myenv\Scripts\activate  # Windows
 
-source myenv/bin/activate  # Linux/Mac- [How It Works](#-how-it-works)✅ **YES** - Optimized Chroma vector database:
+source myenv/bin/activate  # Linux/Mac
 
+### Installation  <a href="#-features">Features</a> •
 
-
-# Install dependencies</div>
+# Install dependencies
 
 cd server
 
-pip install -r requirements.txt- [Architecture](#-architecture)- HuggingFace embeddings for similarity search
+pip install -r requirements.txt
+
+``````bash  <a href="#-how-it-works">How It Works</a> •- [Overview](#-overview)
 
 
 
-# Set up environment variables---
-
-# Create .env file in server directory with:
-
-# GEMINI_API_KEY=your_api_key_here- [Installation](#-installation)- Temporary vector stores per video
+### **Configuration**# Clone repository
 
 
 
-# Start server## 🌟 What Makes This Special?
+Create `.env` file in `server` directory:git clone https://github.com/P-Saroha/Agent-For-YT-Video.git  <a href="#-demo">Demo</a> •
 
-python start_server.py
 
-- [Usage](#-usage)- Smart cleanup to prevent storage bloat
+
+```envcd Agent-For-YT-Video
+
+GEMINI_API_KEY=your_api_key_here
+
+PORT=8000  <a href="#-api">API</a>- [Key Features](#-key-features)**Q: Are you using vector database to store transcripts?**  
+
+HOST=0.0.0.0
+
+```# Create virtual environment
+
+
+
+### **Run the Server**python -m venv myenv</h3>
+
+
+
+```bashmyenv\Scripts\activate  # Windows
+
+# From server directory
+
+python start_server.pysource myenv/bin/activate  # Linux/Mac- [How It Works](#-how-it-works)✅ **YES** - Optimized Chroma vector database:
+
+
 
 # Open browser at http://localhost:8000
 
-```<table>
+```
+
+# Install dependencies</div>
+
+---
+
+cd server
+
+## 📡 **API Endpoints**
+
+pip install -r requirements.txt- [Architecture](#-architecture)- HuggingFace embeddings for similarity search
+
+### **YouTube Processing**
+
+```bash
+
+POST /api/youtube/ask
+
+Content-Type: application/json# Set up environment variables---
 
 
 
-## API Endpoints<tr>- [API Documentation](#-api-documentation)
+{# Create .env file in server directory with:
+
+  "video_url": "https://youtube.com/watch?v=VIDEO_ID",
+
+  "question": "What is this video about?"# GEMINI_API_KEY=your_api_key_here- [Installation](#-installation)- Temporary vector stores per video
+
+}
+
+```
 
 
 
-### YouTube Processing<td width="50%">
+### **Web Content Processing**# Start server## 🌟 What Makes This Special?
+
+```bash
+
+POST /api/web/askpython start_server.py
+
+Content-Type: application/json
+
+- [Usage](#-usage)- Smart cleanup to prevent storage bloat
+
+{
+
+  "url": "https://example.com/article",# Open browser at http://localhost:8000
+
+  "question": "Summarize the main points"
+
+}```<table>
+
+```
+
+
+
+### **Simple AI (No Context)**
+
+```bash## API Endpoints<tr>- [API Documentation](#-api-documentation)
+
+POST /api/simple/ask
+
+Content-Type: application/json
+
+
+
+{### YouTube Processing<td width="50%">
+
+  "question": "Any general question"
+
+}```
 
 ```
 
 POST /api/youtube/ask- [Troubleshooting](#-troubleshooting)**Q: Won't storing transcripts for every video be too large?**
 
+---
+
 Body: {"video_url": "...", "question": "..."}
+
+## 📂 **Project Structure**
 
 ```### 🎯 **Dual-Mode Analysis**
 
+```
 
+video-ai-assistant/
 
-### Web Content ProcessingAnalyze both **YouTube videos** and **web pages** seamlessly. One interface, unlimited possibilities.✅ **SOLVED** - Multiple optimizations implemented:
+├── server/
+
+│   ├── start_server.py              # Server entry point### Web Content ProcessingAnalyze both **YouTube videos** and **web pages** seamlessly. One interface, unlimited possibilities.✅ **SOLVED** - Multiple optimizations implemented:
+
+│   ├── requirements.txt             # Dependencies
+
+│   └── app/```
+
+│       ├── main.py                  # FastAPI application
+
+│       ├── config.py                # ConfigurationPOST /api/web/ask
+
+│       ├── routes/                  # API endpoints
+
+│       │   ├── youtube_routes.pyBody: {"url": "...", "question": "..."}
+
+│       │   ├── web_routes.py
+
+│       │   └── simple_routes.py```### 🧠 **Advanced RAG Pipeline**---
+
+│       └── services/                # Business logic
+
+│           ├── langchain_service.py      # YouTube RAG
+
+│           ├── rag_web_service.py        # Web RAG
+
+│           ├── fast_web_service.py       # Fast scraper### Simple AIState-of-the-art Retrieval Augmented Generation with vector embeddings and semantic search.
+
+│           └── simple_ai_service.py      # Direct AI
+
+│```
+
+├── static/
+
+│   ├── youtube-web-ai-clean.html    # Main UIPOST /api/simple/ask## 🎯 **Extension Optimizations**
+
+│   └── js/
+
+│       └── youtube-web-ai.js        # Frontend logicBody: {"question": "..."}
+
+│
+
+└── extension/                       # Chrome extension (optional)```### ⚡ **Lightning Fast**
 
 ```
 
-POST /api/web/ask
-
-Body: {"url": "...", "question": "..."}
-
-```### 🧠 **Advanced RAG Pipeline**---
 
 
-
-### Simple AIState-of-the-art Retrieval Augmented Generation with vector embeddings and semantic search.
-
-```
-
-POST /api/simple/ask## 🎯 **Extension Optimizations**
-
-Body: {"question": "..."}
-
-```### ⚡ **Lightning Fast**
-
-
+---
 
 ## Project StructureOptimized chunk retrieval (10 for YouTube, 8 for web) delivers comprehensive answers in seconds.## 🎯 Overview
 
+## ⚙️ **Configuration & Optimization**
 
+
+
+### **Model Settings**
 
 ```
 
+Edit `app/config.py` to customize:
+
 server/
-
-├── start_server.py          # Server entry point</td>### 📏 **Size Limits**
-
-├── requirements.txt         # Dependencies
-
-└── app/<td width="50%">
-
-    ├── main.py              # FastAPI application
-
-    ├── config.py            # ConfigurationThis project provides an intelligent AI assistant that can:- **50KB max transcript** per video (truncated if larger)
-
-    ├── routes/              # API endpoints
-
-    └── services/            # Business logic### 🎨 **Natural Responses**
-
-        ├── langchain_service.py      # YouTube RAG
-
-        ├── rag_web_service.py        # Web RAGChatGPT-style formatting with perfect mix of paragraphs, bullets, and clear structure.- **Analyze YouTube videos** by processing transcripts- **800 characters max** per chunk (vs 1000 in original)
-
-        ├── fast_web_service.py       # Fast scraper
-
-        └── simple_ai_service.py      # Direct AI
-
-
-
-static/### 🔒 **Production Ready**- **Scrape and analyze web content** from any URL- **20 chunks max** per video (vs unlimited)
-
-├── youtube-web-ai-clean.html  # Main UI
-
-└── js/Clean code, proper error handling, no debug artifacts. Deploy with confidence.
-
-    └── youtube-web-ai.js      # Frontend logic
-
-```- **Answer questions** using advanced RAG with vector similarity search- **5 videos max** in memory cache (LRU eviction)
-
-
-
-## Configuration### 🎭 **Beautiful UI**
-
-
-
-Create `.env` file in server directory:Modern glassmorphism design with dark mode. Stunning user experience.- **Provide natural, ChatGPT-style responses** with mixed formatting
-
-
-
-```env
-
-GEMINI_API_KEY=your_gemini_api_key
-
-PORT=8000</td>### 🗄️ **Smart Storage**
-
-HOST=0.0.0.0
-
-```</tr>
-
-
-
-Customize settings in `app/config.py`:</table>### What Makes This Special?- **SQLite database** for metadata (lightweight vs full embeddings)
-
-
 
 ```python
 
-# AI Model
+# AI Model├── start_server.py          # Server entry point</td>### 📏 **Size Limits**
 
-MODEL_NAME = "gemini-2.0-flash-exp"---- **Temporary vector stores** (cleaned up automatically)
+MODEL_NAME = "gemini-2.0-flash-exp"
 
-TEMPERATURE = 0.0
-
-
-
-# YouTube RAG
-
-YOUTUBE_CHUNK_SIZE = 800## 🚀 Quick Start✅ **Advanced RAG Pipeline** - Proper chunking, embeddings, and vector search  - **3-day auto cleanup** of old cache entries
-
-YOUTUBE_CHUNK_OVERLAP = 100
-
-YOUTUBE_RETRIEVAL_K = 10
+TEMPERATURE = 0.0  # Deterministic responses├── requirements.txt         # Dependencies
 
 
 
-# Web RAG```bash✅ **Dual Content Support** - Both YouTube videos and web pages  - **LRU cache management** for memory efficiency
+# YouTube RAG└── app/<td width="50%">
 
-WEB_CHUNK_SIZE = 1000
+YOUTUBE_CHUNK_SIZE = 800
 
-WEB_CHUNK_OVERLAP = 200# Clone the repository
+YOUTUBE_CHUNK_OVERLAP = 100    ├── main.py              # FastAPI application
 
-WEB_RETRIEVAL_K = 8
+YOUTUBE_RETRIEVAL_K = 10  # Number of chunks retrieved
 
-```git clone https://github.com/P-Saroha/Agent-For-YT-Video.git✅ **Clean Responses** - Natural mix of paragraphs and bullet points like ChatGPT  
+    ├── config.py            # ConfigurationThis project provides an intelligent AI assistant that can:- **50KB max transcript** per video (truncated if larger)
 
+# Web RAG
 
+WEB_CHUNK_SIZE = 1000    ├── routes/              # API endpoints
 
-## Performancecd video-ai-assistant
+WEB_CHUNK_OVERLAP = 200
 
+WEB_RETRIEVAL_K = 8  # Number of chunks retrieved    └── services/            # Business logic### 🎨 **Natural Responses**
 
+```
 
-- **YouTube**: 800-char chunks, 100-char overlap, 10 chunks retrieved, 384-dim embeddings✅ **High Performance** - Optimized chunk retrieval (10 chunks for YouTube, 8 for web)  ### ⚡ **Performance Optimizations**
+        ├── langchain_service.py      # YouTube RAG
 
-- **Web**: 1000-char chunks, 200-char overlap, 8 chunks retrieved, 768-dim embeddings
+---
 
-- **Response Time**: 3-6 seconds average# Create virtual environment
+        ├── rag_web_service.py        # Web RAGChatGPT-style formatting with perfect mix of paragraphs, bullets, and clear structure.- **Analyze YouTube videos** by processing transcripts- **800 characters max** per chunk (vs 1000 in original)
 
-- **Temperature**: 0.0 for consistent, deterministic responses
+## 📊 **Performance Metrics**
 
-python -m venv myenv✅ **Production Ready** - Clean code, no debug emojis, proper error handling  - **15-second timeout** for extension responsiveness
+        ├── fast_web_service.py       # Fast scraper
 
-## Troubleshooting
+### **YouTube Processing**
 
-myenv\Scripts\activate  # Windows
+- **Chunk Size:** 800 characters        └── simple_ai_service.py      # Direct AI
 
-| Issue | Solution |
+- **Chunk Overlap:** 100 characters
 
-|-------|----------|# source myenv/bin/activate  # macOS/Linux✅ **Modern UI** - Beautiful glassmorphism design with dark mode  - **Smaller embedding model** (`all-MiniLM-L6-v2` vs multilingual large)
+- **Retrieval Count:** 10 chunks
 
-| API key error | Set GEMINI_API_KEY in .env file |
+- **Embedding Dimension:** 384
 
-| Transcript unavailable | Video may not have captions |
-
-| Web scraping failed | Site may be JavaScript-heavy or blocking bots |
-
-| Empty response | Check if content was extracted successfully |# Install dependencies- **3 similar chunks** for answers (vs 5)
-
-
-
-## Contributingcd server
+- **Response Time:** 3-5 secondsstatic/### 🔒 **Production Ready**- **Scrape and analyze web content** from any URL- **20 chunks max** per video (vs unlimited)
 
 
 
-1. Fork the repositorypip install -r requirements.txt---- **No source documents** returned to save memory
+### **Web Processing**├── youtube-web-ai-clean.html  # Main UI
+
+- **Chunk Size:** 1000 characters
+
+- **Chunk Overlap:** 200 characters└── js/Clean code, proper error handling, no debug artifacts. Deploy with confidence.
+
+- **Retrieval Count:** 8 chunks
+
+- **Embedding Dimension:** 768    └── youtube-web-ai.js      # Frontend logic
+
+- **Response Time:** 4-6 seconds
+
+```- **Answer questions** using advanced RAG with vector similarity search- **5 videos max** in memory cache (LRU eviction)
+
+---
+
+
+
+## 🔧 **How It Works**
+
+## Configuration### 🎭 **Beautiful UI**
+
+```
+
+┌─────────────────────────────────────────────────────────────────┐
+
+│                    RAG PIPELINE FLOW                            │
+
+└─────────────────────────────────────────────────────────────────┘Create `.env` file in server directory:Modern glassmorphism design with dark mode. Stunning user experience.- **Provide natural, ChatGPT-style responses** with mixed formatting
+
+
+
+User Question
+
+     │
+
+     ▼```env
+
+┌──────────────┐
+
+│ Content Type │ → YouTube URL or Web URL?GEMINI_API_KEY=your_gemini_api_key
+
+└──────────────┘
+
+     │PORT=8000</td>### 🗄️ **Smart Storage**
+
+     ├─── YouTube ──────────────┐
+
+     │                          │HOST=0.0.0.0
+
+     │   Extract Transcript     │
+
+     │   (multi-language)       │```</tr>
+
+     │                          │
+
+     └─── Web URL ──────────────┤
+
+                                │
+
+         Scrape Content         │Customize settings in `app/config.py`:</table>### What Makes This Special?- **SQLite database** for metadata (lightweight vs full embeddings)
+
+         (clean HTML)           │
+
+                                │
+
+                                ▼
+
+                    ┌──────────────────┐```python
+
+                    │  Text Chunking   │
+
+                    │  (Recursive)     │# AI Model
+
+                    └──────────────────┘
+
+                                │MODEL_NAME = "gemini-2.0-flash-exp"---- **Temporary vector stores** (cleaned up automatically)
+
+                                ▼
+
+                    ┌──────────────────┐TEMPERATURE = 0.0
+
+                    │ Generate         │
+
+                    │ Embeddings       │
+
+                    │ (HuggingFace)    │
+
+                    └──────────────────┘# YouTube RAG
+
+                                │
+
+                                ▼YOUTUBE_CHUNK_SIZE = 800## 🚀 Quick Start✅ **Advanced RAG Pipeline** - Proper chunking, embeddings, and vector search  - **3-day auto cleanup** of old cache entries
+
+                    ┌──────────────────┐
+
+                    │ Vector Store     │YOUTUBE_CHUNK_OVERLAP = 100
+
+                    │ (Chroma DB)      │
+
+                    └──────────────────┘YOUTUBE_RETRIEVAL_K = 10
+
+                                │
+
+                                ▼
+
+                    ┌──────────────────┐
+
+                    │ Retrieve Top     │# Web RAG```bash✅ **Dual Content Support** - Both YouTube videos and web pages  - **LRU cache management** for memory efficiency
+
+                    │ Relevant Chunks  │
+
+                    │ (10 or 8)        │WEB_CHUNK_SIZE = 1000
+
+                    └──────────────────┘
+
+                                │WEB_CHUNK_OVERLAP = 200# Clone the repository
+
+                                ▼
+
+                    ┌──────────────────┐WEB_RETRIEVAL_K = 8
+
+                    │ Gemini AI        │
+
+                    │ Generate Answer  │```git clone https://github.com/P-Saroha/Agent-For-YT-Video.git✅ **Clean Responses** - Natural mix of paragraphs and bullet points like ChatGPT  
+
+                    │ (Temperature 0.0)│
+
+                    └──────────────────┘
+
+                                │
+
+                                ▼## Performancecd video-ai-assistant
+
+                    Natural, Accurate Response
+
+```
+
+
+
+---- **YouTube**: 800-char chunks, 100-char overlap, 10 chunks retrieved, 384-dim embeddings✅ **High Performance** - Optimized chunk retrieval (10 chunks for YouTube, 8 for web)  ### ⚡ **Performance Optimizations**
+
+
+
+## 🐛 **Troubleshooting**- **Web**: 1000-char chunks, 200-char overlap, 8 chunks retrieved, 768-dim embeddings
+
+
+
+### **Common Issues**- **Response Time**: 3-6 seconds average# Create virtual environment
+
+
+
+| Problem | Solution |- **Temperature**: 0.0 for consistent, deterministic responses
+
+|---------|----------|
+
+| **API key error** | Make sure GEMINI_API_KEY is set in .env file |python -m venv myenv✅ **Production Ready** - Clean code, no debug emojis, proper error handling  - **15-second timeout** for extension responsiveness
+
+| **Transcript unavailable** | Video may not have captions or is private/age-restricted |
+
+| **Web scraping failed** | Site may be JavaScript-heavy or blocking bots |## Troubleshooting
+
+| **Empty response** | Check console logs for content extraction errors |
+
+| **Port already in use** | Change PORT in .env or stop other services on port 8000 |myenv\Scripts\activate  # Windows
+
+
+
+### **Debug Mode**| Issue | Solution |
+
+
+
+Set environment variable for detailed logs:|-------|----------|# source myenv/bin/activate  # macOS/Linux✅ **Modern UI** - Beautiful glassmorphism design with dark mode  - **Smaller embedding model** (`all-MiniLM-L6-v2` vs multilingual large)
+
+```bash
+
+export DEBUG=true  # Linux/Mac| API key error | Set GEMINI_API_KEY in .env file |
+
+set DEBUG=true     # Windows
+
+```| Transcript unavailable | Video may not have captions |
+
+
+
+---| Web scraping failed | Site may be JavaScript-heavy or blocking bots |
+
+
+
+## 🤝 **Contributing**| Empty response | Check if content was extracted successfully |# Install dependencies- **3 similar chunks** for answers (vs 5)
+
+
+
+Contributions are welcome! Here's how:
+
+
+
+1. Fork the repository## Contributingcd server
 
 2. Create feature branch: `git checkout -b feature-name`
 
+3. Make changes and test thoroughly
+
+4. Commit: `git commit -m 'Add feature'`
+
+5. Push: `git push origin feature-name`1. Fork the repositorypip install -r requirements.txt---- **No source documents** returned to save memory
+
+6. Open Pull Request
+
+2. Create feature branch: `git checkout -b feature-name`
+
+---
+
 3. Commit changes: `git commit -m 'Add feature'`
+
+## 📄 **License**
 
 4. Push to branch: `git push origin feature-name`
 
+MIT License - see [LICENSE](LICENSE) file for details.
+
 5. Open Pull Request# Configure API key (create .env file)- **Async processing** with timeouts
 
+---
 
+
+
+## 👤 **Author**
 
 ## Licenseecho "GEMINI_API_KEY=your_key_here" > .env
 
-
-
-MIT License - see LICENSE file for details.## 🚀 Key Features
-
-
-
-## Author# Start server
+**Priyanshu Saroha**
 
 
 
-Priyanshu Saroha  python start_server.py### 🧹 **Automatic Cleanup**
+[![GitHub](https://img.shields.io/badge/GitHub-P--Saroha-black?style=flat&logo=github)](https://github.com/P-Saroha)
+
+[![Repository](https://img.shields.io/badge/Repository-Agent--For--YT--Video-blue?style=flat&logo=github)](https://github.com/P-Saroha/Agent-For-YT-Video)MIT License - see LICENSE file for details.## 🚀 Key Features
+
+
+
+---
+
+
+
+<div align="center">## Author# Start server
+
+
+
+**Built with FastAPI, LangChain, and Google Gemini AI**
+
+
+
+![GitHub stars](https://img.shields.io/github/stars/P-Saroha/Agent-For-YT-Video?style=social)Priyanshu Saroha  python start_server.py### 🧹 **Automatic Cleanup**
+
+![GitHub forks](https://img.shields.io/github/forks/P-Saroha/Agent-For-YT-Video?style=social)
 
 GitHub: [@P-Saroha](https://github.com/P-Saroha)  
 
+*Empowering intelligent content analysis with RAG technology*
+
 Repository: [Agent-For-YT-Video](https://github.com/P-Saroha/Agent-For-YT-Video)```
+
+</div>
 
 
 ### 1. **YouTube Video Analysis**- Old videos auto-removed after 3 days
