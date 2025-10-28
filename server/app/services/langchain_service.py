@@ -120,7 +120,7 @@ Answer in plain text, no formatting, no emojis, no headers. Just list the facts 
             
             # Split documents into chunks
             chunks = self.text_splitter.split_documents(documents)
-            print(f"📄 Created {len(chunks)} chunks")
+            print(f"Created {len(chunks)} chunks")
             
             # Create temporary directory for this video's vector store
             temp_dir = tempfile.mkdtemp(prefix=f"chroma_{video_id}_")
@@ -170,7 +170,7 @@ Answer in plain text, no formatting, no emojis, no headers. Just list the facts 
             }
             
         except Exception as e:
-            print(f"❌ Error processing video: {e}")
+            print(f"Error processing video: {e}")
             raise e
     
     async def ask_question(self, video_id: str, question: str) -> Dict[str, Any]:
@@ -182,7 +182,7 @@ Answer in plain text, no formatting, no emojis, no headers. Just list the facts 
             video_data = self.processed_videos[video_id]
             qa_chain = video_data["qa_chain"]
             
-            print(f"🤔 Answering question: {question}")
+            print(f"Answering question: {question}")
             
             # Use LangChain to get answer (using invoke instead of deprecated __call__)
             result = qa_chain.invoke({"query": question})
@@ -208,7 +208,7 @@ Answer in plain text, no formatting, no emojis, no headers. Just list the facts 
             }
             
         except Exception as e:
-            print(f"❌ Error answering question: {e}")
+            print(f"Error answering question: {e}")
             raise e
     
     async def get_transcript(self, video_id: str) -> Dict[str, Any]:
@@ -277,7 +277,7 @@ Answer in plain text, no formatting, no emojis, no headers. Just list the facts 
                 shutil.rmtree(temp_dir)
             
             del self.processed_videos[video_id]
-            print(f"🧹 Cleaned up resources for video {video_id}")
+            print(f"Cleaned up resources for video {video_id}")
     
     def get_video_status(self, video_id: str) -> Dict[str, Any]:
         """Get status of a processed video"""

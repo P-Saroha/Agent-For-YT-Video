@@ -49,15 +49,8 @@ async def root():
         "message": "YouTube AI Assistant API",
         "version": "1.0.0",
         "status": "running",
-        "web_interface": "http://127.0.0.1:8000/static/youtube-ai-web.html",
-        "test_ui": "http://127.0.0.1:8000/static/test.html"
+        "web_interface": "http://127.0.0.1:8000/static/youtube-web-ai-clean.html"
     }
-
-@app.get("/test")
-async def test_ui():
-    """Redirect to test interface"""
-    from fastapi.responses import RedirectResponse
-    return RedirectResponse(url="/static/test.html")
 
 if __name__ == "__main__":
     uvicorn.run(

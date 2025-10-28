@@ -321,7 +321,7 @@ IMPORTANT: Write in full paragraphs, NOT bullet lists. Make it engaging and stor
             }
             
         except Exception as e:
-            print(f"❌ Error processing video question: {e}")
+            print(f"Error processing video question: {e}")
             return {
                 "success": False,
                 "error": f"Error processing request: {str(e)}"

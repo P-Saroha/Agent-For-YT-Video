@@ -231,9 +231,9 @@ async function processWebsite() {
 
             if (response.ok) {
                 // Debug: Log the actual response data
-                console.log('🔍 WEB SCRAPING RESPONSE:', data);
-                console.log('📊 RESPONSE CONTENT LENGTH:', data.content ? data.content.length : 'NO CONTENT');
-                console.log('📊 RESPONSE CONTENT_PREVIEW LENGTH:', data.content_preview ? data.content_preview.length : 'NO PREVIEW');
+                console.log('WEB SCRAPING RESPONSE:', data);
+                console.log('RESPONSE CONTENT LENGTH:', data.content ? data.content.length : 'NO CONTENT');
+                console.log('RESPONSE CONTENT_PREVIEW LENGTH:', data.content_preview ? data.content_preview.length : 'NO PREVIEW');
                 
                 // Build clean HTML content using DOM methods
                 const resultDiv = document.createElement('div');

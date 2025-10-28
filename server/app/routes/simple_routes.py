@@ -32,13 +32,13 @@ async def summarize_video(request: VideoSummaryRequest):
     """Generate summary using proper RAG approach: chunking → embeddings → vector store → similarity search → LLM"""
     try:
         # Step 1: Process video with RAG approach (chunking, embeddings, vector store)
-        print(f"🔄 Processing video with RAG approach: {request.video_url}")
+        print(f"Processing video with RAG approach: {request.video_url}")
         process_result = await langchain_service.process_video(request.video_url)
         
         if not process_result.get("video_id"):
             raise HTTPException(status_code=400, detail="Failed to process video")
         
-        print(f"✅ Created {process_result.get('chunks_count', 0)} chunks and stored in vector database")
+        print(f"Created {process_result.get('chunks_count', 0)} chunks and stored in vector database")
         
         # Step 2: Use vector similarity search to retrieve relevant chunks and generate answer
         result = await langchain_service.ask_question(
@@ -63,22 +63,22 @@ async def ask_video_question(request: VideoQuestionRequest):
     """Answer questions using RAG: query embedding → cosine similarity → retrieve chunks → context-aware LLM response"""
     try:
         # Step 1: Process video with RAG approach if not already processed
-        print(f"🔄 Processing video with RAG approach: {request.video_url}")
+        print(f"Processing video with RAG approach: {request.video_url}")
         process_result = await langchain_service.process_video(request.video_url)
         
         if not process_result.get("video_id"):
             raise HTTPException(status_code=400, detail="Failed to process video")
         
-        print(f"📊 Using vector database with {process_result.get('chunks_count', 0)} embedded chunks")
+        print(f"Using vector database with {process_result.get('chunks_count', 0)} embedded chunks")
         
         # Step 2: Embed query, compute similarity, retrieve top chunks, pass to LLM
-        print(f"🔍 Query: {request.question}")
+        print(f"Query: {request.question}")
         result = await langchain_service.ask_question(
             video_id=process_result["video_id"],
             question=request.question
         )
         
-        print(f"✅ Generated context-aware answer using retrieved chunks")
+        print(f"Generated context-aware answer using retrieved chunks")
         
         return SimpleResponse(
             answer=result.get("answer", "Unable to get answer"),

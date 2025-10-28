@@ -17,7 +17,7 @@ _content_cache = {}
 class FastWebContentService:
     def __init__(self):
         self.session = None
-        print("✅ Fast Web Content Service initialized")
+        print("Fast Web Content Service initialized")
     
     async def get_session(self):
         """Get or create aiohttp session"""
@@ -37,10 +37,10 @@ class FastWebContentService:
             # Check cache first
             if url in _content_cache:
                 cache_time = time.time() - start_time
-                print(f"♻️ Using cached content (took {cache_time:.2f}s)")
+                print(f"Using cached content (took {cache_time:.2f}s)")
                 return _content_cache[url]
             
-            print(f"🌐 Extracting content from: {url}")
+            print(f"Extracting content from: {url}")
             session = await self.get_session()
             
             async with session.get(url) as response:
@@ -77,7 +77,7 @@ class FastWebContentService:
                 _content_cache[url] = result
                 
                 processing_time = time.time() - start_time
-                print(f"✅ Content extracted (took {processing_time:.2f}s)")
+                print(f"Content extracted (took {processing_time:.2f}s)")
                 
                 return result
                 
@@ -91,7 +91,7 @@ class FastWebContentService:
         """Simple text-based question answering without heavy AI models"""
         try:
             start_time = time.time()
-            print(f"❓ Processing question: {question}")
+            print(f"Processing question: {question}")
             
             # Get content
             content_data = await self.extract_content_from_url(url)
@@ -164,7 +164,7 @@ class FastWebContentService:
         
         # If no specific content areas found, get COMPREHENSIVE text extraction
         if not content_areas:
-            print("🔍 No main content areas found, extracting ALL text content")
+            print("No main content areas found, extracting ALL text content")
             # Get ALL meaningful text elements - much more comprehensive
             for tag in ['p', 'div', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'td', 'th', 'dd', 'dt', 'blockquote', 'pre', 'code', 'a', 'strong', 'em']:
                 elements = soup.find_all(tag)
@@ -175,7 +175,7 @@ class FastWebContentService:
         
         # FALLBACK: If still no content, get EVERYTHING from body
         if not content_areas:
-            print("🚨 Fallback: extracting ALL body text")
+            print("Fallback: extracting ALL body text")
             body = soup.find('body')
             if body:
                 all_text = body.get_text(strip=True)
@@ -185,7 +185,7 @@ class FastWebContentService:
                     if len(sentence.strip()) > 10:
                         content_areas.append(sentence.strip())
         
-        print(f"🔢 Total content areas found: {len(content_areas)}")
+        print(f"Total content areas found: {len(content_areas)}")
         
         # Remove duplicates while preserving order but be VERY permissive
         seen = set()
@@ -199,17 +199,17 @@ class FastWebContentService:
         
         # Combine ALL content with proper spacing - no limits
         combined_content = '\n\n'.join(unique_areas)
-        print(f"📊 Final: {len(unique_areas)} sections, {len(combined_content)} characters")
-        print(f"📋 Sample content: {combined_content[:200]}...")
+        print(f"Final: {len(unique_areas)} sections, {len(combined_content)} characters")
+        print(f"Sample content: {combined_content[:200]}...")
         
         # Ensure we have substantial content
         if len(combined_content) < 1000:
-            print("⚠️ Content too short, trying alternative extraction")
+            print("Content too short, trying alternative extraction")
             # Alternative: get ALL text from soup
             all_text = soup.get_text(separator='\n', strip=True)
             if len(all_text) > len(combined_content):
                 combined_content = all_text
-                print(f"🔄 Using alternative extraction: {len(all_text)} characters")
+                print(f"Using alternative extraction: {len(all_text)} characters")
         
         # ULTRA MINIMAL cleaning - keep almost everything
         lines = combined_content.split('\n')
@@ -224,7 +224,7 @@ class FastWebContentService:
         # Join with single newlines to preserve maximum content
         content = '\n'.join(cleaned_lines)
         
-        print(f"🎯 FINAL CONTENT: {len(content)} characters, {len(content.split())} words")
+        print(f"FINAL CONTENT: {len(content)} characters, {len(content.split())} words")
         
         return content
 

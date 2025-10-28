@@ -29,7 +29,7 @@ class RAGWebContentService:
         self.session = None
         
         # RAG Components - Following your exact specification
-        print("🔧 Initializing RAG components for web content...")
+        print("Initializing RAG components for web content...")
         
         # Text splitter for chunking into structured units
         self.text_splitter = RecursiveCharacterTextSplitter(
@@ -63,7 +63,7 @@ Answer in plain text, no formatting, no emojis, no headers. Just list the facts 
         # Cache for processed content
         self.processed_content = {}
         
-        print("✅ RAG Web Content Service initialized")
+        print("RAG Web Content Service initialized")
     
     def clean_text_encoding(self, text: str) -> str:
         """Simple text cleaning"""
@@ -151,7 +151,7 @@ Answer in plain text, no formatting, no emojis, no headers. Just list the facts 
         except Exception as e:
             import traceback
             error_details = traceback.format_exc()
-            print(f"❌ Error in extract_content_from_url: {error_details}")
+            print(f"Error in extract_content_from_url: {error_details}")
             return {
                 "error": f"Error extracting content: {str(e)}",
                 "url": url,
@@ -167,13 +167,13 @@ Answer in plain text, no formatting, no emojis, no headers. Just list the facts 
         4. Store in vector database (Chroma) with metadata
         """
         try:
-            print(f"🌐 Extracting content from: {url}")
+            print(f"Extracting content from: {url}")
             start_time = time.time()
             
             # Check if already processed
             url_hash = hash(url)
             if url_hash in self.processed_content:
-                print(f"♻️ Using cached content (took {time.time() - start_time:.2f}s)")
+                print(f"Using cached content (took {time.time() - start_time:.2f}s)")
                 return self.processed_content[url_hash]
             
             # Step 1: Extract and clean content
@@ -201,7 +201,7 @@ Answer in plain text, no formatting, no emojis, no headers. Just list the facts 
                 raise Exception("Insufficient content extracted from webpage")
             
             extraction_time = time.time() - start_time
-            print(f"📄 Extracted {len(content)} characters of content (took {extraction_time:.2f}s)")
+            print(f"Extracted {len(content)} characters of content (took {extraction_time:.2f}s)")
             
             # Step 2: Create document and divide into structured chunks
             chunking_start = time.time()
@@ -218,20 +218,20 @@ Answer in plain text, no formatting, no emojis, no headers. Just list the facts 
             # Divide into structured chunks
             chunks = self.text_splitter.split_documents([document])
             chunking_time = time.time() - chunking_start
-            print(f"📊 Divided content into {len(chunks)} structured chunks (took {chunking_time:.2f}s)")
+            print(f"Divided content into {len(chunks)} structured chunks (took {chunking_time:.2f}s)")
             
             # Step 3-4: Create embeddings and store in vector database
             temp_dir = tempfile.mkdtemp(prefix=f"web_content_{url_hash}_")
             
             embedding_start = time.time()
-            print(f"🔢 Creating vector embeddings using transformer model...")
+            print(f"Creating vector embeddings using transformer model...")
             vectorstore = Chroma.from_documents(
                 documents=chunks,
                 embedding=self.embeddings,
                 persist_directory=temp_dir
             )
             embedding_time = time.time() - embedding_start
-            print(f"⚡ Vector embeddings created (took {embedding_time:.2f}s)")
+            print(f"Vector embeddings created (took {embedding_time:.2f}s)")
             
             # Create retrieval QA chain with more chunks for comprehensive answers
             qa_chain = RetrievalQA.from_chain_type(
@@ -261,12 +261,12 @@ Answer in plain text, no formatting, no emojis, no headers. Just list the facts 
             }
             
             total_time = time.time() - start_time
-            print(f"✅ Content processed and stored in vector database (total: {total_time:.2f}s)")
+            print(f"Content processed and stored in vector database (total: {total_time:.2f}s)")
             
             return self.processed_content[url_hash]
             
         except Exception as e:
-            print(f"❌ Error processing web content: {e}")
+            print(f"Error processing web content: {e}")
             raise Exception(f"Failed to process web content: {str(e)}")
     
     async def ask_question_with_rag(self, url: str, question: str) -> Dict[str, Any]:
@@ -276,14 +276,14 @@ Answer in plain text, no formatting, no emojis, no headers. Just list the facts 
         6. Retrieve top-matching chunks and pass to LLM for context-aware answer
         """
         try:
-            print(f"❓ Processing question: {question}")
+            print(f"Processing question: {question}")
             
             # Process content if not already done
             content_data = await self.process_web_content_with_rag(url)
             
             # Step 5-6: Query embedding, similarity search, and LLM generation
-            print(f"🔍 Embedding query and computing cosine similarity...")
-            print(f"📚 Retrieving top-matching chunks from {content_data['chunks_count']} total chunks...")
+            print(f"Embedding query and computing cosine similarity...")
+            print(f"Retrieving top-matching chunks from {content_data['chunks_count']} total chunks...")
             
             qa_chain = content_data["qa_chain"]
             result = qa_chain.invoke({"query": question})
@@ -294,7 +294,7 @@ Answer in plain text, no formatting, no emojis, no headers. Just list the facts 
             # AGGRESSIVELY remove all formatting from answer
             answer = self._strip_formatting(answer)
             
-            print(f"✅ Generated context-aware answer using {len(source_docs)} retrieved chunks")
+            print(f"Generated context-aware answer using {len(source_docs)} retrieved chunks")
             
             return {
                 "success": True,
@@ -311,7 +311,7 @@ Answer in plain text, no formatting, no emojis, no headers. Just list the facts 
             }
             
         except Exception as e:
-            print(f"❌ Error answering question: {e}")
+            print(f"Error answering question: {e}")
             return {
                 "success": False,
                 "error": str(e)

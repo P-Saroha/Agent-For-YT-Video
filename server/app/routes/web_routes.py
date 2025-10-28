@@ -95,10 +95,10 @@ async def ask_question_about_web_content(request: WebQuestionRequest):
         
         # Try RAG approach first, fallback to simple search
         if hasattr(service, 'ask_question_with_rag'):
-            print(f"🔍 Processing question with RAG approach (full vector search)")
+            print(f"Processing question with RAG approach (full vector search)")
             result = await service.ask_question_with_rag(request.url, request.question)
         else:
-            print(f"🔍 Processing question with simple search approach")
+            print(f"Processing question with simple search approach")
             result = await service.ask_question_with_simple_search(request.url, request.question)
         
         processing_time = time.time() - start_time
