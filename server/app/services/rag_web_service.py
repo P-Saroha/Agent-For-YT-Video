@@ -9,6 +9,7 @@ from urllib.parse import urlparse
 import re
 import time
 import tempfile
+import unicodedata
 from typing import Optional, Dict, Any
 
 # RAG components
@@ -46,27 +47,16 @@ class RAGWebContentService:
         self.llm = ChatGoogleGenerativeAI(
             model="gemini-2.5-flash",
             google_api_key=os.getenv("GEMINI_API_KEY", "AIzaSyDvhlqz_tSdNpkG6OZyryXyp5qUYjwDGcc"),
-            temperature=0.7
+            temperature=0.0  # Most deterministic
         )
         
-        # Improved prompt template for RAG - cleaner formatting
+        # Minimal prompt - force simple answers
         self.prompt_template = PromptTemplate(
-            template="""Based on the following context, provide a clear and well-structured answer to the question.
-
-Context: {context}
+            template="""Context: {context}
 
 Question: {question}
 
-Instructions:
-- Answer directly and concisely
-- Use clear headers (##) for main sections
-- Use simple dashes (-) for bullet points, NOT asterisks (*)
-- Keep paragraphs short and readable
-- Focus on the most relevant information
-- Structure your response clearly with proper spacing
-- Do NOT use asterisks (*) for formatting - use markdown headers (##) and dashes (-) only
-
-Answer:""",
+Answer in plain text, no formatting, no emojis, no headers. Just list the facts directly.""",
             input_variables=["context", "question"]
         )
         
@@ -74,6 +64,42 @@ Answer:""",
         self.processed_content = {}
         
         print("✅ RAG Web Content Service initialized")
+    
+    def clean_text_encoding(self, text: str) -> str:
+        """Simple text cleaning"""
+        if not text:
+            return ""
+        
+        # Basic cleanup only
+        text = text.strip()
+        text = re.sub(r'\s+', ' ', text)
+        
+        return text
+    
+    def _strip_formatting(self, text: str) -> str:
+        """Aggressively remove ALL formatting from AI response"""
+        if not text:
+            return ""
+        
+        # Remove ALL markdown formatting
+        text = re.sub(r'#+\s*', '', text)  # Remove headers
+        text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)  # Remove bold
+        text = re.sub(r'\*([^*]+)\*', r'\1', text)  # Remove italic
+        text = re.sub(r'`([^`]+)`', r'\1', text)  # Remove code
+        text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)  # Remove links
+        
+        # Remove ALL emojis and special symbols
+        text = re.sub(r'[^\x00-\x7F]+', '', text)  # Remove non-ASCII
+        text = re.sub(r'[📋🔍✨🎯⭐★☆💫⚡🔥💡🚀📊📝📌📍🎪🎭🎨🎬🎥🎞️🧩🌐]', '', text)
+        
+        # Remove bullet points and replace with simple dashes
+        text = re.sub(r'^[•·●○◦▪▫]', '-', text, flags=re.MULTILINE)
+        
+        # Clean up excessive spacing
+        text = re.sub(r'\n{3,}', '\n\n', text)
+        text = re.sub(r' {2,}', ' ', text)
+        
+        return text.strip()
     
     async def get_session(self):
         """Get or create aiohttp session"""
@@ -107,6 +133,13 @@ Answer:""",
                 # Extract main content
                 main_content = await self._extract_main_content(soup, url)
                 
+                # Check if content was extracted
+                if not main_content or len(main_content.strip()) < 100:
+                    return {
+                        "error": f"Insufficient content extracted from URL (only {len(main_content)} chars). The page may require JavaScript or have anti-scraping protection.",
+                        "url": url
+                    }
+                
                 return {
                     "title": title_text,
                     "content": main_content,
@@ -116,9 +149,13 @@ Answer:""",
                 }
                 
         except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"❌ Error in extract_content_from_url: {error_details}")
             return {
                 "error": f"Error extracting content: {str(e)}",
-                "url": url
+                "url": url,
+                "details": error_details
             }
     
     async def process_web_content_with_rag(self, url: str) -> Dict[str, Any]:
@@ -196,13 +233,13 @@ Answer:""",
             embedding_time = time.time() - embedding_start
             print(f"⚡ Vector embeddings created (took {embedding_time:.2f}s)")
             
-            # Create retrieval QA chain (optimized for speed)
+            # Create retrieval QA chain with more chunks for comprehensive answers
             qa_chain = RetrievalQA.from_chain_type(
                 llm=self.llm,
                 chain_type="stuff",
                 retriever=vectorstore.as_retriever(
                     search_type="similarity",
-                    search_kwargs={"k": 3}  # Retrieve top 3 similar chunks (faster)
+                    search_kwargs={"k": 8}  # Increased from 3 to 8 for more comprehensive answers
                 ),
                 chain_type_kwargs={"prompt": self.prompt_template},
                 return_source_documents=True
@@ -254,6 +291,9 @@ Answer:""",
             answer = result.get("result", "Unable to generate answer")
             source_docs = result.get("source_documents", [])
             
+            # AGGRESSIVELY remove all formatting from answer
+            answer = self._strip_formatting(answer)
+            
             print(f"✅ Generated context-aware answer using {len(source_docs)} retrieved chunks")
             
             return {
@@ -262,7 +302,7 @@ Answer:""",
                 "url": url,
                 "title": content_data["title"],
                 "question": question,
-                "confidence": min(0.9, 0.5 + (len(source_docs) * 0.1)),  # Simple confidence based on chunks used
+                "confidence": 0.8,  # Simple fixed confidence
                 "source_type": "web_rag",
                 "word_count": len(answer.split()),
                 "chunks_used": len(source_docs),
@@ -278,11 +318,8 @@ Answer:""",
             }
     
     async def summarize_with_rag(self, url: str) -> str:
-        """Generate summary using RAG approach"""
-        result = await self.ask_question_with_rag(
-            url, 
-            "Provide a comprehensive summary of this web content. Include main topics, key points, and important details in a well-structured format."
-        )
+        """Generate simple summary using RAG approach"""
+        result = await self.ask_question_with_rag(url, "Provide a simple summary of this content.")
         
         if result.get("success"):
             return result["answer"]
@@ -293,58 +330,44 @@ Answer:""",
         """Extract main content with site-specific optimizations"""
         content = ""
         
-        # Wikipedia-specific extraction
+        # Simple Wikipedia extraction
         if 'wikipedia.org' in url:
-            wikipedia_content = soup.select_one('#mw-content-text .mw-parser-output')
-            if wikipedia_content:
-                # Remove metadata elements
-                for unwanted in wikipedia_content.select('.infobox, .navbox, .metadata, .hatnote, .dablink, .ambox'):
-                    unwanted.decompose()
-                
-                paragraphs = wikipedia_content.find_all('p')
-                for p in paragraphs:
-                    text = p.get_text(strip=True)
-                    if len(text) > 50 and not text.startswith('Coordinates:'):
-                        content += text + "\n\n"
-                
-                if len(content) > 500:
-                    return content
+            paragraphs = soup.find_all('p')
+            for p in paragraphs:
+                text = p.get_text(separator=' ', strip=True)
+                if len(text) > 50:
+                    content += text + "\n\n"
+            if len(content) > 500:
+                return content
         
-        # COMPREHENSIVE content extraction with expanded selectors
-        selectors = [
-            'main', 'article', '.content', '#content', '.post-content', '.entry-content',
-            '.blog-post', '.post', '.single-post', '.page-content', '.article-content',
-            '.elementor-widget-container', '.elementor-text-editor', '.wp-content',
-            '.blog-content', '.article-body', '.post-body'
-        ]
-        
-        print(f"🔍 Trying {len(selectors)} content selectors...")
+        # Simple content extraction with more selectors
+        selectors = ['main', 'article', '.content', '#content', '.post-content', '.entry-content', 
+                     '.article-content', '.page-content', '[role="main"]']
         
         for selector in selectors:
             elements = soup.select(selector)
             for elem in elements:
-                text = elem.get_text(separator='\n', strip=True)
-                if len(text) > 100:  # Lower threshold for more content
+                text = elem.get_text(separator=' ', strip=True)
+                if len(text) > 100:
                     content += text + "\n\n"
-                    print(f"✅ Found content with selector '{selector}': {len(text)} chars")
-            if len(content) > 1000:  # Continue until we get substantial content
+            if len(content) > 500:
                 break
         
-        # Enhanced fallback - get ALL meaningful elements
-        if len(content) < 1000:
-            print("🔄 Using enhanced fallback extraction...")
-            for tag in ['div', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'span']:
+        # Simple fallback
+        if len(content) < 500:
+            for tag in ['p', 'div']:
                 elements = soup.find_all(tag)
                 for elem in elements:
-                    text = elem.get_text(strip=True)
-                    if len(text) > 20 and text not in content:  # Avoid duplicates
+                    text = elem.get_text(separator=' ', strip=True)
+                    if len(text) > 20:
                         content += text + "\n"
         
-        # Clean content
-        content = re.sub(r'\s+', ' ', content)
+        # Basic cleanup only
+        content = re.sub(r'\s+', ' ', content)  # Normalize whitespace
         content = re.sub(r'\[\d+\]', '', content)  # Remove citation numbers
+        content = self.clean_text_encoding(content)
         
-        return content.strip()
+        return content
     
     async def close(self):
         """Cleanup resources"""

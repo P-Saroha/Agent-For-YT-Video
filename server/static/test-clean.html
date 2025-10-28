@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting to Universal AI Assistant</title>
+    
+    <!-- Local Styles -->
+    <link rel="stylesheet" href="css/test.css">
+    
+    <!-- Local Scripts -->
+    <script src="js/test.js" defer></script>
+</head>
+<body>
+    <div class="redirect-container">
+        <h1>🚀 Upgrading to Universal AI Assistant</h1>
+        <p>This interface has been upgraded! You'll now be redirected to the new Universal AI Assistant that supports both YouTube videos AND any website content analysis.</p>
+        <div class="loading"></div>
+        <p class="redirect-info">
+            Redirecting in 3 seconds...<br>
+            <a href="/static/youtube-web-ai.html" class="redirect-link">Click here to go directly</a>
+        </p>
+    </div>
+
+    <!-- Legacy Test Interface (hidden by default) -->
+    <div class="container hidden-legacy">
+        <div class="header">
+            <h1>🎥 YouTube AI Assistant</h1>
+            <p>Test Interface - Ask questions about YouTube videos</p>
+        </div>
+
+        <div class="content">
+            <div class="video-section">
+                <div class="input-group">
+                    <label for="videoUrl">YouTube Video URL</label>
+                    <input type="url" id="videoUrl" placeholder="https://www.youtube.com/watch?v=...">
+                </div>
+                <button id="processVideo" class="btn btn-primary">
+                    🚀 Process Video
+                </button>
+            </div>
+
+            <div id="videoInfo" class="video-info">
+                <div class="video-header">
+                    <img id="videoThumbnail" src="" alt="Video thumbnail" class="video-thumbnail">
+                    <div class="video-details">
+                        <h3 id="videoTitle">Video Title</h3>
+                        <p id="videoChannel">Channel Name</p>
+                        <span id="processingStatus" class="status processing">Processing...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="chatSection" class="chat-section">
+                <div class="chat-container">
+                    <div id="chatMessages" class="chat-messages">
+                        <div class="welcome-message">
+                            🎬 Video processed successfully! Ask me anything about the content.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-section">
+                    <input type="text" id="questionInput" class="question-input" placeholder="Ask a question about the video...">
+                    <button id="sendQuestion" class="btn btn-primary">
+                        📤 Send
+                    </button>
+                </div>
+            </div>
+
+            <div id="loading" class="loading">
+                <p>Processing your request...</p>
+            </div>
+
+            <div id="error" class="error">
+                <p id="errorMessage">An error occurred</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

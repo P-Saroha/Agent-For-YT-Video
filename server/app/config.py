@@ -19,12 +19,10 @@ class Settings(BaseSettings):
     # YouTube Configuration
     youtube_api_key: str = ""
     
-    # Vector Store Configuration
-    vector_store_path: str = "store/faiss"
+    # Embeddings Configuration
     embeddings_model: str = "sentence-transformers/all-MiniLM-L6-v2"
     
-    # Caching Configuration
-    cache_dir: str = "store/cache"
+    # Caching Configuration (TTL only, no disk cache)
     cache_ttl: int = 3600  # 1 hour
     
     # Chunking Configuration
@@ -34,6 +32,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra = "ignore"  # Ignore extra fields in .env
 
 @lru_cache()
 def get_settings():

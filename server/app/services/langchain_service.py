@@ -1,4 +1,5 @@
 import os
+import re
 import asyncio
 from typing import List, Dict, Any
 from langchain_core.documents import Document
@@ -27,9 +28,10 @@ class LangChainYouTubeService:
         )
         
         # Initialize text splitter
+        # Text splitter with larger chunks for more comprehensive answers
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=500,
-            chunk_overlap=50,
+            chunk_size=800,  # Increased from 500 for more content per chunk
+            chunk_overlap=100,  # Increased overlap for better context
             separators=["\n\n", "\n", "।", ".", "!", "?", ",", " ", ""]
         )
         
@@ -37,43 +39,49 @@ class LangChainYouTubeService:
         self.llm = ChatGoogleGenerativeAI(
             model="gemini-2.5-flash",
             google_api_key=self.gemini_api_key,
-            temperature=0.3,
+            temperature=0.0,
             convert_system_message_to_human=True
         )
         
-        # Enhanced prompt template with better formatting
+        # Simple prompt template
         self.prompt_template = PromptTemplate(
             input_variables=["context", "question"],
-            template="""You are a professional AI assistant specializing in YouTube video content analysis.
-You have been provided with relevant excerpts from a video transcript that may be in multiple languages.
+            template="""Context: {context}
 
-🎯 **FORMATTING REQUIREMENTS:**
-- Use clear headings with emojis for better readability
-- Structure information in logical sections
-- Use bullet points and numbered lists where appropriate
-- Keep paragraphs concise (2-3 sentences max)
-- Use **bold** for key points and *italics* for emphasis
-- Include specific quotes when relevant
+Question: {question}
 
-📋 **CONTENT GUIDELINES:**
-- Answer in English, translating foreign language content
-- Be accurate and specific, using transcript information directly
-- Provide comprehensive yet concise answers
-- For summaries: organize into clear sections (Overview, Key Points, Details)
-- If insufficient context: clearly state limitations
-
-📝 **Context from video transcript:**
-{context}
-
-❓ **Question:** {question}
-
-📊 **Structured Answer:**"""
+Answer in plain text, no formatting, no emojis, no headers. Just list the facts directly."""
         )
         
         # Store for processed videos
         self.processed_videos = {}
         
         print("LangChain YouTube AI Assistant initialized")
+    
+    def _strip_formatting(self, text: str) -> str:
+        """Aggressively remove ALL formatting from AI response"""
+        if not text:
+            return ""
+        
+        # Remove ALL markdown formatting
+        text = re.sub(r'#+\s*', '', text)  # Remove headers
+        text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)  # Remove bold
+        text = re.sub(r'\*([^*]+)\*', r'\1', text)  # Remove italic
+        text = re.sub(r'`([^`]+)`', r'\1', text)  # Remove code
+        text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)  # Remove links
+        
+        # Remove ALL emojis and special symbols
+        text = re.sub(r'[^\x00-\x7F]+', '', text)  # Remove non-ASCII
+        text = re.sub(r'[📋🔍✨🎯⭐★☆💫⚡🔥💡🚀📊📝📌📍🎪🎭🎨🎬🎥🎞️🧩🌐❓📝❄️]', '', text)
+        
+        # Remove bullet points and replace with simple dashes
+        text = re.sub(r'^[•·●○◦▪▫]', '-', text, flags=re.MULTILINE)
+        
+        # Clean up excessive spacing
+        text = re.sub(r'\n{3,}', '\n\n', text)
+        text = re.sub(r' {2,}', ' ', text)
+        
+        return text.strip()
     
     async def process_video(self, video_url: str) -> Dict[str, Any]:
         """Process a YouTube video using LangChain"""
@@ -124,13 +132,13 @@ You have been provided with relevant excerpts from a video transcript that may b
                 persist_directory=temp_dir
             )
             
-            # Create retrieval chain
+            # Create retrieval chain with MORE chunks for comprehensive answers
             qa_chain = RetrievalQA.from_chain_type(
                 llm=self.llm,
                 chain_type="stuff",
                 retriever=vectorstore.as_retriever(
                     search_type="similarity",
-                    search_kwargs={"k": 5}
+                    search_kwargs={"k": 10}  # Increased from 5 to 10 for more context
                 ),
                 chain_type_kwargs={"prompt": self.prompt_template},
                 return_source_documents=True
@@ -181,6 +189,9 @@ You have been provided with relevant excerpts from a video transcript that may b
             
             answer = result["result"]
             source_docs = result.get("source_documents", [])
+            
+            # AGGRESSIVELY strip all formatting from answer
+            answer = self._strip_formatting(answer)
             
             # Calculate confidence based on source relevance
             confidence = min(len(source_docs) * 0.2, 1.0) if source_docs else 0.3

@@ -90,7 +90,7 @@
             return text;
         }
 
-        // Enhanced rendering function with animations
+        // Enhanced rendering function with FORCED heading colors
         function renderAIResponseWithAnimation(aiText, containerId) {
             // Step 1: Preprocess the text
             const preprocessed = preprocessAIText(aiText);
@@ -103,7 +103,28 @@
             container.innerHTML = html;
             container.classList.add('ai-response-container');
             
-            // Step 4: Add smooth animations
+            // Step 4: FORCE HEADING COLORS IMMEDIATELY
+            setTimeout(() => {
+                const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                headings.forEach((heading) => {
+                    // ALL HEADINGS GET PURE WHITE COLOR WITH DARK BACKGROUNDS
+                    heading.style.cssText = `
+                        color: #ffffff !important;
+                        background: rgba(0, 0, 0, 0.8) !important;
+                        padding: 12px 16px !important;
+                        border-radius: 8px !important;
+                        border-left: 4px solid #ffffff !important;
+                        font-weight: 800 !important;
+                        font-size: ${heading.tagName === 'H1' ? '1.4em' : heading.tagName === 'H2' ? '1.2em' : '1.1em'} !important;
+                        margin: 16px 0 12px 0 !important;
+                        text-shadow: 2px 2px 4px rgba(0, 0, 0, 1) !important;
+                        border: 2px solid #ffffff !important;
+                    `;
+                });
+                console.log(`🎯 YOUTUBE: FORCED COLORS ON ${headings.length} HEADINGS`);
+            }, 50);
+            
+            // Step 5: Add smooth animations
             const elements = container.querySelectorAll('p, h1, h2, h3, h4, h5, h6, ul, ol');
             elements.forEach((el, index) => {
                 el.style.opacity = '0';
@@ -166,9 +187,30 @@
                 container.innerHTML = html;
                 container.classList.add('ai-response-container');
                 
-                // Force white text color on all elements
-                const allElements = container.querySelectorAll('*');
-                allElements.forEach(el => {
+                // FORCE WHITE HEADING COLORS FOR WEB CONTENT
+                setTimeout(() => {
+                    const allHeadings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                    allHeadings.forEach((heading) => {
+                        heading.style.cssText = `
+                            color: #ffffff !important;
+                            background: rgba(0, 0, 0, 0.8) !important;
+                            padding: 12px 16px !important;
+                            border-radius: 8px !important;
+                            border-left: 4px solid #ffffff !important;
+                            font-weight: 800 !important;
+                            font-size: ${heading.tagName === 'H1' ? '1.4em' : heading.tagName === 'H2' ? '1.2em' : '1.1em'} !important;
+                            margin: 16px 0 12px 0 !important;
+                            text-shadow: 2px 2px 4px rgba(0, 0, 0, 1) !important;
+                            border: 2px solid #ffffff !important;
+                        `;
+                    });
+                    
+                    console.log(`🌐 WEB: FORCED WHITE COLORS ON ${allHeadings.length} HEADINGS`);
+                }, 50);
+                
+                // Force white text for non-heading elements
+                const textElements = container.querySelectorAll('p, div, span, li');
+                textElements.forEach(el => {
                     el.style.color = '#ffffff';
                 });
                 
@@ -244,11 +286,37 @@
                 container.innerHTML = html;
                 container.classList.add('ai-response-container');
                 
-                // Ensure all text is white for dark theme
-                const allElements = container.querySelectorAll('*');
-                allElements.forEach(el => {
-                    el.style.color = '#ffffff !important';
-                });
+                // FORCE HEADING COLORS WITH JAVASCRIPT - NO MORE INVISIBLE HEADINGS!
+                setTimeout(() => {
+                    const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                    headings.forEach((heading, index) => {
+                        // Force bright colors with direct style manipulation
+                        // ALL HEADINGS GET PURE WHITE COLOR WITH DARK BACKGROUNDS
+                        heading.style.cssText = `
+                            color: #ffffff !important;
+                            background: rgba(0, 0, 0, 0.8) !important;
+                            padding: 12px 16px !important;
+                            border-radius: 8px !important;
+                            border-left: 4px solid #ffffff !important;
+                            font-weight: 800 !important;
+                            font-size: ${heading.tagName === 'H1' ? '1.4em' : heading.tagName === 'H2' ? '1.2em' : '1.1em'} !important;
+                            margin: 16px 0 12px 0 !important;
+                            text-shadow: 2px 2px 4px rgba(0, 0, 0, 1) !important;
+                            border: 2px solid #ffffff !important;
+                        `;
+                        console.log(`🎯 FORCED ${heading.tagName} COLOR:`, heading.style.color);
+                    });
+                    
+                    // Ensure body text is white
+                    const textElements = container.querySelectorAll('p, div, span, li');
+                    textElements.forEach(el => {
+                        if (!el.querySelector('h1, h2, h3, h4, h5, h6')) {
+                            el.style.color = '#ffffff';
+                        }
+                    });
+                    
+                    console.log(`✅ FORCED COLORS ON ${headings.length} HEADINGS`);
+                }, 100);
                 
                 // Add smooth reveal animations
                 const elements = container.querySelectorAll('h1, h2, h3, p, ul, ol, li');
@@ -689,36 +757,42 @@
         .ai-header {
             margin-top: 24px;
             margin-bottom: 16px;
-            font-weight: 600;
-            color: #ffffff !important; /* White text for headers */
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            padding-bottom: 6px;
+            font-weight: 700;
+            color: #60a5fa !important; /* Bright blue for visibility */
+            border-bottom: 2px solid rgba(96, 165, 250, 0.3);
+            padding-bottom: 8px;
             padding-top: 4px;
+            text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
         }
         
         .ai-header.level-1 {
-            font-size: 1.3em;
-            color: #ffffff !important;
+            font-size: 1.4em;
+            color: #60a5fa !important; /* Bright blue */
             text-align: left;
-            border-bottom: 2px solid #60a5fa;
-            margin-bottom: 18px;
-            margin-top: 28px;
+            border-bottom: 3px solid #60a5fa;
+            margin-bottom: 20px;
+            margin-top: 30px;
+            font-weight: 800;
         }
         
         .ai-header.level-2 {
-            font-size: 1.15em;
-            color: #ffffff !important;
-            margin-top: 22px;
-            margin-bottom: 14px;
-            border-bottom: 1px solid #34d399;
+            font-size: 1.2em;
+            color: #34d399 !important; /* Bright green */
+            margin-top: 24px;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #34d399;
+            font-weight: 700;
+            text-shadow: 0 0 8px rgba(52, 211, 153, 0.4);
         }
         
         .ai-header.level-3 {
-            font-size: 1.05em;
-            color: #ffffff !important;
-            margin-top: 18px;
-            margin-bottom: 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 1.1em;
+            color: #fbbf24 !important; /* Bright yellow */
+            margin-top: 20px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid #fbbf24;
+            font-weight: 600;
+            text-shadow: 0 0 6px rgba(251, 191, 36, 0.4);
         }
         
         .ai-paragraph {
@@ -967,26 +1041,78 @@
             background: rgba(15, 23, 42, 0.9) !important; /* Dark background for code */
         }
         
-        /* Header colors - bright colors for better hierarchy */
-        .ai-header.level-1,
-        .ai-header.level-2,
-        .ai-header.level-3 {
-            color: #ffffff !important; /* White text for headers */
+        /* Enhanced header visibility - override all heading colors */
+        .ai-response h1,
+        .ai-response h2, 
+        .ai-response h3,
+        .ai-response h4,
+        .ai-response h5,
+        .ai-response h6,
+        .ai-response-container h1,
+        .ai-response-container h2,
+        .ai-response-container h3,
+        .ai-response-container h4,
+        .ai-response-container h5,
+        .ai-response-container h6 {
+            color: #60a5fa !important; /* Bright blue for all headings */
+            font-weight: 700 !important;
+            text-shadow: 0 0 8px rgba(96, 165, 250, 0.4) !important;
+            border-bottom: 2px solid rgba(96, 165, 250, 0.3) !important;
+            padding-bottom: 6px !important;
+            margin-top: 20px !important;
+            margin-bottom: 12px !important;
         }
         
-        /* FINAL OVERRIDE - Force white text on everything AI related */
-        .ai-response,
-        .ai-response *,
-        .ai-response-container,
-        .ai-response-container *,
-        .response-section *,
-        .ai-header,
+        /* Different colors for different heading levels */
+        .ai-response h2,
+        .ai-response-container h2 {
+            color: #34d399 !important; /* Green for h2 */
+            text-shadow: 0 0 8px rgba(52, 211, 153, 0.4) !important;
+            border-bottom: 2px solid rgba(52, 211, 153, 0.3) !important;
+        }
+        
+        .ai-response h3,
+        .ai-response-container h3 {
+            color: #fbbf24 !important; /* Yellow for h3 */
+            text-shadow: 0 0 6px rgba(251, 191, 36, 0.4) !important;
+            border-bottom: 1px solid rgba(251, 191, 36, 0.3) !important;
+        }
+        
+        /* FINAL OVERRIDE - Force appropriate colors for different elements */
+        .ai-response p,
+        .ai-response div,
+        .ai-response span,
+        .ai-response li,
+        .ai-response-container p,
+        .ai-response-container div,
+        .ai-response-container span,
+        .ai-response-container li,
+        .response-section p,
+        .response-section div,
+        .response-section span,
         .ai-paragraph,
-        .ai-list *,
-        .ai-ul *,
-        .ai-ol * {
-            color: #ffffff !important;
+        .ai-list,
+        .ai-ul,
+        .ai-ol {
+            color: #ffffff !important; /* White for body text */
             text-shadow: none !important;
+        }
+        
+        /* HEADINGS MUST BE BRIGHT AND VISIBLE */
+        h1, h2, h3, h4, h5, h6,
+        .ai-response h1, .ai-response h2, .ai-response h3, .ai-response h4, .ai-response h5, .ai-response h6,
+        .ai-response-container h1, .ai-response-container h2, .ai-response-container h3, .ai-response-container h4, .ai-response-container h5, .ai-response-container h6,
+        .result h1, .result h2, .result h3, .result h4, .result h5, .result h6,
+        .success h1, .success h2, .success h3, .success h4, .success h5, .success h6 {
+            color: #60a5fa !important; /* BRIGHT BLUE for maximum visibility */
+            font-weight: 800 !important;
+            text-shadow: 0 0 10px rgba(96, 165, 250, 0.6) !important;
+            border-bottom: 2px solid rgba(96, 165, 250, 0.5) !important;
+            padding-bottom: 6px !important;
+            margin: 16px 0 12px 0 !important;
+            background: rgba(96, 165, 250, 0.1) !important;
+            padding: 8px 12px !important;
+            border-radius: 6px !important;
         }
         
         /* Additional utility classes */
