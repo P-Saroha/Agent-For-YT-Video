@@ -13,11 +13,11 @@ class Settings(BaseSettings):
     port: int = 8000
     
     # Google Gemini Configuration
-    gemini_api_key: str = "AIzaSyBMBY7KhVxHZy4j66tBoiT9r0Bk4IQznq8"
-    gemini_model: str = "gemini-pro"
+    gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
+    gemini_model: str = "gemini-2.5-flash"
     
     # YouTube Configuration
-    youtube_api_key: str = ""
+    youtube_api_key: str = os.getenv("YOUTUBE_API_KEY", "")
     
     # Embeddings Configuration
     embeddings_model: str = "sentence-transformers/all-MiniLM-L6-v2"

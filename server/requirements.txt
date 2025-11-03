@@ -9,6 +9,11 @@ pydantic-settings==2.1.0
 
 # YouTube transcript extraction
 youtube-transcript-api==0.6.1
+yt-dlp==2025.1.12
+
+# PDF processing
+PyPDF2==3.0.1
+pypdf==3.17.4
 
 # LangChain framework - COMPATIBLE VERSIONS
 langchain==0.2.16

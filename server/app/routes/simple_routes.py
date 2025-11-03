@@ -26,6 +26,7 @@ class SimpleResponse(BaseModel):
 # Initialize LangChain service that follows proper RAG approach
 from app.services.langchain_service import LangChainYouTubeService
 langchain_service = LangChainYouTubeService()
+simple_service = SimpleYouTubeAIService()
 
 @router.post("/summarize", response_model=SimpleResponse)
 async def summarize_video(request: VideoSummaryRequest):
@@ -53,10 +54,27 @@ async def summarize_video(request: VideoSummaryRequest):
         )
         
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to summarize video: {str(e)}"
-        )
+        # Fallback to simple service with yt-dlp transcript path
+        try:
+            print(f"RAG summarize failed ({e}); falling back to simple service with yt-dlp…")
+            fallback_question = (
+                "Please provide a comprehensive summary of this video. Use clear headings, "
+                "short paragraphs, and make it readable."
+            )
+            result = await simple_service.process_video_question(request.video_url, fallback_question)
+            if result.get("success"):
+                return SimpleResponse(
+                    summary=result.get("answer", "Unable to generate summary"),
+                    video_url=request.video_url,
+                    status="success"
+                )
+            else:
+                raise Exception(result.get("error", "Fallback failed"))
+        except Exception as fe:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to summarize video: {str(e)} | Fallback error: {str(fe)}"
+            )
 
 @router.post("/ask", response_model=SimpleResponse)
 async def ask_video_question(request: VideoQuestionRequest):
@@ -87,7 +105,20 @@ async def ask_video_question(request: VideoQuestionRequest):
         )
         
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to process question: {str(e)}"
-        )
+        # Fallback to simple service with yt-dlp transcript path
+        try:
+            print(f"RAG ask failed ({e}); falling back to simple service with yt-dlp…")
+            result = await simple_service.process_video_question(request.video_url, request.question)
+            if result.get("success"):
+                return SimpleResponse(
+                    answer=result.get("answer", "Unable to get answer"),
+                    video_url=request.video_url,
+                    status="success"
+                )
+            else:
+                raise Exception(result.get("error", "Fallback failed"))
+        except Exception as fe:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to process question: {str(e)} | Fallback error: {str(fe)}"
+            )

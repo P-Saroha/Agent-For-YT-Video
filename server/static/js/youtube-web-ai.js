@@ -44,38 +44,44 @@ function preprocessAIText(text) {
     return text.trim();
 }
 
-// Simple rendering function
+// Render AI response with markdown formatting
 function renderAIResponseWithAnimation(aiText, containerId) {
     const processedContent = preprocessAIText(aiText);
     const container = document.getElementById(containerId);
     if (container) {
-        container.innerHTML = `<div style="color: #ffffff; line-height: 1.6; white-space: pre-wrap;">${processedContent}</div>`;
+        // Use marked.parse to convert markdown to HTML
+        const htmlContent = marked.parse(processedContent);
+        container.innerHTML = `<div class="ai-response" style="color: #ffffff; line-height: 1.8;">${htmlContent}</div>`;
     }
 }
 
 // Enhanced function for web content extraction that properly handles markdown
-// Simple function for web content
+// Render web content with markdown formatting
 function renderWebContent(content, containerId) {
     if (!content) return;
     
     const processedContent = preprocessAIText(content);
     const container = document.getElementById(containerId);
     if (container) {
-        container.innerHTML = `<div style="color: #ffffff; line-height: 1.6; white-space: pre-wrap;">${processedContent}</div>`;
+        // Use marked.parse to convert markdown to HTML
+        const htmlContent = marked.parse(processedContent);
+        container.innerHTML = `<div class="ai-response" style="color: #ffffff; line-height: 1.8;">${htmlContent}</div>`;
     }
 }
 
-// Ultra simple function for RAG responses
+// Render RAG responses with markdown formatting
 function renderRAGResponse(aiText, containerId) {
     if (!aiText) return;
     
-    // Minimal processing - just clean text
+    // Process and convert markdown to HTML
     let processedContent = preprocessAIText(aiText);
     
-    // Update container directly with plain text formatting
+    // Update container with parsed markdown
     const container = document.getElementById(containerId);
     if (container) {
-        container.innerHTML = `<div style="color: #ffffff; line-height: 1.6; white-space: pre-wrap;">${processedContent}</div>`;
+        // Use marked.parse to convert markdown to HTML
+        const htmlContent = marked.parse(processedContent);
+        container.innerHTML = `<div class="ai-response" style="color: #ffffff; line-height: 1.8;">${htmlContent}</div>`;
     }
 }
 
@@ -488,3 +494,239 @@ function fixTitleVisibility() {
 document.addEventListener('DOMContentLoaded', fixTitleVisibility);
 window.addEventListener('load', fixTitleVisibility);
 setInterval(fixTitleVisibility, 1000); // Force every second to override any conflicts
+
+// =============================================================================
+// PDF AND TEXT DOCUMENT PROCESSING FUNCTIONS
+// =============================================================================
+
+// Global variable to store selected PDF file
+let selectedPDFFile = null;
+
+// Handle PDF file selection
+function handlePDFSelection(event) {
+    const file = event.target.files[0];
+    if (file) {
+        selectedPDFFile = file;
+        document.getElementById('pdf-file-info').textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+        document.getElementById('pdf-submit-btn').disabled = false;
+    }
+}
+
+// Toggle PDF question visibility
+function togglePDFQuestion() {
+    const action = document.getElementById('pdf-action').value;
+    const questionGroup = document.getElementById('pdf-question-group');
+    questionGroup.style.display = action === 'question' ? 'block' : 'none';
+}
+
+// Process PDF document
+async function processPDF() {
+    if (!selectedPDFFile) {
+        showError('Please select a PDF file first');
+        return;
+    }
+
+    const action = document.getElementById('pdf-action').value;
+    const question = document.getElementById('pdf-question').value.trim();
+
+    if (action === 'question' && !question) {
+        showError('Please enter a question');
+        return;
+    }
+
+    showLoading();
+
+    try {
+        const formData = new FormData();
+        formData.append('file', selectedPDFFile);
+
+        let endpoint = '/document/pdf/summarize';
+        if (action === 'question') {
+            formData.append('question', question);
+            endpoint = '/document/pdf/ask-question';
+        }
+
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            const title = action === 'question' ? 'PDF Analysis - Question Answered' : 'PDF Summary';
+            
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'result success';
+            
+            const titleEl = document.createElement('h3');
+            titleEl.textContent = title;
+            resultDiv.appendChild(titleEl);
+            
+            const responseContainer = document.createElement('div');
+            responseContainer.id = 'pdf-response-' + Date.now();
+            resultDiv.appendChild(responseContainer);
+            
+            const sectionDiv = document.createElement('div');
+            sectionDiv.className = 'response-section';
+            
+            const fileP = document.createElement('p');
+            fileP.innerHTML = `<strong>File:</strong> ${selectedPDFFile.name}`;
+            sectionDiv.appendChild(fileP);
+            
+            const docTitleP = document.createElement('p');
+            docTitleP.innerHTML = `<strong>Document:</strong> ${data.document_title}`;
+            sectionDiv.appendChild(docTitleP);
+            
+            const statsP = document.createElement('p');
+            statsP.innerHTML = `<strong>Processed:</strong> ${data.chunks_count} chunks, ${data.char_count} characters`;
+            sectionDiv.appendChild(statsP);
+            
+            if (action === 'question') {
+                const questionP = document.createElement('p');
+                questionP.innerHTML = `<strong>Question:</strong> ${question}`;
+                sectionDiv.appendChild(questionP);
+            }
+            
+            const responseH4 = document.createElement('h4');
+            responseH4.textContent = 'AI Response:';
+            sectionDiv.appendChild(responseH4);
+            
+            const responseDiv = document.createElement('div');
+            responseDiv.className = 'ai-response';
+            responseDiv.id = responseContainer.id + '-content';
+            sectionDiv.appendChild(responseDiv);
+            
+            resultDiv.appendChild(sectionDiv);
+            
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('result').appendChild(resultDiv);
+            
+            renderRAGResponse(data.answer, responseDiv.id);
+        } else {
+            showError(`PDF processing failed: ${data.detail || 'Unknown error'}`);
+        }
+    } catch (error) {
+        showError(`Network error: ${error.message}`);
+    }
+}
+
+// Validate text input and update character count
+function validateTextInput() {
+    const textContent = document.getElementById('text-content').value;
+    const charCount = textContent.length;
+    const charCountEl = document.getElementById('text-char-count');
+    const submitBtn = document.getElementById('text-submit-btn');
+    
+    charCountEl.textContent = `${charCount} characters`;
+    
+    if (charCount >= 100) {
+        charCountEl.style.color = '#4CAF50';
+        submitBtn.disabled = false;
+    } else {
+        charCountEl.style.color = '#ff6b6b';
+        submitBtn.disabled = true;
+    }
+}
+
+// Toggle text question visibility
+function toggleTextQuestion() {
+    const action = document.getElementById('text-action').value;
+    const questionGroup = document.getElementById('text-question-group');
+    questionGroup.style.display = action === 'question' ? 'block' : 'none';
+}
+
+// Process text document
+async function processText() {
+    const textContent = document.getElementById('text-content').value.trim();
+    const textTitle = document.getElementById('text-title').value.trim() || 'My Document';
+    const action = document.getElementById('text-action').value;
+    const question = document.getElementById('text-question').value.trim();
+
+    if (!textContent || textContent.length < 100) {
+        showError('Please enter at least 100 characters of text');
+        return;
+    }
+
+    if (action === 'question' && !question) {
+        showError('Please enter a question');
+        return;
+    }
+
+    showLoading();
+
+    try {
+        let endpoint = '/document/text/summarize';
+        let body = {
+            text_content: textContent,
+            document_title: textTitle
+        };
+
+        if (action === 'question') {
+            endpoint = '/document/text/ask-question';
+            body.question = question;
+        }
+
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            const title = action === 'question' ? 'Text Analysis - Question Answered' : 'Text Summary';
+            
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'result success';
+            
+            const titleEl = document.createElement('h3');
+            titleEl.textContent = title;
+            resultDiv.appendChild(titleEl);
+            
+            const responseContainer = document.createElement('div');
+            responseContainer.id = 'text-response-' + Date.now();
+            resultDiv.appendChild(responseContainer);
+            
+            const sectionDiv = document.createElement('div');
+            sectionDiv.className = 'response-section';
+            
+            const docTitleP = document.createElement('p');
+            docTitleP.innerHTML = `<strong>Document:</strong> ${data.document_title}`;
+            sectionDiv.appendChild(docTitleP);
+            
+            const statsP = document.createElement('p');
+            statsP.innerHTML = `<strong>Processed:</strong> ${data.chunks_count} chunks, ${data.char_count} characters`;
+            sectionDiv.appendChild(statsP);
+            
+            if (action === 'question') {
+                const questionP = document.createElement('p');
+                questionP.innerHTML = `<strong>Question:</strong> ${question}`;
+                sectionDiv.appendChild(questionP);
+            }
+            
+            const responseH4 = document.createElement('h4');
+            responseH4.textContent = 'AI Response:';
+            sectionDiv.appendChild(responseH4);
+            
+            const responseDiv = document.createElement('div');
+            responseDiv.className = 'ai-response';
+            responseDiv.id = responseContainer.id + '-content';
+            sectionDiv.appendChild(responseDiv);
+            
+            resultDiv.appendChild(sectionDiv);
+            
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('result').appendChild(resultDiv);
+            
+            renderRAGResponse(data.answer, responseDiv.id);
+        } else {
+            showError(`Text processing failed: ${data.detail || 'Unknown error'}`);
+        }
+    } catch (error) {
+        showError(`Network error: ${error.message}`);
+    }
+}

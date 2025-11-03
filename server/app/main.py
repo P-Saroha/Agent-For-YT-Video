@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -6,21 +7,23 @@ import uvicorn
 from typing import Optional
 import os
 from dotenv import load_dotenv
+import pathlib
 
-from app.routes import health, langchain_routes, web_routes, simple_routes
+# Load environment variables BEFORE importing routes (which initialize services)
+env_path = pathlib.Path(__file__).parent.parent / '.env'
+load_dotenv(dotenv_path=env_path)
+
+from app.routes import health, langchain_routes, web_routes, simple_routes, document_routes
 from app.config import get_settings
-
-# Load environment variables
-load_dotenv()
 
 # Get settings
 settings = get_settings()
 
 # Create FastAPI app
 app = FastAPI(
-    title="YouTube AI Assistant API",
-    description="AI-powered assistant for YouTube video content analysis",
-    version="1.0.0"
+    title="Universal AI Assistant API",
+    description="AI-powered assistant for YouTube videos, websites, PDFs, and text documents",
+    version="2.0.0"
 )
 
 # Add CORS middleware - Allow all for development
@@ -42,14 +45,33 @@ app.include_router(health.router)
 app.include_router(langchain_routes.router)
 app.include_router(web_routes.router)
 app.include_router(simple_routes.router)
+app.include_router(document_routes.router)
 
 @app.get("/")
 async def root():
+    """Redirect to main app interface."""
+    return RedirectResponse(url="/static/index.html")
+
+@app.get("/app")
+async def app_ui():
+    """Alternative clean URL for the main UI."""
+    return RedirectResponse(url="/static/index.html")
+
+@app.get("/api")
+async def api_info():
+    """API information endpoint."""
     return {
-        "message": "YouTube AI Assistant API",
-        "version": "1.0.0",
+        "message": "Universal AI Assistant API",
+        "version": "2.0.0",
         "status": "running",
-        "web_interface": "http://127.0.0.1:8000/static/youtube-web-ai-clean.html"
+        "features": [
+            "YouTube Video Analysis",
+            "Web Content Processing",
+            "PDF Document Analysis",
+            "Text Document Processing"
+        ],
+        "documentation": "/docs",
+        "web_interface": "/"
     }
 
 if __name__ == "__main__":

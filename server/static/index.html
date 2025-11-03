@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube + Web AI Assistant</title>
+    
+    <!-- External Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@9.1.2/marked.min.js"></script>
+    
+    <!-- Local Styles -->
+    <link rel="stylesheet" href="css/youtube-web-ai.css">
+    
+    <!-- Local Scripts -->
+    <script src="js/youtube-web-ai.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Universal AI Assistant</h1>
+            <p class="subtitle">Analyze YouTube videos, websites, PDFs, and text documents with AI</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Mode Selector -->
+            <div class="mode-selector">
+                <button class="mode-btn active" onclick="switchMode('youtube')">
+                    📺 YouTube
+                </button>
+                <button class="mode-btn" onclick="switchMode('web')">
+                    🌐 Website
+                </button>
+                <button class="mode-btn" onclick="switchMode('pdf')">
+                    📄 PDF
+                </button>
+                <button class="mode-btn" onclick="switchMode('text')">
+                    📝 Text
+                </button>
+            </div>
+
+        <!-- YouTube Section -->
+        <div id="youtube-section" class="form-section active">
+            <div class="quick-examples">
+                <h4>Quick Examples (Click to try):</h4>
+                <div class="example-item" onclick="setYouTubeUrl('https://www.youtube.com/watch?v=dQw4w9WgXcQ')">
+                    Music video example
+                </div>
+                <div class="example-item" onclick="setYouTubeUrl('https://youtu.be/dQw4w9WgXcQ')">
+                    Short URL format
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="youtube-url">YouTube Video URL:</label>
+                <input type="text" id="youtube-url" placeholder="Paste YouTube video URL here..." value="">
+                <button type="button" onclick="copyYouTubeLink()" class="share-btn">
+                    Copy Shareable Link
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label for="youtube-question">Your Question (optional):</label>
+                <textarea id="youtube-question" rows="3" placeholder="Ask anything about the video... (leave empty to get video summary)"></textarea>
+            </div>
+
+            <button class="primary-btn" onclick="processYouTube()">Analyze Video</button>
+        </div>
+
+        <!-- Website Section -->
+        <div id="web-section" class="form-section">
+            <div class="quick-examples">
+                <h4>Popular Websites (Click to try):</h4>
+                <div class="examples-grid">
+                    <div class="example-item" onclick="setWebUrl('https://en.wikipedia.org/wiki/Artificial_intelligence')">
+                        Wikipedia: AI article (Recommended)
+                    </div>
+                    <div class="example-item" onclick="setWebUrl('https://www.bbc.com/news')">
+                        BBC News
+                    </div>
+                    <div class="example-item" onclick="setWebUrl('https://stackoverflow.com/questions/tagged/python')">
+                        Stack Overflow Python Questions
+                    </div>
+                    <div class="example-item" onclick="setWebUrl('https://www.reddit.com/r/MachineLearning/')">
+                        Reddit Machine Learning
+                    </div>
+                    <div class="example-item" onclick="setWebUrl('https://blog.openai.com/')">
+                        OpenAI Blog
+                    </div>
+                    <div class="example-item" onclick="setWebUrl('https://www.reuters.com/world/')">
+                        Reuters World News
+                    </div>
+                </div>
+                <p class="examples-note">
+                    <strong>Note:</strong> Some sites like MSN and CNN use advanced loading and may not work. Wikipedia, BBC, Reuters work best.
+                </p>
+            </div>
+
+            <div class="form-group">
+                <label for="web-url">Website URL:</label>
+                <input type="text" id="web-url" placeholder="Enter any website URL..." value="">
+                <button type="button" onclick="copyWebLink()" class="share-btn">
+                    Copy Shareable Link
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label for="web-action">Action:</label>
+                <select id="web-action" onchange="toggleWebQuestion()">
+                    <option value="extract">Extract website content</option>
+                    <option value="question">Ask question about website</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="web-question-group">
+                <label for="web-question">Your Question:</label>
+                <textarea id="web-question" rows="3" placeholder="What would you like to know about this website?"></textarea>
+            </div>
+
+            <button class="primary-btn" onclick="processWebsite()">Analyze Website</button>
+        </div>
+
+        <!-- PDF Section -->
+        <div id="pdf-section" class="form-section">
+            <div class="quick-examples">
+                <h4>📄 Upload PDF Document:</h4>
+                <p class="examples-note">
+                    Upload any PDF file (research papers, books, reports, etc.) and ask questions or get a summary.
+                </p>
+            </div>
+
+            <div class="form-group">
+                <label for="pdf-file">Select PDF File:</label>
+                <div class="file-upload-area" id="pdf-drop-zone">
+                    <input type="file" id="pdf-file" accept=".pdf" onchange="handlePDFSelection(event)">
+                    <div class="upload-placeholder">
+                        <div class="upload-icon">📄</div>
+                        <p>Click to select or drag & drop PDF file here</p>
+                        <p class="file-info" id="pdf-file-info"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="pdf-action">Action:</label>
+                <select id="pdf-action" onchange="togglePDFQuestion()">
+                    <option value="summarize">Generate Summary</option>
+                    <option value="question">Ask Specific Question</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="pdf-question-group" style="display: none;">
+                <label for="pdf-question">Your Question:</label>
+                <textarea id="pdf-question" rows="3" placeholder="What would you like to know about this PDF?"></textarea>
+            </div>
+
+            <button class="primary-btn" onclick="processPDF()" id="pdf-submit-btn" disabled>Analyze PDF</button>
+        </div>
+
+        <!-- Text Section -->
+        <div id="text-section" class="form-section">
+            <div class="quick-examples">
+                <h4>📝 Paste Text Content:</h4>
+                <p class="examples-note">
+                    Paste any text (articles, essays, notes, etc.) and ask questions or get a summary.
+                </p>
+            </div>
+
+            <div class="form-group">
+                <label for="text-content">Text Content:</label>
+                <textarea id="text-content" rows="10" placeholder="Paste your text content here... (minimum 100 characters)" oninput="validateTextInput()"></textarea>
+                <p class="char-count" id="text-char-count">0 characters</p>
+            </div>
+
+            <div class="form-group">
+                <label for="text-title">Document Title (optional):</label>
+                <input type="text" id="text-title" placeholder="Enter a title for this document..." value="My Document">
+            </div>
+
+            <div class="form-group">
+                <label for="text-action">Action:</label>
+                <select id="text-action" onchange="toggleTextQuestion()">
+                    <option value="summarize">Generate Summary</option>
+                    <option value="question">Ask Specific Question</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="text-question-group" style="display: none;">
+                <label for="text-question">Your Question:</label>
+                <textarea id="text-question" rows="3" placeholder="What would you like to know about this text?"></textarea>
+            </div>
+
+            <button class="primary-btn" onclick="processText()" id="text-submit-btn" disabled>Analyze Text</button>
+        </div>
+
+        <!-- Results -->
+        <div id="result"></div>
+        </div>
+    </div>
+</body>
+</html>

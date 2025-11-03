@@ -122,8 +122,26 @@ async def process_video_langchain(request: VideoProcessRequest):
             )
         
     except Exception as e:
-        print(f"Error processing video: {e}")
-        raise HTTPException(status_code=500, detail=f"Video processing failed: {str(e)}")
+        print(f"Error processing video (RAG): {e}")
+        # Fallback: try to at least fetch a transcript via simple service and return a minimal processed response
+        try:
+            from app.services.simple_ai_service import get_simple_service
+            simple = get_simple_service()
+            vid = simple.extract_video_id(request.video_url)
+            transcript = await simple.get_transcript(vid)
+            approx_chunks = max(1, len(transcript) // 800) if transcript else 0
+            return VideoProcessResponse(
+                video_id=vid,
+                title=f"YouTube Video {vid}",
+                channel="Unknown",
+                processed_at=datetime.now(),
+                chunks_count=approx_chunks,
+                status="processed_fallback",
+                language="unknown"
+            )
+        except Exception as fe:
+            print(f"Fallback (simple) failed: {fe}")
+            raise HTTPException(status_code=500, detail=f"Video processing failed: {str(e)} | Fallback error: {str(fe)}")
 
 @router.get("/health")
 async def health_check():
