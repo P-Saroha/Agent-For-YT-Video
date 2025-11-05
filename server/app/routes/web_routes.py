@@ -34,32 +34,35 @@ def get_web_service():
 
 @router.post("/extract-content", response_model=WebContentResponse)
 async def extract_web_content(request: WebContentRequest):
-    """Extract and summarize content from any website URL"""
+    """Extract and generate AI summary of website content"""
     try:
-        print(f"Extracting content from URL: {request.url}")
+        print(f"Extracting and summarizing content from URL: {request.url}")
 
         start_time = time.time()
 
         # Get web service
         service = get_web_service()
 
-        # Extract content
-        content_data = await service.extract_content_from_url(request.url)
+        # First process the content with RAG (creates embeddings and chunks)
+        await service.process_web_content_with_rag(request.url)
+        
+        # Then generate a comprehensive AI summary
+        summary_data = await service.summarize_web_content(request.url)
 
         processing_time = time.time() - start_time
 
-        if "error" in content_data:
-            raise HTTPException(status_code=500, detail=content_data["error"])
+        if "error" in summary_data:
+            raise HTTPException(status_code=500, detail=summary_data["error"])
 
-        # Use the extracted content directly for faster response
+        # Return AI-generated structured summary instead of raw text
         return WebContentResponse(
-            url=content_data["url"],
-            title=content_data["title"],
-            content_preview=content_data["content"],  # Return full content instead of truncated
-            word_count=content_data["word_count"],
-            char_count=content_data.get("char_count", len(content_data["content"])),  # Add char count
+            url=summary_data["url"],
+            title=summary_data["title"],
+            content_preview=summary_data["summary"],  # AI-generated structured summary
+            word_count=len(summary_data["summary"].split()),
+            char_count=len(summary_data["summary"]),
             extracted_at=datetime.now(),
-            metadata={"processing_time": processing_time, "method": "fast_extraction"},
+            metadata={"processing_time": processing_time, "method": "rag_ai_summary", "confidence": summary_data.get("confidence", 0.8)},
             status="success"
         )
 

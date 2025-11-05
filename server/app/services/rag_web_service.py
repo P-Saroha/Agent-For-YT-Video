@@ -370,33 +370,42 @@ Respond naturally and helpfully, as if you're having a conversation."""),
 
             chain_data = self.vectorstore_cache[url_hash]
 
-            # Ask for summary using enhanced question format
-            summary_question = """Provide a comprehensive, well-formatted summary of this web content.
+            # Ask for summary using enhanced question format matching PDF quality
+            summary_question = """Create a comprehensive, well-structured summary of this web content.
 
-Use this structure:
+IMPORTANT: You MUST follow this exact format and structure:
 
-##  Overview
-[2-3 sentence high-level summary of what this content is about]
+## Overview
+Write 2-3 sentences explaining what this content is about at a high level.
 
-##  Main Topics Covered
-**Topic 1**: [Description with key details]
-**Topic 2**: [Description with key details]
-**Topic 3**: [Description with key details]
+## Main Topics Covered
+- **First Major Topic**: Brief explanation of this topic
+- **Second Major Topic**: Brief explanation of this topic  
+- **Third Major Topic**: Brief explanation of this topic
+(Add more topics as needed)
 
-##  Key Points & Insights
-1. **[Important Point 1]**: [Detailed explanation]
-2. **[Important Point 2]**: [Detailed explanation]
-3. **[Important Point 3]**: [Detailed explanation]
+## Key Points & Insights
+1. **Important Point 1**: Detailed explanation with context
+2. **Important Point 2**: Detailed explanation with context
+3. **Important Point 3**: Detailed explanation with context
+(Continue numbering for more points)
 
-##  Important Details
-• [Notable detail or fact 1]
-• [Notable detail or fact 2]
-• [Notable detail or fact 3]
+## Important Details
+• Notable fact or detail from the content
+• Another significant piece of information
+• Additional important context or data
+(Add more bullet points as needed)
 
-##  Key Takeaways
-> [Most important conclusion or lesson from this content]
+## Key Takeaways
+Write a strong concluding paragraph summarizing the most important lessons or conclusions from this content.
 
-Use clear formatting, bold for emphasis, and organize information logically."""
+CRITICAL REQUIREMENTS:
+- Use markdown headers (##) for sections
+- Use **bold** for emphasis on key terms
+- Use bullet points (•) or numbered lists (1., 2., 3.)
+- Break content into clear paragraphs with spacing
+- Make it easy to scan and read
+- Be comprehensive but well-organized"""
 
             result = await self.ask_question_about_web_content(url, summary_question)
 
