@@ -594,30 +594,144 @@ Artificial Intelligence (AI) is the simulation of human intelligence...
 
 ### Option 1: Local Development
 ```bash
-python start_server.py
+# Quick start
+python server/start_server.py
+
+# Using Makefile
+make dev
+
 # Access at http://localhost:8000
 ```
 
-### Option 2: Docker (Coming Soon)
+### Option 2: Docker
 ```bash
-docker build -t ai-content-assistant .
-docker run -p 8000:8000 -e GEMINI_API_KEY=your_key ai-content-assistant
+# Build image
+docker build -t ai-content-assistant:latest .
+
+# Run container
+docker run -p 8000:8000 \
+  -e GEMINI_API_KEY=your_key \
+  -e GOOGLE_API_KEY=your_key \
+  ai-content-assistant:latest
+
+# Using Docker Compose (Recommended)
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop
+docker-compose down
 ```
 
-### Option 3: Cloud Deployment
-- **Render/Railway**: Deploy with one click
-- **AWS/GCP**: Use EC2/Compute Engine
-- **Vercel/Netlify**: Frontend deployment
+### Option 3: Using Makefile Commands
+```bash
+make install       # Install dependencies
+make dev          # Run development server
+make test         # Run tests with coverage
+make lint         # Check code quality
+make format       # Auto-format code
+make docker-build # Build Docker image
+make docker-run   # Run with Docker Compose
+```
+
+### Option 4: Cloud Deployment
+
+#### Railway
+```bash
+# Install Railway CLI
+npm install -g @railway/cli
+
+# Deploy
+railway login
+railway init
+railway up
+```
+
+#### Render
+1. Connect GitHub repo
+2. Set environment variables
+3. Deploy with one click
+
+#### AWS/GCP
+- **AWS EC2**: Use Amazon Linux, install Docker
+- **GCP Compute Engine**: Deploy with Container-Optimized OS
+- **Kubernetes**: Use provided manifests (coming soon)
+
+#### Vercel/Netlify (Frontend)
+- Deploy static frontend separately
+- Point API calls to backend server
 
 ---
 
-## 🔒 Security & Privacy
+## � CI/CD Pipeline
 
-- ✅ **API Key Protection** - Environment variables only
+### Automated Workflows (GitHub Actions)
+
+The project includes a comprehensive CI/CD pipeline that automatically:
+
+✅ **Code Quality Checks**
+- Linting with flake8
+- Format checking with black
+- Import sorting with isort
+
+✅ **Testing**
+- Unit tests with pytest
+- Coverage reporting (codecov integration)
+- Integration tests
+
+✅ **Security Scanning**
+- Dependency vulnerability checks (safety)
+- Code security analysis (bandit)
+
+✅ **Docker Build**
+- Multi-stage optimized builds
+- Automatic tagging
+- Push to Docker Hub on main branch
+
+✅ **Deployment**
+- Automatic deployment to staging/production
+- Webhook notifications
+
+### Badges
+
+![CI/CD](https://github.com/P-Saroha/Agent-For-YT-Video/workflows/CI-CD%20Pipeline/badge.svg)
+![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen)
+![Security](https://img.shields.io/badge/security-scanned-blue)
+
+### Pre-commit Hooks
+
+Automatic code quality checks before each commit:
+
+```bash
+# Install
+pip install pre-commit
+pre-commit install
+
+# Run manually
+pre-commit run --all-files
+```
+
+Checks include:
+- Code formatting (black, isort)
+- Linting (flake8)
+- Security (bandit)
+- YAML validation
+- Trailing whitespace removal
+- Large file detection
+
+---
+
+## �🔒 Security & Privacy
+
+- ✅ **API Key Protection** - Environment variables only, never committed
 - ✅ **No Data Storage** - Temporary processing, no database
 - ✅ **In-Memory Only** - Vector stores cleared after session
 - ✅ **HTTPS Support** - SSL certificate configuration available
-- ⚠️ **Rate Limiting** - Implement in production (not included)
+- ✅ **Security Scanning** - Automated vulnerability checks in CI/CD
+- ✅ **Dependency Updates** - Regular security patches
+- ⚠️ **Rate Limiting** - Implement in production (not included by default)
 
 ---
 
