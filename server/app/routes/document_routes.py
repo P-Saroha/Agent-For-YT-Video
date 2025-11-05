@@ -28,9 +28,9 @@ def get_document_service():
             print("Initializing Document AI service...")
             from app.services.document_service import DocumentAIService
             _document_service = DocumentAIService()
-            print("✅ Document AI service initialized successfully")
+            print(" Document AI service initialized successfully")
         except Exception as e:
-            print(f"❌ Failed to initialize Document service: {e}")
+            print(f" Failed to initialize Document service: {e}")
             raise HTTPException(status_code=500, detail=f"Service initialization failed: {str(e)}")
     return _document_service
 
@@ -45,21 +45,21 @@ async def upload_pdf(file: UploadFile = File(...)):
         # Validate file type
         if not file.filename.lower().endswith('.pdf'):
             raise HTTPException(status_code=400, detail="Only PDF files are supported")
-        
-        print(f"📄 Received PDF upload: {file.filename}")
-        
+
+        print(f" Received PDF upload: {file.filename}")
+
         # Read file content
         file_content = await file.read()
-        
+
         if len(file_content) == 0:
             raise HTTPException(status_code=400, detail="Empty PDF file")
-        
-        print(f"📊 File size: {len(file_content) / 1024:.2f} KB")
-        
+
+        print(f" File size: {len(file_content) / 1024:.2f} KB")
+
         # Get service and extract text
         service = get_document_service()
         extraction_result = await service.extract_text_from_pdf(file_content)
-        
+
         return PDFUploadResponse(
             success=True,
             message=f"Successfully extracted text from {extraction_result['page_count']} pages",
@@ -68,11 +68,11 @@ async def upload_pdf(file: UploadFile = File(...)):
             title=extraction_result['title'],
             extraction_time=extraction_result['extraction_time']
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
-        print(f"❌ Error processing PDF: {e}")
+        print(f" Error processing PDF: {e}")
         raise HTTPException(status_code=500, detail=f"PDF processing failed: {str(e)}")
 
 
@@ -89,26 +89,26 @@ async def ask_pdf_question(
         # Validate inputs
         if not file.filename.lower().endswith('.pdf'):
             raise HTTPException(status_code=400, detail="Only PDF files are supported")
-        
+
         if not question or not question.strip():
             raise HTTPException(status_code=400, detail="Question is required")
-        
-        print(f"📄 Processing PDF question: {file.filename}")
-        print(f"❓ Question: {question}")
-        
+
+        print(f" Processing PDF question: {file.filename}")
+        print(f" Question: {question}")
+
         start_time = time.time()
-        
+
         # Read PDF
         file_content = await file.read()
-        
+
         # Get service
         service = get_document_service()
-        
+
         # Extract text from PDF
         extraction_result = await service.extract_text_from_pdf(file_content)
         text_content = extraction_result['text']
         document_title = extraction_result.get('title', file.filename)
-        
+
         # Ask question using RAG
         result = await service.ask_question_about_document(
             text_content=text_content,
@@ -116,12 +116,12 @@ async def ask_pdf_question(
             document_title=document_title,
             document_type="pdf"
         )
-        
+
         if not result.get("success"):
             raise HTTPException(status_code=500, detail=result.get("error", "Failed to process question"))
-        
+
         processing_time = time.time() - start_time
-        
+
         return DocumentResponse(
             answer=result["answer"],
             document_title=result["document_title"],
@@ -135,11 +135,11 @@ async def ask_pdf_question(
             answered_at=datetime.now(),
             status="success"
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
-        print(f"❌ Error processing PDF question: {e}")
+        print(f" Error processing PDF question: {e}")
         raise HTTPException(status_code=500, detail=f"PDF question processing failed: {str(e)}")
 
 
@@ -153,19 +153,19 @@ async def ask_text_question(request: DocumentQuestionRequest):
         # Validate inputs
         if not request.text_content or not request.text_content.strip():
             raise HTTPException(status_code=400, detail="Text content is required")
-        
+
         if not request.question or not request.question.strip():
             raise HTTPException(status_code=400, detail="Question is required")
-        
-        print(f"📝 Processing text question")
-        print(f"📊 Text length: {len(request.text_content)} characters")
-        print(f"❓ Question: {request.question}")
-        
+
+        print(f" Processing text question")
+        print(f" Text length: {len(request.text_content)} characters")
+        print(f" Question: {request.question}")
+
         start_time = time.time()
-        
+
         # Get service
         service = get_document_service()
-        
+
         # Ask question using RAG
         result = await service.ask_question_about_document(
             text_content=request.text_content,
@@ -173,12 +173,12 @@ async def ask_text_question(request: DocumentQuestionRequest):
             document_title=request.document_title,
             document_type="text"
         )
-        
+
         if not result.get("success"):
             raise HTTPException(status_code=500, detail=result.get("error", "Failed to process question"))
-        
+
         processing_time = time.time() - start_time
-        
+
         return DocumentResponse(
             answer=result["answer"],
             document_title=result["document_title"],
@@ -192,11 +192,11 @@ async def ask_text_question(request: DocumentQuestionRequest):
             answered_at=datetime.now(),
             status="success"
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
-        print(f"❌ Error processing text question: {e}")
+        print(f" Error processing text question: {e}")
         raise HTTPException(status_code=500, detail=f"Text question processing failed: {str(e)}")
 
 
@@ -210,27 +210,27 @@ async def summarize_text(request: TextDocumentRequest):
         # Validate input
         if not request.text_content or not request.text_content.strip():
             raise HTTPException(status_code=400, detail="Text content is required")
-        
-        print(f"📝 Generating summary for text document")
-        print(f"📊 Text length: {len(request.text_content)} characters")
-        
+
+        print(f" Generating summary for text document")
+        print(f" Text length: {len(request.text_content)} characters")
+
         start_time = time.time()
-        
+
         # Get service
         service = get_document_service()
-        
+
         # Generate summary
         result = await service.summarize_document(
             text_content=request.text_content,
             document_title=request.document_title,
             document_type="text"
         )
-        
+
         if not result.get("success"):
             raise HTTPException(status_code=500, detail=result.get("error", "Failed to generate summary"))
-        
+
         processing_time = time.time() - start_time
-        
+
         return DocumentResponse(
             answer=result["answer"],
             document_title=result["document_title"],
@@ -244,11 +244,11 @@ async def summarize_text(request: TextDocumentRequest):
             answered_at=datetime.now(),
             status="success"
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
-        print(f"❌ Error generating summary: {e}")
+        print(f" Error generating summary: {e}")
         raise HTTPException(status_code=500, detail=f"Summary generation failed: {str(e)}")
 
 
@@ -262,34 +262,34 @@ async def summarize_pdf(file: UploadFile = File(...)):
         # Validate file type
         if not file.filename.lower().endswith('.pdf'):
             raise HTTPException(status_code=400, detail="Only PDF files are supported")
-        
-        print(f"📄 Generating summary for PDF: {file.filename}")
-        
+
+        print(f" Generating summary for PDF: {file.filename}")
+
         start_time = time.time()
-        
+
         # Read PDF
         file_content = await file.read()
-        
+
         # Get service
         service = get_document_service()
-        
+
         # Extract text from PDF
         extraction_result = await service.extract_text_from_pdf(file_content)
         text_content = extraction_result['text']
         document_title = extraction_result.get('title', file.filename)
-        
+
         # Generate summary
         result = await service.summarize_document(
             text_content=text_content,
             document_title=document_title,
             document_type="pdf"
         )
-        
+
         if not result.get("success"):
             raise HTTPException(status_code=500, detail=result.get("error", "Failed to generate summary"))
-        
+
         processing_time = time.time() - start_time
-        
+
         return DocumentResponse(
             answer=result["answer"],
             document_title=result["document_title"],
@@ -303,11 +303,11 @@ async def summarize_pdf(file: UploadFile = File(...)):
             answered_at=datetime.now(),
             status="success"
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
-        print(f"❌ Error generating PDF summary: {e}")
+        print(f" Error generating PDF summary: {e}")
         raise HTTPException(status_code=500, detail=f"PDF summary generation failed: {str(e)}")
 
 

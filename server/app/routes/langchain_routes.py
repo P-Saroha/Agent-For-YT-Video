@@ -4,9 +4,9 @@ import time
 from typing import Dict, Any
 
 from app.models.schemas import (
-    VideoProcessRequest, 
-    VideoProcessResponse, 
-    QuestionRequest, 
+    VideoProcessRequest,
+    VideoProcessResponse,
+    QuestionRequest,
     QuestionResponse,
     ErrorResponse
 )
@@ -39,22 +39,22 @@ async def ask_question_langchain(request: QuestionRequest):
     try:
         print(f"Question: {request.question}")
         print(f"Video ID: {request.video_id}")
-        
+
         start_time = time.time()
-        
+
         # Get LangChain service (with fallback)
         service = get_langchain_service()
-        
+
         # Convert video_id back to URL for the service
         video_url = f"https://www.youtube.com/watch?v={request.video_id}"
-        
+
         # Use appropriate method based on service type
         if hasattr(service, 'process_video_question'):
             # Simple AI service fallback
             result = await service.process_video_question(video_url, request.question)
             if not result["success"]:
                 raise HTTPException(status_code=400, detail=result.get("error", "Processing failed"))
-            
+
             processing_time = time.time() - start_time
             return QuestionResponse(
                 answer=result["answer"],
@@ -69,9 +69,9 @@ async def ask_question_langchain(request: QuestionRequest):
             # Full LangChain service
             # Ask question directly with video_id
             answer_result = await service.ask_question(request.video_id, request.question)
-            
+
             processing_time = time.time() - start_time
-            
+
             return QuestionResponse(
                 answer=answer_result["answer"],
                 video_id=request.video_id,
@@ -81,7 +81,7 @@ async def ask_question_langchain(request: QuestionRequest):
                 confidence=answer_result.get("confidence", 0.85),
                 source_type="langchain_rag"
             )
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -94,11 +94,11 @@ async def process_video_langchain(request: VideoProcessRequest):
     try:
         print(f"Processing video with LangChain: {request.video_url}")
         service = get_langchain_service()
-        
+
         if hasattr(service, 'process_video'):
             # Full LangChain service
             result = await service.process_video(request.video_url)
-            
+
             return VideoProcessResponse(
                 video_id=result["video_id"],
                 title=result.get("title", "Video processed"),
@@ -120,7 +120,7 @@ async def process_video_langchain(request: VideoProcessRequest):
                 status="processed",
                 language="unknown"
             )
-        
+
     except Exception as e:
         print(f"Error processing video (RAG): {e}")
         # Fallback: try to at least fetch a transcript via simple service and return a minimal processed response
