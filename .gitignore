@@ -144,3 +144,6 @@ check_models.py
 personal/
 private/
 secrets/
+
+# Interview preparation (personal notes)
+INTERVIEW_PREP.md
