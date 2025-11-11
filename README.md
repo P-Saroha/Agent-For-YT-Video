@@ -794,7 +794,7 @@ python start_server.py
 
 Contributions are welcome! Whether it's bug fixes, new features, or documentation improvements.
 
-### How to Contribute
+### How to Contribute 
 
 1. **Fork the repository**
    ```bash
@@ -859,7 +859,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 - 🐙 GitHub: [@P-Saroha](https://github.com/P-Saroha)
 - 📦 Repository: [Agent-For-YT-Video](https://github.com/P-Saroha/Agent-For-YT-Video)
-- 💼 LinkedIn: [Connect with me](https://linkedin.com/in/parveen-saroha)
+- 💼 LinkedIn: [Connect with me](https://www.linkedin.com/in/parveen-saroha/)
 
 ---
 
@@ -869,7 +869,6 @@ Need help or have questions?
 
 - 🐛 [Report a Bug](https://github.com/P-Saroha/Agent-For-YT-Video/issues)
 - 💡 [Request a Feature](https://github.com/P-Saroha/Agent-For-YT-Video/issues)
-- 📧 [Contact](mailto:parveensaroha@example.com)
 - 💬 [Discussions](https://github.com/P-Saroha/Agent-For-YT-Video/discussions)
 
 ---
