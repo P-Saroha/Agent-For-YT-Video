@@ -3,7 +3,6 @@ Unit tests for AI Content Analysis Platform
 Run with: pytest tests/ -v
 """
 import pytest
-from fastapi.testclient import TestClient
 import sys
 import os
 
@@ -12,7 +11,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'server'))
 
 from app.main import app
 
-client = TestClient(app)
+# Use Starlette TestClient directly
+from starlette.testclient import TestClient
+
+def get_client():
+    """Get test client"""
+    return TestClient(app)
 
 
 class TestHealthEndpoints:
@@ -20,6 +24,7 @@ class TestHealthEndpoints:
     
     def test_main_health_check(self):
         """Test main health endpoint"""
+        client = get_client()
         response = client.get("/health")
         assert response.status_code == 200
         data = response.json()
@@ -28,11 +33,13 @@ class TestHealthEndpoints:
     
     def test_youtube_health(self):
         """Test YouTube service health"""
-        response = client.get("/youtube/health")
+        client = get_client()
+        response = client.get("/langchain/health")
         assert response.status_code == 200
     
     def test_web_health(self):
         """Test web service health"""
+        client = get_client()
         response = client.get("/web/health")
         assert response.status_code == 200
 
@@ -42,14 +49,16 @@ class TestYouTubeEndpoints:
     
     def test_youtube_ask_missing_url(self):
         """Test YouTube ask without URL"""
-        response = client.post("/youtube/ask", json={
+        client = get_client()
+        response = client.post("/langchain/ask-question", json={
             "question": "What is this about?"
         })
         assert response.status_code == 422  # Validation error
     
     def test_youtube_ask_invalid_url(self):
         """Test YouTube ask with invalid URL"""
-        response = client.post("/youtube/ask", json={
+        client = get_client()
+        response = client.post("/langchain/ask-question", json={
             "video_url": "not-a-url",
             "question": "What is this about?"
         })
@@ -59,7 +68,8 @@ class TestYouTubeEndpoints:
     @pytest.mark.skip(reason="Requires API key and network access")
     def test_youtube_ask_valid(self):
         """Test YouTube ask with valid video"""
-        response = client.post("/youtube/ask", json={
+        client = get_client()
+        response = client.post("/langchain/ask-question", json={
             "video_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
             "question": "What is the video about?"
         })
@@ -73,11 +83,13 @@ class TestWebEndpoints:
     
     def test_web_extract_missing_url(self):
         """Test web extract without URL"""
+        client = get_client()
         response = client.post("/web/extract-content", json={})
         assert response.status_code == 422
     
     def test_web_extract_invalid_url(self):
         """Test web extract with invalid URL"""
+        client = get_client()
         response = client.post("/web/extract-content", json={
             "url": "not-a-valid-url"
         })
@@ -86,6 +98,7 @@ class TestWebEndpoints:
     @pytest.mark.skip(reason="Requires network access")
     def test_web_extract_valid(self):
         """Test web extract with valid URL"""
+        client = get_client()
         response = client.post("/web/extract-content", json={
             "url": "https://en.wikipedia.org/wiki/Python_(programming_language)"
         })
@@ -100,6 +113,7 @@ class TestDocumentEndpoints:
     
     def test_document_health(self):
         """Test document service health"""
+        client = get_client()
         response = client.get("/document/health")
         assert response.status_code == 200
 
@@ -109,6 +123,7 @@ class TestAPIDocumentation:
     
     def test_openapi_schema(self):
         """Test OpenAPI schema is accessible"""
+        client = get_client()
         response = client.get("/openapi.json")
         assert response.status_code == 200
         data = response.json()
@@ -117,6 +132,7 @@ class TestAPIDocumentation:
     
     def test_docs_ui(self):
         """Test Swagger UI is accessible"""
+        client = get_client()
         response = client.get("/docs")
         assert response.status_code == 200
 
@@ -126,6 +142,7 @@ class TestCORS:
     
     def test_cors_headers(self):
         """Test CORS headers are set"""
+        client = get_client()
         response = client.options("/health")
         # CORS headers should be present
         assert response.status_code in [200, 405]
@@ -138,6 +155,7 @@ class TestPerformance:
     def test_health_response_time(self):
         """Test health check is fast"""
         import time
+        client = get_client()
         start = time.time()
         response = client.get("/health")
         duration = time.time() - start
@@ -154,8 +172,9 @@ class TestIntegration:
     @pytest.mark.skip(reason="Requires API key")
     def test_full_youtube_workflow(self):
         """Test complete YouTube analysis workflow"""
+        client = get_client()
         # 1. Ask question about video
-        response = client.post("/youtube/ask", json={
+        response = client.post("/langchain/ask-question", json={
             "video_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
             "question": "What is this video about?"
         })
