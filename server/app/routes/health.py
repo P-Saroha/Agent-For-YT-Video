@@ -1,14 +1,30 @@
+"""
+Health Check Routes
+
+Endpoint:
+- GET /health - Check if the API is running
+"""
+
 from fastapi import APIRouter
 from datetime import datetime
-from app.models.schemas import HealthResponse
+from typing import Dict
 
-router = APIRouter(prefix="/health", tags=["health"])
+router = APIRouter(prefix="/health", tags=["Health"])
 
-@router.get("/", response_model=HealthResponse)
-async def health_check():
-    """Health check endpoint"""
-    return HealthResponse(
-        status="healthy",
-        timestamp=datetime.now(),
-        version="1.0.0"
-    )
+
+@router.get("/")
+async def health_check() -> Dict[str, any]:
+    """
+    Health check endpoint.
+    
+    Use this to verify the API server is running.
+    
+    Returns:
+        Dictionary with health status and timestamp
+    """
+    return {
+        "status": "healthy",
+        "service": "AI Content Analysis API",
+        "version": "1.0.0",
+        "timestamp": datetime.now().isoformat()
+    }

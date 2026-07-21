@@ -1,18 +1,27 @@
 """
-Optimized RAG-based Web Content Analysis Service using Modern LangChain LCEL
-Following best practices: LCEL, create_retrieval_chain, ChatPromptTemplate, batch processing
+Web Content Analysis Service using LangChain and Google Gemini.
+
+How it works:
+1. Fetch content from a website
+2. Extract main text (remove ads, navigation, etc.)
+3. Split into chunks
+4. Convert to vectors
+5. Answer questions about the content using RAG
+
+Supports:
+- Regular websites (HTML scraping)
+- Wikipedia (uses official API for reliability)
 """
+
 import asyncio
 import aiohttp
 import re
-import time
 import tempfile
 import os
 from urllib.parse import urlparse
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 from bs4 import BeautifulSoup
 
-# Modern LangChain imports
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -23,507 +32,439 @@ from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 
 
-class OptimizedRAGWebContentService:
-    """Web content analysis using Modern LangChain LCEL"""
+class WebRAGService:
+    """
+    Service to analyze web content using RAG.
+    
+    RAG = Get relevant information from website, then use AI to answer questions.
+    """
 
     def __init__(self):
+        """Initialize components for web content analysis."""
+        print("🌐 Initializing Web Content Analysis Service...")
+
         self.session = None
-
-        print(" Initializing Optimized RAG Web Content Service with LCEL...")
-
-        # Configure text splitter with optimal settings (matching PDF service)
-        self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000,
-            chunk_overlap=200,
-            length_function=len,
-            is_separator_regex=False,
-            separators=["\n\n", "\n", ". ", "! ", "? ", "; ", ": ", " ", ""]
-        )
-
-        # Use multilingual embeddings for better content understanding
+        
+        # ==================== Component 1: Text-to-Vector Converter ====================
         self.embeddings = HuggingFaceEmbeddings(
             model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
-            model_kwargs={
-                'device': 'cpu',
-            },
+            model_kwargs={'device': 'cpu'},
             encode_kwargs={
                 'normalize_embeddings': True,
-                'batch_size': 32
+                'batch_size': 32  # Process 32 texts at once (faster)
             }
         )
 
-        # Initialize Gemini LLM
-        self.llm = ChatGoogleGenerativeAI(
-            model="gemini-2.5-flash",
-            temperature=0.0
+        # ==================== Component 2: Text Splitter ====================
+        self.text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000,           # Each chunk is 1000 characters
+            chunk_overlap=200,         # 200 character overlap between chunks
+            separators=["\n\n", "\n", ".", "!", "?", " "]  # Split at these first
         )
 
-        #  Modern: ChatPromptTemplate with enhanced formatting
-        self.qa_prompt = ChatPromptTemplate.from_messages([
-            ("system", """You are a helpful AI assistant analyzing web content. Answer questions naturally and conversationally, like ChatGPT or Claude.
+        # ==================== Component 3: AI Model (Gemini) ====================
+        self.llm = ChatGoogleGenerativeAI(
+            model="gemini-2.5-flash",
+            temperature=0.0,
+            convert_system_message_to_human=True
+        )
 
-Context from web content:
+        # ==================== Component 4: Question-Answer Prompt ====================
+        self.qa_prompt = ChatPromptTemplate.from_messages([
+            ("system", """You are a helpful AI assistant analyzing web content.
+
+Here is information from the website:
 {context}
 
-Instructions:
-- Write in a natural, conversational tone
-- Use markdown for formatting (headers, bold, lists) when helpful
-- Break long responses into clear paragraphs
-- Use **bold** to emphasize important points
-- Use bullet points or numbered lists when listing items
-- Keep your language simple and easy to understand
-- Only include information from the context provided
-- If something isn't in the context, say so
-
-Respond naturally and helpfully, as if you're having a conversation."""),
+Rules:
+- Answer the question based ONLY on the content above
+- Be clear and concise
+- Use markdown formatting (headers, bold, lists) to make answers readable
+- If the answer is not in the content, say "This information is not on the page"
+- Sound natural and friendly, like a real person explaining something"""),
             ("human", "{input}")
         ])
 
-        #  Modern: Separate caches for better organization
-        self.content_cache = {}  # Processed content metadata
-        self.vectorstore_cache = {}  # Vector stores
+        # ==================== Component 5: Memory/Cache ====================
+        self.processed_content = {}    # Maps url_hash -> metadata
+        self.vector_stores = {}         # Maps url_hash -> vector database
+        self.temp_directories = {}      # Maps url_hash -> temporary folder path
 
-        print(" Optimized RAG Web Content Service initialized with LCEL")
-
-    def _strip_formatting(self, text: str) -> str:
-        """Improve and clean AI response formatting (KEEP markdown)"""
-        if not text:
-            return ""
-
-        # Keep markdown but fix common issues
-        # Fix header spacing
-        text = re.sub(r'(#{1,6})\s*([^\n]+)', r'\1 \2', text)  # Ensure space after #
-        text = re.sub(r'\n(#{1,6}\s)', r'\n\n\1', text)  # Add line before headers
-        text = re.sub(r'(#{1,6}[^\n]+)\n([^\n#])', r'\1\n\n\2', text)  # Add line after headers
-
-        # Fix list formatting
-        text = re.sub(r'\n([•\-\*]\s)', r'\n\1', text)  # Ensure spacing before lists
-
-        # Fix bold/italic spacing
-        text = re.sub(r'(\*\*[^*]+\*\*)\s*(\*\*)', r'\1 \2', text)  # Space between bold items
-
-        # Clean up excessive spacing
-        text = re.sub(r'\n{4,}', '\n\n', text)  # Max 2 newlines
-        text = re.sub(r' {2,}', ' ', text)  # Remove multiple spaces
-        text = re.sub(r'\t+', ' ', text)  # Replace tabs with space
-
-        # Fix paragraph spacing
-        text = re.sub(r'([.!?])\n([A-Z])', r'\1\n\n\2', text)  # Add space between sentences
-
-        return text.strip()
-
-    def clean_text_encoding(self, text: str) -> str:
-        """Simple text cleaning"""
-        if not text:
-            return ""
-
-        text = text.strip()
-        text = re.sub(r'\s+', ' ', text)
-
-        return text
+        print("✅ Web Service ready!")
 
     async def get_session(self):
-        """Get or create aiohttp session"""
+        """Get or create an HTTP session for fetching webpages."""
         if self.session is None or self.session.closed:
             timeout = aiohttp.ClientTimeout(total=30)
+            # Browser-like headers to avoid being blocked
             headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
             }
             self.session = aiohttp.ClientSession(timeout=timeout, headers=headers)
         return self.session
 
-    async def _extract_main_content(self, soup: BeautifulSoup, url: str) -> str:
-        """Extract main content from parsed HTML"""
+    async def _fetch_wikipedia_content(self, url: str) -> tuple:
+        """
+        Fetch Wikipedia content using the official API (more reliable).
+        
+        Returns: (title, content)
+        """
+        # Extract article title from URL
+        # https://en.wikipedia.org/wiki/Article_Name -> Article_Name
+        parts = url.split('/wiki/')
+        if len(parts) < 2:
+            raise Exception("Invalid Wikipedia URL")
+        
+        article_title = parts[1].split('#')[0].replace('_', ' ')
+        
+        # Detect language from URL (en.wikipedia.org -> en)
+        lang = 'en'
+        lang_match = re.search(r'//([a-z]{2})\.wikipedia\.org', url)
+        if lang_match:
+            lang = lang_match.group(1)
+        
+        # Call Wikipedia API
+        api_url = f"https://{lang}.wikipedia.org/w/api.php"
+        params = {
+            'action': 'query',
+            'format': 'json',
+            'titles': article_title,
+            'prop': 'extracts',
+            'explaintext': '1',
+            'exsectionformat': 'plain'
+        }
+        
+        session = await self.get_session()
+        async with session.get(api_url, params=params) as response:
+            if response.status != 200:
+                raise Exception(f"Wikipedia API error: {response.status}")
+            
+            data = await response.json()
+            pages = data.get('query', {}).get('pages', {})
+            if not pages:
+                raise Exception("No content from Wikipedia")
+            
+            page = list(pages.values())[0]
+            if 'missing' in page:
+                raise Exception(f"Article not found: {article_title}")
+            
+            title = page.get('title', article_title)
+            content = page.get('extract', '')
+            
+            return title, content
+
+    async def _scrape_webpage_content(self, url: str) -> tuple:
+        """
+        Fetch and scrape a regular webpage.
+        
+        Returns: (title, content)
+        """
+        session = await self.get_session()
+        
+        # Small delay to avoid rate limiting
+        await asyncio.sleep(0.3)
+        
+        async with session.get(url, timeout=aiohttp.ClientTimeout(total=30)) as response:
+            if response.status != 200:
+                raise Exception(f"HTTP {response.status}: Cannot fetch webpage")
+
+            html_content = await response.text()
+
+        # Parse HTML
+        soup = BeautifulSoup(html_content, 'html.parser')
+
+        # Remove unwanted elements (scripts, ads, navigation, etc.)
+        for tag in ['script', 'style', 'nav', 'header', 'footer', 'aside', 'iframe']:
+            for element in soup.find_all(tag):
+                element.decompose()
+
+        # Extract title
+        title_elem = soup.find('title')
+        title = title_elem.get_text().strip() if title_elem else "Webpage"
+
+        # Extract main content
+        content = self._extract_main_text(soup, url)
+        
+        return title, content
+
+    def _extract_main_text(self, soup, url: str) -> str:
+        """Extract the main readable text from a webpage."""
         content_parts = []
 
-        # Wikipedia-specific extraction
+        # For Wikipedia, use the main content div
         if 'wikipedia.org' in url.lower():
-            # Get main content div
             content_div = soup.find('div', {'id': 'mw-content-text'})
             if content_div:
-                # Get all paragraphs
-                paragraphs = content_div.find_all('p', recursive=True)
-                for p in paragraphs:
+                for p in content_div.find_all('p'):
                     text = p.get_text().strip()
                     if text and len(text) > 20:
                         content_parts.append(text)
         else:
-            # Generic extraction
-            for tag in ['article', 'main', 'div[role="main"]', 'section']:
-                elements = soup.select(tag)
-                for element in elements:
-                    paragraphs = element.find_all(['p', 'h1', 'h2', 'h3', 'li'])
-                    for p in paragraphs:
+            # For regular websites, look for common content containers
+            for tag in ['article', 'main', 'section']:
+                for element in soup.find_all(tag):
+                    for p in element.find_all(['p', 'h2', 'h3', 'li']):
                         text = p.get_text().strip()
                         if text and len(text) > 20:
                             content_parts.append(text)
 
-            # Fallback: get all paragraphs
+            # Fallback: get all paragraphs if nothing found
             if not content_parts:
-                paragraphs = soup.find_all('p')
-                for p in paragraphs:
+                for p in soup.find_all('p'):
                     text = p.get_text().strip()
                     if text and len(text) > 20:
                         content_parts.append(text)
 
-        # Join content
+        # Join all content
         content = "\n\n".join(content_parts)
-
-        # Clean up
-        content = self.clean_text_encoding(content)
-
+        
+        # Clean up whitespace
+        content = re.sub(r'\s+', ' ', content)
+        
         return content
 
-    async def process_web_content_with_rag(self, url: str) -> Dict[str, Any]:
+    async def process_webpage(self, url: str) -> Dict[str, Any]:
         """
-        Modern RAG approach with LCEL:
-        1. Extract and clean web content
-        2. Divide into structured chunks
-        3. Create embeddings with batch processing
-        4. Store in vector database with metadata
+        Process a webpage so questions can be asked about it.
+        
+        Steps:
+        1. Fetch webpage content
+        2. Extract main text
+        3. Split into chunks
+        4. Convert to vectors
+        5. Store in database
         """
         try:
-            print(f" Extracting content from: {url}")
-            start_time = time.time()
-
-            #  Check cache first
             url_hash = hash(url)
-            if url_hash in self.content_cache:
-                print(f" Using cached content (took {time.time() - start_time:.2f}s)")
-                return self.content_cache[url_hash]
+            
+            # Check if already processed
+            if url_hash in self.processed_content:
+                print(f"📦 URL already processed (using cached data)")
+                return self.processed_content[url_hash]
 
-            # Step 1: Extract and clean content
-            session = await self.get_session()
-            async with session.get(url) as response:
-                if response.status != 200:
-                    raise Exception(f"HTTP {response.status}: Unable to access webpage")
+            print(f"🌐 Processing: {url}")
 
-                html_content = await response.text()
-
-            soup = BeautifulSoup(html_content, 'html.parser')
-
-            # Remove unwanted elements
-            for element in soup(['script', 'style', 'nav', 'header', 'footer', 'aside', 'iframe']):
-                element.decompose()
-
-            # Extract title and content
-            title_elem = soup.find('title')
-            title = title_elem.get_text().strip() if title_elem else "No title"
-
-            content = await self._extract_main_content(soup, url)
-
+            # Step 1: Fetch content
+            print(f"   1️⃣ Fetching webpage...")
+            if 'wikipedia.org' in url.lower():
+                title, content = await self._fetch_wikipedia_content(url)
+            else:
+                title, content = await self._scrape_webpage_content(url)
+            
             if len(content) < 100:
-                raise Exception("Insufficient content extracted from webpage")
+                raise Exception("Not enough content extracted from webpage")
 
-            extraction_time = time.time() - start_time
-            print(f" Extracted {len(content)} characters (took {extraction_time:.2f}s)")
-
-            # Step 2: Create document and divide into chunks
-            chunking_start = time.time()
-            document = Document(
+            # Step 2: Create document
+            doc = Document(
                 page_content=content,
                 metadata={
                     "url": url,
                     "title": title,
-                    "domain": urlparse(url).netloc,
-                    "content_length": len(content)
+                    "domain": urlparse(url).netloc
                 }
             )
 
-            chunks = self.text_splitter.split_documents([document])
-            chunking_time = time.time() - chunking_start
-            print(f" Divided into {len(chunks)} chunks (took {chunking_time:.2f}s)")
+            # Step 3: Split into chunks
+            print(f"   2️⃣ Splitting into chunks...")
+            chunks = self.text_splitter.split_documents([doc])
+            print(f"      Created {len(chunks)} chunks")
 
-            # Step 3-4: Create embeddings and store in vector database
-            temp_dir = tempfile.mkdtemp(prefix=f"web_content_{url_hash}_")
+            # Step 4: Create temp directory
+            temp_dir = tempfile.mkdtemp(prefix=f"web_{url_hash}_")
 
-            embedding_start = time.time()
-            print(f" Creating vector embeddings (batch_size=32)...")
-            vectorstore = Chroma.from_documents(
+            # Step 5: Convert to vectors
+            print(f"   3️⃣ Converting text to vectors...")
+            vector_store = Chroma.from_documents(
                 documents=chunks,
                 embedding=self.embeddings,
                 persist_directory=temp_dir
             )
-            embedding_time = time.time() - embedding_start
-            print(f" Vector embeddings created (took {embedding_time:.2f}s)")
 
-            #  Modern: Use create_retrieval_chain with optimized retrieval
-            retriever = vectorstore.as_retriever(
+            # Step 6: Create retriever and RAG chain
+            retriever = vector_store.as_retriever(
                 search_type="similarity",
-                search_kwargs={
-                    "k": 8  # Return top 8 most relevant documents
-                }
+                search_kwargs={"k": 8}  # Return top 8 chunks
             )
 
-            #  Modern LCEL: Create document chain and retrieval chain
-            doc_chain = create_stuff_documents_chain(
+            document_chain = create_stuff_documents_chain(
                 llm=self.llm,
                 prompt=self.qa_prompt
             )
-
             rag_chain = create_retrieval_chain(
                 retriever=retriever,
-                combine_docs_chain=doc_chain
+                combine_docs_chain=document_chain
             )
 
-            total_time = time.time() - start_time
-            print(f" Content processed (total: {total_time:.2f}s)")
-
-            # Store in caches
-            result = {
-                "url": url,
+            # Store in memory
+            self.processed_content[url_hash] = {
                 "title": title,
-                "chunks_count": len(chunks),
+                "chunks": len(chunks),
                 "content_length": len(content),
-                "processing_time": total_time,
                 "status": "processed"
             }
+            self.vector_stores[url_hash] = rag_chain
+            self.temp_directories[url_hash] = temp_dir
 
-            self.content_cache[url_hash] = result
-            self.vectorstore_cache[url_hash] = {
-                "rag_chain": rag_chain,
-                "vectorstore": vectorstore,
-                "temp_dir": temp_dir,
-                "title": title
-            }
+            print(f"✅ URL processed successfully!")
 
-            return result
+            return self.processed_content[url_hash]
 
         except Exception as e:
-            print(f" Error processing web content: {e}")
-            raise e
+            print(f"❌ Error processing webpage: {str(e)}")
+            raise
 
-    async def ask_question_about_web_content(self, url: str, question: str) -> Dict[str, Any]:
+    async def ask_question(self, url: str, question: str) -> Dict[str, Any]:
         """
-        Step 5-6 of Modern RAG approach with LCEL:
-        5. Retrieve relevant chunks using similarity search
-        6. Generate context-aware answer using LLM
+        Ask a question about a processed webpage.
+        
+        Args:
+            url: The webpage URL
+            question: The question to ask
+            
+        Returns:
+            Dictionary with the answer and metadata
         """
         try:
             url_hash = hash(url)
 
-            # Check if content is processed
-            if url_hash not in self.vectorstore_cache:
-                # Process first if not already done
-                await self.process_web_content_with_rag(url)
+            # Make sure webpage is processed
+            if url_hash not in self.vector_stores:
+                await self.process_webpage(url)
 
-            chain_data = self.vectorstore_cache[url_hash]
-            rag_chain = chain_data["rag_chain"]
+            print(f"❓ Question: {question[:50]}...")
 
-            print(f" Processing question: {question}")
-
-            query_start = time.time()
-
-            #  Modern LCEL: Use invoke with "input" key (not "query")
+            # Get the RAG chain and ask
+            rag_chain = self.vector_stores[url_hash]
             result = rag_chain.invoke({"input": question})
 
-            query_time = time.time() - query_start
-
-            #  Modern LCEL: Answer is in "answer" key (not "result")
             answer = result["answer"]
-            source_docs = result.get("context", [])  # Retrieved documents
+            source_docs = result.get("context", [])
 
-            # Keep the answer as-is from AI (don't strip formatting like PDF service does)
-            # The AI is already instructed to format properly via the prompt
-
-            # Calculate confidence
-            confidence = min(len(source_docs) * 0.12, 1.0) if source_docs else 0.3
-
-            # Get title from cache
-            title = chain_data.get("title", "Unknown")
-            
-            # Calculate word count
-            word_count = len(answer.split())
-
-            print(f" Generated answer with {len(source_docs)} sources (took {query_time:.2f}s)")
+            print(f"✅ Generated answer using {len(source_docs)} relevant sections")
 
             return {
-                "success": True,
-                "url": url,
-                "title": title,
                 "question": question,
                 "answer": answer,
-                "confidence": confidence,
-                "source_type": "rag_vector_search",
-                "word_count": word_count,
-                "sources": [
-                    {
-                        "content": doc.page_content[:200] + "...",
-                        "metadata": doc.metadata
-                    } for doc in source_docs[:5]  # Limit to top 5 sources
-                ],
-                "processing_time": query_time,
-                "method": "rag_lcel"
+                "sources_used": len(source_docs),
+                "method": "RAG"
             }
 
         except Exception as e:
-            print(f" Error answering question: {e}")
-            raise e
+            print(f"❌ Error answering question: {str(e)}")
+            raise
 
-    async def summarize_web_content(self, url: str) -> Dict[str, Any]:
-        """Generate comprehensive summary using Modern LCEL"""
+    async def summarize_webpage(self, url: str) -> Dict[str, Any]:
+        """
+        Generate a summary of the entire webpage.
+        
+        Args:
+            url: The webpage URL
+            
+        Returns:
+            Dictionary with the summary
+        """
         try:
-            # Ensure content is processed
             url_hash = hash(url)
-            if url_hash not in self.vectorstore_cache:
-                await self.process_web_content_with_rag(url)
+            
+            # Make sure webpage is processed
+            if url_hash not in self.vector_stores:
+                await self.process_webpage(url)
 
-            chain_data = self.vectorstore_cache[url_hash]
+            # Ask for summary
+            summary_question = """Create a clear, well-organized summary of this webpage.
 
-            # Ask for summary using enhanced question format matching PDF quality
-            summary_question = """Create a comprehensive, well-structured summary of this web content.
+Format your response as:
 
-IMPORTANT: You MUST follow this exact format and structure:
+## 📝 Overview
+[2-3 sentences about what this page covers]
 
-## Overview
-Write 2-3 sentences explaining what this content is about at a high level.
+## 🎯 Main Topics
+- Topic 1: [Explanation]
+- Topic 2: [Explanation]
+- Topic 3: [Explanation]
 
-## Main Topics Covered
-- **First Major Topic**: Brief explanation of this topic
-- **Second Major Topic**: Brief explanation of this topic  
-- **Third Major Topic**: Brief explanation of this topic
-(Add more topics as needed)
+## 💡 Key Points
+1. [Important point 1]
+2. [Important point 2]
+3. [Important point 3]
 
-## Key Points & Insights
-1. **Important Point 1**: Detailed explanation with context
-2. **Important Point 2**: Detailed explanation with context
-3. **Important Point 3**: Detailed explanation with context
-(Continue numbering for more points)
+## 📌 Summary
+[Final summary paragraph]"""
 
-## Important Details
-• Notable fact or detail from the content
-• Another significant piece of information
-• Additional important context or data
-(Add more bullet points as needed)
-
-## Key Takeaways
-Write a strong concluding paragraph summarizing the most important lessons or conclusions from this content.
-
-CRITICAL REQUIREMENTS:
-- Use markdown headers (##) for sections
-- Use **bold** for emphasis on key terms
-- Use bullet points (•) or numbered lists (1., 2., 3.)
-- Break content into clear paragraphs with spacing
-- Make it easy to scan and read
-- Be comprehensive but well-organized"""
-
-            result = await self.ask_question_about_web_content(url, summary_question)
-
+            result = await self.ask_question(url, summary_question)
+            
+            # Get title from cache
+            metadata = self.processed_content[url_hash]
+            
             return {
                 "url": url,
-                "title": chain_data["title"],
-                "summary": result["answer"],
-                "confidence": result["confidence"],
-                "method": "rag_lcel_summary"
+                "title": metadata["title"],
+                "summary": result["answer"]
             }
 
         except Exception as e:
-            print(f" Error generating summary: {e}")
-            raise e
-
-    async def extract_content_from_url(self, url: str) -> Dict[str, Any]:
-        """Extract and clean content from URL (basic extraction without RAG)"""
-        try:
-            session = await self.get_session()
-
-            async with session.get(url) as response:
-                if response.status != 200:
-                    return {
-                        "error": f"Failed to fetch URL. Status: {response.status}",
-                        "status_code": response.status
-                    }
-
-                html_content = await response.text()
-                soup = BeautifulSoup(html_content, 'html.parser')
-
-                # Extract title
-                title = soup.find('title')
-                title_text = title.get_text(strip=True) if title else "No Title"
-
-                # Extract main content
-                main_content = await self._extract_main_content(soup, url)
-
-                if not main_content or len(main_content.strip()) < 100:
-                    return {
-                        "error": f"Insufficient content extracted from URL (only {len(main_content)} chars)",
-                        "url": url
-                    }
-
-                return {
-                    "title": title_text,
-                    "content": main_content,
-                    "url": url,
-                    "word_count": len(main_content.split()),
-                    "char_count": len(main_content)
-                }
-
-        except Exception as e:
-            print(f" Error extracting content: {e}")
-            return {
-                "error": f"Error extracting content: {str(e)}",
-                "url": url
-            }
+            print(f"❌ Error summarizing webpage: {str(e)}")
+            raise
 
     def cleanup_url(self, url: str):
-        """Clean up resources for a processed URL"""
+        """Clean up resources for a specific URL."""
         try:
             url_hash = hash(url)
-            if url_hash in self.vectorstore_cache:
-                chain_data = self.vectorstore_cache[url_hash]
-                temp_dir = chain_data["temp_dir"]
-
-                # Clean up temp directory
+            if url_hash in self.temp_directories:
+                temp_dir = self.temp_directories[url_hash]
                 if os.path.exists(temp_dir):
                     import shutil
                     shutil.rmtree(temp_dir)
 
-                # Remove from caches
-                del self.vectorstore_cache[url_hash]
-                del self.content_cache[url_hash]
+            # Remove from memory
+            if url_hash in self.processed_content:
+                del self.processed_content[url_hash]
+            if url_hash in self.vector_stores:
+                del self.vector_stores[url_hash]
+            if url_hash in self.temp_directories:
+                del self.temp_directories[url_hash]
 
-                print(f" Cleaned up resources for {url}")
+            print(f"🧹 Cleaned up URL")
         except Exception as e:
-            print(f"  Error cleaning up {url}: {e}")
+            print(f"⚠️ Error cleaning up: {str(e)}")
 
     async def close(self):
-        """Close aiohttp session"""
+        """Close the HTTP session."""
         if self.session and not self.session.closed:
             await self.session.close()
 
     def __del__(self):
-        """Cleanup all resources on deletion"""
+        """Clean up all resources when the service is destroyed."""
         try:
-            # Close session
             if hasattr(self, 'session') and self.session and not self.session.closed:
                 try:
-                    asyncio.get_event_loop().run_until_complete(self.session.close())
+                    loop = asyncio.get_event_loop()
+                    if loop.is_closed():
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                    loop.run_until_complete(self.session.close())
                 except:
                     pass
 
-            # Clean up all cached content
-            if hasattr(self, 'vectorstore_cache'):
-                for url_hash in list(self.vectorstore_cache.keys()):
-                    try:
-                        chain_data = self.vectorstore_cache[url_hash]
-                        temp_dir = chain_data["temp_dir"]
-                        if os.path.exists(temp_dir):
-                            import shutil
+            if hasattr(self, 'temp_directories'):
+                for temp_dir in self.temp_directories.values():
+                    if os.path.exists(temp_dir):
+                        import shutil
+                        try:
                             shutil.rmtree(temp_dir)
-                    except:
-                        pass
-        except Exception:
-            # Silently handle cleanup errors during destruction
+                        except:
+                            pass
+        except:
             pass
 
 
-# Factory function for easy import
-def get_rag_web_service() -> OptimizedRAGWebContentService:
-    """Get RAG web content service instance (optimized with LCEL)"""
-    return OptimizedRAGWebContentService()
-
-# Backward compatibility
-RAGWebContentService = OptimizedRAGWebContentService
-
-def get_optimized_rag_web_service() -> OptimizedRAGWebContentService:
-    """Legacy name - use get_rag_web_service() instead"""
-    return get_rag_web_service()
+def get_web_service() -> WebRAGService:
+    """
+    Get an instance of the Web RAG service.
+    
+    Usage:
+        service = get_web_service()
+        await service.process_webpage("https://example.com")
+        result = await service.ask_question(url, "What is this about?")
+    """
+    return WebRAGService()

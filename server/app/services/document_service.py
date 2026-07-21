@@ -1,20 +1,26 @@
 """
-OPTIMIZED RAG-based Document Analysis Service
-Following LangChain Best Practices with LCEL (LangChain Expression Language)
-Supports: PDFs, Plain Text - Efficient, Modern, Scalable
+Document Analysis Service using LangChain and Google Gemini.
+
+How it works:
+1. Extract text from PDF or plain text file
+2. Split text into chunks
+3. Convert chunks to vectors
+4. Answer questions about the document using RAG
+
+Supports:
+- PDF files
+- Plain text files
 """
+
 import os
 import re
 import tempfile
-import time
 import hashlib
 from typing import Dict, Any, List
 from io import BytesIO
 
-# PDF processing
 from PyPDF2 import PdfReader
 
-# Modern LangChain imports (LCEL)
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -25,364 +31,321 @@ from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 
 
-class OptimizedDocumentAIService:
+class DocumentRAGService:
     """
-    Optimized AI Assistant for PDF and Text Documents
-    Using Modern LangChain Patterns (LCEL) for Maximum Efficiency
+    Service to analyze documents (PDF, text) using RAG.
+    
+    RAG = Get relevant information from document, then use AI to answer questions.
     """
 
     def __init__(self):
-        print(" Initializing Optimized Document AI Service with LCEL...")
+        """Initialize components for document analysis."""
+        print("📄 Initializing Document Analysis Service...")
 
-        # Configure text splitter with optimal settings
-        self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000,
-            chunk_overlap=200,
-            length_function=len,
-            is_separator_regex=False,
-            separators=["\n\n", "\n", ". ", "! ", "? ", "; ", ": ", " ", ""]
-        )
-
-        # Use multilingual embeddings with caching
+        # ==================== Component 1: Text-to-Vector Converter ====================
         self.embeddings = HuggingFaceEmbeddings(
             model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
-            model_kwargs={
-                'device': 'cpu',
-                'trust_remote_code': False
-            },
+            model_kwargs={'device': 'cpu'},
             encode_kwargs={
                 'normalize_embeddings': True,
-                'batch_size': 32  # Optimize batch processing
-            },
-            show_progress=False
+                'batch_size': 32  # Process 32 texts at once (faster)
+            }
         )
 
-        # Initialize Gemini LLM with optimal settings
+        # ==================== Component 2: Text Splitter ====================
+        self.text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000,           # Each chunk is 1000 characters
+            chunk_overlap=200,         # 200 character overlap between chunks
+            separators=["\n\n", "\n", ".", "!", "?", " "]  # Split at these first
+        )
+
+        # ==================== Component 3: AI Model (Gemini) ====================
         self.llm = ChatGoogleGenerativeAI(
             model="gemini-2.5-flash",
             temperature=0.0,
-            convert_system_message_to_human=True,
-            max_output_tokens=2048,
-            top_p=0.95
+            convert_system_message_to_human=True
         )
 
-        # Modern ChatPromptTemplate - Simple and natural like ChatGPT/Claude
+        # ==================== Component 4: Question-Answer Prompt ====================
         self.qa_prompt = ChatPromptTemplate.from_messages([
-            ("system", """You are a helpful AI assistant analyzing documents (PDFs, text files). Answer questions naturally and conversationally, like ChatGPT or Claude.
+            ("system", """You are a helpful AI assistant analyzing documents (PDFs, text files).
 
-Context:
+Here is information from the document:
 {context}
 
-Instructions:
-- Write in a natural, conversational tone
-- Use markdown for formatting (headers, bold, lists) when helpful
-- Break long responses into clear paragraphs
-- Use **bold** to emphasize important points
-- Use bullet points or numbered lists when listing items
-- Keep your language simple and easy to understand
-- Only include information from the context provided
-- If something isn't in the context, say so
-
-Respond naturally and helpfully, as if you're having a conversation."""),
+Rules:
+- Answer the question based ONLY on the document content above
+- Be clear and concise
+- Use markdown formatting (headers, bold, lists) to make answers readable
+- If the answer is not in the document, say "This information is not in the document"
+- Sound natural and friendly, like a real person explaining something"""),
             ("human", "{input}")
         ])
 
-        # Document cache for reuse
-        self.document_cache = {}
-        self.vectorstore_cache = {}
+        # ==================== Component 5: Memory/Cache ====================
+        self.processed_docs = {}       # Maps doc_hash -> metadata
+        self.vector_stores = {}         # Maps doc_hash -> vector database
 
-        print(" Optimized Document AI Service initialized successfully")
+        print("✅ Document Service ready!")
 
-    def _clean_text(self, text: str) -> str:
-        """Improve and clean AI response formatting (KEEP markdown)"""
-        if not text:
-            return ""
-
-        # Keep markdown but fix common issues
-        # Fix header spacing
-        text = re.sub(r'(#{1,6})\s*([^\n]+)', r'\1 \2', text)  # Ensure space after #
-        text = re.sub(r'\n(#{1,6}\s)', r'\n\n\1', text)  # Add line before headers
-        text = re.sub(r'(#{1,6}[^\n]+)\n([^\n#])', r'\1\n\n\2', text)  # Add line after headers
-
-        # Fix list formatting
-        text = re.sub(r'\n([•\-\*]\s)', r'\n\1', text)  # Ensure spacing before lists
-
-        # Fix bold/italic spacing
-        text = re.sub(r'(\*\*[^*]+\*\*)\s*(\*\*)', r'\1 \2', text)  # Space between bold items
-
-        # Clean up excessive spacing
-        text = re.sub(r'\n{4,}', '\n\n', text)  # Max 2 newlines
-        text = re.sub(r' {2,}', ' ', text)  # Remove multiple spaces
-        text = re.sub(r'\t+', ' ', text)  # Replace tabs with space
-
-        # Fix paragraph spacing
-        text = re.sub(r'([.!?])\n([A-Z])', r'\1\n\n\2', text)  # Add space between sentences
-
-        return text.strip()
-
-    async def extract_text_from_pdf(self, file_content: bytes) -> Dict[str, Any]:
+    def _extract_text_from_pdf(self, file_content: bytes) -> str:
         """
-        Optimized PDF text extraction with metadata
+        Extract text from a PDF file.
+        
+        Args:
+            file_content: The PDF file as bytes
+            
+        Returns:
+            Extracted text content
         """
         try:
-            print(" Extracting text from PDF...")
-            start_time = time.time()
-
+            print("   Extracting text from PDF...")
+            
             pdf_file = BytesIO(file_content)
             pdf_reader = PdfReader(pdf_file)
 
-            page_count = len(pdf_reader.pages)
-            metadata = pdf_reader.metadata or {}
+            # Extract text from all pages
+            pages_text = []
+            for i, page in enumerate(pdf_reader.pages):
+                text = page.extract_text()
+                if text:
+                    pages_text.append(f"\n--- Page {i+1} ---\n{text}")
 
-            # Parallel-like extraction (list comprehension is faster than loop)
-            pages_text = [
-                f"\n--- Page {i+1} ---\n{page.extract_text()}"
-                for i, page in enumerate(pdf_reader.pages)
-                if page.extract_text()
-            ]
-
-            text_content = "".join(pages_text)
-            text_content = self._clean_text(text_content)
-
-            extraction_time = time.time() - start_time
-
-            print(f" Extracted {len(text_content)} characters from {page_count} pages ({extraction_time:.2f}s)")
-
-            return {
-                "text": text_content,
-                "page_count": page_count,
-                "char_count": len(text_content),
-                "title": metadata.get("/Title", "Untitled"),
-                "author": metadata.get("/Author", "Unknown"),
-                "extraction_time": extraction_time
-            }
+            # Combine all pages
+            full_text = "".join(pages_text)
+            
+            # Clean up whitespace
+            full_text = re.sub(r'\s+', ' ', full_text)
+            
+            return full_text
 
         except Exception as e:
-            print(f" Error extracting PDF: {e}")
-            raise Exception(f"Failed to extract text from PDF: {str(e)}")
+            print(f"   ❌ Error extracting PDF: {str(e)}")
+            raise
 
-    def _create_vectorstore(
-        self,
-        chunks: List[Document],
-        doc_hash: str
-    ) -> Chroma:
-        """
-        Optimized vectorstore creation with proper configuration
-        """
-        temp_dir = tempfile.mkdtemp(prefix=f"doc_{doc_hash[:8]}_")
-
-        vectorstore = Chroma.from_documents(
-            documents=chunks,
-            embedding=self.embeddings,
-            persist_directory=temp_dir,
-            collection_name=f"doc_{doc_hash[:12]}"
-        )
-
-        return vectorstore
-
-    async def process_document_with_rag(
-        self,
-        text_content: str,
-        document_title: str = "Document",
-        document_type: str = "text"
+    async def process_document(
+        self, 
+        content: str,
+        doc_title: str = "Document"
     ) -> Dict[str, Any]:
         """
-        Optimized RAG processing using modern LangChain patterns
+        Process a document so questions can be asked about it.
+        
+        Steps:
+        1. Split into chunks
+        2. Convert to vectors
+        3. Store in database
+        
+        Args:
+            content: The document text content
+            doc_title: Title of the document
+            
+        Returns:
+            Dictionary with processing results
         """
         try:
-            print(f" Processing {document_type} with optimized RAG...")
-            start_time = time.time()
+            # Create a hash of the content for caching
+            doc_hash = hashlib.md5(content.encode()).hexdigest()[:12]
+            
+            # Check if already processed
+            if doc_hash in self.processed_docs:
+                print(f"📦 Document already processed (using cached data)")
+                return self.processed_docs[doc_hash]
 
-            doc_hash = hashlib.md5(text_content.encode()).hexdigest()
+            print(f"📄 Processing document: {doc_title}")
 
-            # Check cache first
-            if doc_hash in self.document_cache:
-                print(f" Using cached document ({time.time() - start_time:.2f}s)")
-                return self.document_cache[doc_hash]
+            if len(content) < 100:
+                raise Exception("Document content too short")
 
-            # Create document with metadata
-            document = Document(
-                page_content=text_content,
+            # Step 1: Create document
+            doc = Document(
+                page_content=content,
                 metadata={
-                    "title": document_title,
-                    "type": document_type,
-                    "char_count": len(text_content),
-                    "doc_hash": doc_hash
+                    "title": doc_title,
+                    "char_count": len(content)
                 }
             )
 
-            # Chunk documents
-            chunking_start = time.time()
-            chunks = self.text_splitter.split_documents([document])
-            print(f" Created {len(chunks)} chunks ({time.time() - chunking_start:.2f}s)")
+            # Step 2: Split into chunks
+            print(f"   1️⃣ Splitting into chunks...")
+            chunks = self.text_splitter.split_documents([doc])
+            print(f"      Created {len(chunks)} chunks")
 
-            # Create vectorstore
-            embedding_start = time.time()
-            print(f" Creating vector embeddings...")
-            vectorstore = self._create_vectorstore(chunks, doc_hash)
-            print(f" Embeddings created ({time.time() - embedding_start:.2f}s)")
+            # Step 3: Create temp directory
+            temp_dir = tempfile.mkdtemp(prefix=f"doc_{doc_hash}_")
 
-            # Create optimized retriever
-            retriever = vectorstore.as_retriever(
+            # Step 4: Convert to vectors
+            print(f"   2️⃣ Converting text to vectors...")
+            vector_store = Chroma.from_documents(
+                documents=chunks,
+                embedding=self.embeddings,
+                persist_directory=temp_dir
+            )
+
+            # Step 5: Create retriever
+            retriever = vector_store.as_retriever(
                 search_type="similarity",
-                search_kwargs={
-                    "k": 8  # Top 8 most relevant chunks
-                }
+                search_kwargs={"k": 8}  # Return top 8 chunks
             )
 
-            # Modern LCEL chain composition
-            # This is the proper way to build chains in modern LangChain
-            question_answer_chain = create_stuff_documents_chain(
+            # Step 6: Create RAG chain
+            document_chain = create_stuff_documents_chain(
                 llm=self.llm,
                 prompt=self.qa_prompt
             )
-
-            # Create retrieval chain using the new API
             rag_chain = create_retrieval_chain(
                 retriever=retriever,
-                combine_docs_chain=question_answer_chain
+                combine_docs_chain=document_chain
             )
 
-            # Cache everything for reuse
-            self.document_cache[doc_hash] = {
-                "doc_hash": doc_hash,
-                "title": document_title,
-                "type": document_type,
-                "chunks_count": len(chunks),
-                "char_count": len(text_content),
+            # Store in memory
+            self.processed_docs[doc_hash] = {
+                "title": doc_title,
+                "chunks": len(chunks),
+                "char_count": len(content),
+                "status": "processed"
+            }
+            self.vector_stores[doc_hash] = {
                 "rag_chain": rag_chain,
-                "retriever": retriever,
-                "vectorstore": vectorstore,
-                "metadata": document.metadata
+                "vector_store": vector_store,
+                "temp_dir": temp_dir,
+                "title": doc_title
             }
 
-            print(f" Document processed ({time.time() - start_time:.2f}s)")
+            print(f"✅ Document processed successfully!")
 
-            return self.document_cache[doc_hash]
+            return self.processed_docs[doc_hash]
 
         except Exception as e:
-            print(f" Error processing document: {e}")
-            raise Exception(f"Failed to process document: {str(e)}")
+            print(f"❌ Error processing document: {str(e)}")
+            raise
 
-    async def ask_question_about_document(
+    async def ask_question(
         self,
-        text_content: str,
+        content: str,
         question: str,
-        document_title: str = "Document",
-        document_type: str = "text"
+        doc_title: str = "Document"
     ) -> Dict[str, Any]:
         """
-        Answer questions using optimized LCEL chain
+        Ask a question about a document.
+        
+        Args:
+            content: The document text content
+            question: The question to ask
+            doc_title: Title of the document
+            
+        Returns:
+            Dictionary with the answer and metadata
         """
         try:
-            print(f" Processing question: {question}")
+            doc_hash = hashlib.md5(content.encode()).hexdigest()[:12]
 
-            # Process or retrieve cached document
-            doc_data = await self.process_document_with_rag(
-                text_content=text_content,
-                document_title=document_title,
-                document_type=document_type
-            )
+            # Make sure document is processed
+            if doc_hash not in self.vector_stores:
+                await self.process_document(content, doc_title)
 
-            print(f" Querying vector database with {doc_data['chunks_count']} chunks...")
+            print(f"❓ Question: {question[:50]}...")
 
-            # Use the modern LCEL chain
-            rag_chain = doc_data["rag_chain"]
+            # Get the RAG chain
+            chain_data = self.vector_stores[doc_hash]
+            rag_chain = chain_data["rag_chain"]
 
-            # Invoke chain with proper input format
+            # Ask the question
             result = rag_chain.invoke({"input": question})
 
-            # Extract answer and source documents
-            answer = result.get("answer", "Unable to generate answer")
-            context_docs = result.get("context", [])
+            answer = result["answer"]
+            source_docs = result.get("context", [])
 
-            # Clean answer
-            answer = self._clean_text(answer)
-
-            print(f" Generated answer using {len(context_docs)} chunks")
+            print(f"✅ Generated answer using {len(source_docs)} relevant sections")
 
             return {
-                "success": True,
-                "answer": answer,
                 "question": question,
-                "document_title": doc_data["title"],
-                "document_type": doc_data["type"],
-                "confidence": 0.85,
-                "chunks_used": len(context_docs),
-                "total_chunks": doc_data["chunks_count"],
-                "char_count": doc_data["char_count"],
-                "metadata": doc_data["metadata"]
+                "answer": answer,
+                "sources_used": len(source_docs),
+                "document_title": doc_title,
+                "method": "RAG"
             }
 
         except Exception as e:
-            print(f" Error answering question: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            print(f"❌ Error answering question: {str(e)}")
+            raise
 
     async def summarize_document(
         self,
-        text_content: str,
-        document_title: str = "Document",
-        document_type: str = "text"
+        content: str,
+        doc_title: str = "Document"
     ) -> Dict[str, Any]:
-        """Generate comprehensive summary"""
-        summary_question = (
-            "Provide a comprehensive summary of this document with proper formatting.\n\n"
-            "Format your response as follows:\n\n"
-            "# Document Summary\n\n"
-            "## Overview\n"
-            "[Brief 2-3 sentence overview]\n\n"
-            "## Main Topics\n"
-            "- **Topic 1:** [description]\n"
-            "- **Topic 2:** [description]\n\n"
-            "## Key Points\n"
-            "1. [First important point with details]\n"
-            "2. [Second important point with details]\n\n"
-            "## Important Details\n"
-            "- [Detail 1]\n"
-            "- [Detail 2]\n\n"
-            "Use clear headings, bullet points, and proper spacing for readability."
-        )
+        """
+        Generate a summary of the entire document.
+        
+        Args:
+            content: The document text content
+            doc_title: Title of the document
+            
+        Returns:
+            Dictionary with the summary
+        """
+        try:
+            # Ask for summary
+            summary_question = """Create a clear, well-organized summary of this document.
 
-        return await self.ask_question_about_document(
-            text_content=text_content,
-            question=summary_question,
-            document_title=document_title,
-            document_type=document_type
-        )
+Format your response as:
 
-    async def close(self):
-        """Cleanup resources efficiently"""
-        import shutil
+## 📝 Overview
+[2-3 sentences about what this document covers]
 
-        for doc_data in self.document_cache.values():
-            vectorstore = doc_data.get("vectorstore")
-            if vectorstore and hasattr(vectorstore, '_persist_directory'):
-                persist_dir = vectorstore._persist_directory
-                if persist_dir and os.path.exists(persist_dir):
-                    shutil.rmtree(persist_dir, ignore_errors=True)
+## 🎯 Main Topics
+- Topic 1: [Explanation]
+- Topic 2: [Explanation]
+- Topic 3: [Explanation]
 
-        self.document_cache.clear()
-        self.vectorstore_cache.clear()
-        print(" Document service cleanup complete")
+## 💡 Key Points
+1. [Important point 1]
+2. [Important point 2]
+3. [Important point 3]
+
+## 📌 Summary
+[Final summary paragraph]"""
+
+            result = await self.ask_question(content, summary_question, doc_title)
+            
+            return {
+                "document_title": doc_title,
+                "summary": result["answer"]
+            }
+
+        except Exception as e:
+            print(f"❌ Error summarizing document: {str(e)}")
+            raise
+
+    async def cleanup_document(self, doc_hash: str):
+        """Clean up resources for a specific document."""
+        try:
+            if doc_hash in self.vector_stores:
+                chain_data = self.vector_stores[doc_hash]
+                temp_dir = chain_data["temp_dir"]
+                if os.path.exists(temp_dir):
+                    import shutil
+                    shutil.rmtree(temp_dir)
+
+            # Remove from memory
+            if doc_hash in self.processed_docs:
+                del self.processed_docs[doc_hash]
+            if doc_hash in self.vector_stores:
+                del self.vector_stores[doc_hash]
+
+            print(f"🧹 Cleaned up document")
+        except Exception as e:
+            print(f"⚠️ Error cleaning up: {str(e)}")
 
 
-# Singleton pattern for efficiency
-_document_service = None
-
-def get_document_service():
-    """Get or create document service instance (optimized with LCEL)"""
-    global _document_service
-    if _document_service is None:
-        _document_service = OptimizedDocumentAIService()
-    return _document_service
-
-# Backward compatibility aliases
-def get_optimized_document_service():
-    """Legacy name - use get_document_service() instead"""
-    return get_document_service()
-
-# Class name backward compatibility
-DocumentAIService = OptimizedDocumentAIService
+def get_document_service() -> DocumentRAGService:
+    """
+    Get an instance of the Document RAG service.
+    
+    Usage:
+        service = get_document_service()
+        await service.process_document(content, "My Document")
+        result = await service.ask_question(content, "What is this about?")
+    """
+    return DocumentRAGService()

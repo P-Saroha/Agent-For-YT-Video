@@ -1,124 +1,193 @@
 """
-Simple YouTube AI routes for basic video processing
+Simple YouTube Routes (No Complex RAG Setup)
+
+Quick endpoints for simple video processing without setup steps.
+
+Endpoints:
+- POST /youtube/simple/summarize - Quick video summary
+- POST /youtube/simple/ask - Quick Q&A about video
 """
+
 from fastapi import APIRouter, HTTPException
+from datetime import datetime
+import time
+from typing import Dict, Any
 from pydantic import BaseModel
-from typing import Optional
 
-from app.services.simple_ai_service import SimpleYouTubeAIService
-
-router = APIRouter(tags=["simple-youtube"])
-
-# Simple request models
-class VideoSummaryRequest(BaseModel):
+# ==================== Data Models ====================
+class SimpleSummarizeRequest(BaseModel):
+    """Request to summarize a video"""
     video_url: str
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "video_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            }
+        }
 
-class VideoQuestionRequest(BaseModel):
+
+class SimpleAskRequest(BaseModel):
+    """Request to ask a question about a video"""
     video_url: str
     question: str
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "video_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                "question": "What is this video about?"
+            }
+        }
 
-class SimpleResponse(BaseModel):
-    summary: Optional[str] = None
-    answer: Optional[str] = None
-    video_url: str
-    status: str = "success"
 
-# Initialize LangChain service that follows proper RAG approach
-from app.services.langchain_service import LangChainYouTubeService
-langchain_service = LangChainYouTubeService()
-simple_service = SimpleYouTubeAIService()
+# ==================== Create Router ====================
+router = APIRouter(prefix="/youtube/simple", tags=["YouTube Simple"])
 
-@router.post("/summarize", response_model=SimpleResponse)
-async def summarize_video(request: VideoSummaryRequest):
-    """Generate summary using proper RAG approach: chunking → embeddings → vector store → similarity search → LLM"""
+
+# ==================== Endpoints ====================
+
+@router.post("/summarize")
+async def simple_summarize_video(request: SimpleSummarizeRequest) -> Dict[str, Any]:
+    """
+    Quick video summary using direct AI (no setup needed).
+    
+    This is a simplified endpoint that:
+    1. Gets the video transcript
+    2. Sends it directly to AI for summarization
+    3. Returns the summary
+    
+    No need to process first - just paste the URL!
+    
+    Args:
+        video_url: YouTube URL
+        
+    Returns:
+        Dictionary with the summary
+    """
     try:
-        # Step 1: Process video with RAG approach (chunking, embeddings, vector store)
-        print(f"Processing video with RAG approach: {request.video_url}")
-        process_result = await langchain_service.process_video(request.video_url)
+        print(f"📝 Quick summarizing video: {request.video_url}")
+        start_time = time.time()
 
-        if not process_result.get("video_id"):
-            raise HTTPException(status_code=400, detail="Failed to process video")
+        # Get simple service
+        from app.services.simple_ai_service import get_simple_service
+        service = get_simple_service()
 
-        print(f"Created {process_result.get('chunks_count', 0)} chunks and stored in vector database")
+        # Get transcript
+        video_id = service.extract_video_id(request.video_url)
+        transcript = await service.get_transcript(video_id)
 
-        # Step 2: Use vector similarity search to retrieve relevant chunks and generate answer
-        result = await langchain_service.ask_question(
-            video_id=process_result["video_id"],
-            question="Please provide a comprehensive summary of this video. Use clear headings, bullet points, bold text for key concepts, and proper paragraph breaks. Include main topics, key points, important details, and conclusions. Format with Markdown for easy reading."
-        )
+        if not transcript:
+            raise HTTPException(
+                status_code=400,
+                detail="Could not get video transcript"
+            )
 
-        return SimpleResponse(
-            summary=result.get("answer", "Unable to generate summary"),
-            video_url=request.video_url,
-            status="success"
-        )
+        # Summarize
+        result = await service.summarize_text(transcript, title=f"Video {video_id}")
+
+        processing_time = time.time() - start_time
+
+        return {
+            "success": True,
+            "video_url": request.video_url,
+            "summary": result.get("summary", "Could not generate summary"),
+            "processing_time": f"{processing_time:.2f}s",
+            "method": "Direct AI (No Setup Required)"
+        }
 
     except Exception as e:
-        # Fallback to simple service with yt-dlp transcript path
-        try:
-            print(f"RAG summarize failed ({e}); falling back to simple service with yt-dlp…")
-            fallback_question = (
-                "Please provide a comprehensive summary of this video. Use clear headings, "
-                "short paragraphs, and make it readable."
-            )
-            result = await simple_service.process_video_question(request.video_url, fallback_question)
-            if result.get("success"):
-                return SimpleResponse(
-                    summary=result.get("answer", "Unable to generate summary"),
-                    video_url=request.video_url,
-                    status="success"
-                )
-            else:
-                raise Exception(result.get("error", "Fallback failed"))
-        except Exception as fe:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Failed to summarize video: {str(e)} | Fallback error: {str(fe)}"
-            )
+        print(f"❌ Error: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to summarize video: {str(e)}"
+        )
 
-@router.post("/ask", response_model=SimpleResponse)
-async def ask_video_question(request: VideoQuestionRequest):
-    """Answer questions using RAG: query embedding → cosine similarity → retrieve chunks → context-aware LLM response"""
+
+@router.post("/ask")
+async def simple_ask_question(request: SimpleAskRequest) -> Dict[str, Any]:
+    """
+    Quick Q&A about a video using direct AI (no setup needed).
+    
+    This is a simplified endpoint that:
+    1. Gets the video transcript
+    2. Sends it directly to AI with your question
+    3. Returns the answer
+    
+    No need to process first - just paste the URL and ask!
+    
+    Args:
+        video_url: YouTube URL
+        question: Your question
+        
+    Returns:
+        Dictionary with the answer
+    """
     try:
-        # Step 1: Process video with RAG approach if not already processed
-        print(f"Processing video with RAG approach: {request.video_url}")
-        process_result = await langchain_service.process_video(request.video_url)
+        print(f"❓ Quick Q&A: {request.question[:50]}...")
+        
+        # Validate input
+        if not request.question or not request.question.strip():
+            raise HTTPException(status_code=400, detail="Question is required")
 
-        if not process_result.get("video_id"):
-            raise HTTPException(status_code=400, detail="Failed to process video")
+        start_time = time.time()
 
-        print(f"Using vector database with {process_result.get('chunks_count', 0)} embedded chunks")
+        # Get simple service
+        from app.services.simple_ai_service import get_simple_service
+        service = get_simple_service()
 
-        # Step 2: Embed query, compute similarity, retrieve top chunks, pass to LLM
-        print(f"Query: {request.question}")
-        result = await langchain_service.ask_question(
-            video_id=process_result["video_id"],
-            question=request.question
-        )
+        # Get transcript
+        video_id = service.extract_video_id(request.video_url)
+        transcript = await service.get_transcript(video_id)
 
-        print(f"Generated context-aware answer using retrieved chunks")
-
-        return SimpleResponse(
-            answer=result.get("answer", "Unable to get answer"),
-            video_url=request.video_url,
-            status="success"
-        )
-
-    except Exception as e:
-        # Fallback to simple service with yt-dlp transcript path
-        try:
-            print(f"RAG ask failed ({e}); falling back to simple service with yt-dlp…")
-            result = await simple_service.process_video_question(request.video_url, request.question)
-            if result.get("success"):
-                return SimpleResponse(
-                    answer=result.get("answer", "Unable to get answer"),
-                    video_url=request.video_url,
-                    status="success"
-                )
-            else:
-                raise Exception(result.get("error", "Fallback failed"))
-        except Exception as fe:
+        if not transcript:
             raise HTTPException(
-                status_code=500,
-                detail=f"Failed to process question: {str(e)} | Fallback error: {str(fe)}"
+                status_code=400,
+                detail="Could not get video transcript"
             )
+
+        # Ask question
+        result = await service.ask_about_video(request.video_url, request.question)
+
+        processing_time = time.time() - start_time
+
+        return {
+            "success": result.get("success", True),
+            "video_url": request.video_url,
+            "question": request.question,
+            "answer": result.get("answer", "Could not generate answer"),
+            "processing_time": f"{processing_time:.2f}s",
+            "method": "Direct AI (No Setup Required)"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to answer question: {str(e)}"
+        )
+
+
+@router.get("/health")
+async def health_check() -> Dict[str, str]:
+    """
+    Check if the Simple YouTube service is running.
+    
+    Returns:
+        Dictionary with health status
+    """
+    try:
+        from app.services.simple_ai_service import get_simple_service
+        service = get_simple_service()
+        return {
+            "status": "healthy",
+            "service": "YouTube Simple",
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Service unhealthy: {str(e)}"
+        )

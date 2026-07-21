@@ -1,136 +1,235 @@
+"""
+Web Content Analysis Routes
+
+Endpoints:
+- POST /web/process - Process a website for Q&A
+- POST /web/ask-question - Ask a question about a website
+- POST /web/summarize - Get a summary of a website
+"""
+
 from fastapi import APIRouter, HTTPException
 from datetime import datetime
 import time
 from typing import Dict, Any
+from pydantic import BaseModel
 
-from app.models.schemas import (
-    WebContentRequest,
-    WebContentResponse,
-    WebQuestionRequest,
-    WebQuestionResponse,
-    ErrorResponse
-)
+# ==================== Data Models ====================
+class ProcessWebRequest(BaseModel):
+    """Request to process a website"""
+    url: str
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "url": "https://en.wikipedia.org/wiki/Artificial_intelligence"
+            }
+        }
 
-router = APIRouter(prefix="/web", tags=["web-content"])
 
-# Initialize web service lazily - using fast service for better performance
-_web_service = None
+class AskWebQuestionRequest(BaseModel):
+    """Request to ask a question about a website"""
+    url: str
+    question: str
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "url": "https://en.wikipedia.org/wiki/Artificial_intelligence",
+                "question": "What is artificial intelligence?"
+            }
+        }
 
+
+class SummarizeWebRequest(BaseModel):
+    """Request to summarize a website"""
+    url: str
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "url": "https://en.wikipedia.org/wiki/Artificial_intelligence"
+            }
+        }
+
+
+# ==================== Create Router ====================
+router = APIRouter(prefix="/web", tags=["Web Content"])
+
+
+# ==================== Helper Function ====================
 def get_web_service():
-    """Get RAG web service for comprehensive content extraction and analysis"""
-    global _web_service
-    if _web_service is None:
-        try:
-            print("Initializing Optimized RAG web content service...")
-            from app.services.rag_web_service import OptimizedRAGWebContentService
-            _web_service = OptimizedRAGWebContentService()
-            print("Optimized RAG web content service initialized successfully")
-        except Exception as e:
-            print(f"Failed to initialize RAG web service: {e}")
-            import traceback
-            traceback.print_exc()
-            raise e
-    return _web_service
+    """Get Web RAG service instance."""
+    from app.services.rag_web_service import get_web_service as _get_service
+    return _get_service()
 
-@router.post("/extract-content", response_model=WebContentResponse)
-async def extract_web_content(request: WebContentRequest):
-    """Extract and generate AI summary of website content"""
+
+# ==================== Endpoints ====================
+
+@router.post("/process")
+async def process_website(request: ProcessWebRequest) -> Dict[str, Any]:
+    """
+    Process a website for question-answering.
+    
+    This endpoint:
+    1. Fetches the webpage content
+    2. Extracts main text (removes ads, navigation, etc.)
+    3. Splits into chunks
+    4. Converts to vectors
+    5. Stores in a database
+    
+    After processing, you can ask questions about the page.
+    
+    Supports:
+    - Regular websites (HTML scraping)
+    - Wikipedia articles (uses official API)
+    
+    Args:
+        url: URL of the website
+        
+    Returns:
+        Dictionary with processing status and page info
+    """
     try:
-        print(f"Extracting and summarizing content from URL: {request.url}")
-
+        print(f"🌐 Processing website: {request.url}")
         start_time = time.time()
 
-        # Get web service
+        # Get the service
         service = get_web_service()
 
-        # First process the content with RAG (creates embeddings and chunks)
-        await service.process_web_content_with_rag(request.url)
-        
-        # Then generate a comprehensive AI summary
-        summary_data = await service.summarize_web_content(request.url)
+        # Process the webpage
+        result = await service.process_webpage(request.url)
 
         processing_time = time.time() - start_time
 
-        if "error" in summary_data:
-            raise HTTPException(status_code=500, detail=summary_data["error"])
-
-        # Return AI-generated structured summary instead of raw text
-        return WebContentResponse(
-            url=summary_data["url"],
-            title=summary_data["title"],
-            content_preview=summary_data["summary"],  # AI-generated structured summary
-            word_count=len(summary_data["summary"].split()),
-            char_count=len(summary_data["summary"]),
-            extracted_at=datetime.now(),
-            metadata={"processing_time": processing_time, "method": "rag_ai_summary", "confidence": summary_data.get("confidence", 0.8)},
-            status="success"
-        )
+        return {
+            "success": True,
+            "url": request.url,
+            "title": result.get("title", "Unknown"),
+            "chunks": result.get("chunks", 0),
+            "content_length": result.get("content_length", 0),
+            "processing_time": f"{processing_time:.2f}s",
+            "message": "Webpage processed successfully. You can now ask questions about it."
+        }
 
     except Exception as e:
-        print(f"Error extracting web content: {str(e)}")
-        print(f"Error type: {type(e).__name__}")
-        import traceback
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"❌ Error processing website: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to process website: {str(e)}"
+        )
 
-@router.post("/ask-question", response_model=WebQuestionResponse)
-async def ask_question_about_web_content(request: WebQuestionRequest):
-    """Ask a question about content from any website URL"""
+
+@router.post("/ask-question")
+async def ask_question(request: AskWebQuestionRequest) -> Dict[str, Any]:
+    """
+    Ask a question about a website.
+    
+    The website must be processed first using the /process endpoint.
+    
+    Args:
+        url: URL of the website
+        question: The question to ask
+        
+    Returns:
+        Dictionary with the answer and metadata
+    """
     try:
-        print(f"Processing question about web content")
-        print(f"Request received: {request}")
-        print(f"URL: {request.url}")
-        print(f"Question: {request.question}")
-
+        print(f"❓ Question: {request.question[:50]}...")
+        
         # Validate inputs
         if not request.url or not request.url.strip():
             raise HTTPException(status_code=400, detail="URL is required")
-
         if not request.question or not request.question.strip():
             raise HTTPException(status_code=400, detail="Question is required")
 
         start_time = time.time()
 
-        # Get web service
+        # Get the service
         service = get_web_service()
 
-        # Use the RAG-based question answering
-        print(f"Processing question with RAG approach (full vector search)")
-        result = await service.ask_question_about_web_content(request.url, request.question)
+        # Ask the question
+        result = await service.ask_question(request.url, request.question)
 
         processing_time = time.time() - start_time
 
-        if not result.get("success", False):
-            raise HTTPException(status_code=500, detail=result.get("error", "Unknown error"))
-
-        return WebQuestionResponse(
-            answer=result["answer"],
-            url=result["url"],
-            title=result["title"],
-            question=result["question"],
-            processing_time=processing_time,
-            answered_at=datetime.now(),
-            confidence=result["confidence"],
-            source_type=result["source_type"],
-            word_count=result["word_count"]
-        )
+        return {
+            "success": True,
+            "url": request.url,
+            "question": request.question,
+            "answer": result.get("answer", "No answer generated"),
+            "sources_used": result.get("sources_used", 0),
+            "processing_time": f"{processing_time:.2f}s",
+            "method": result.get("method", "RAG")
+        }
 
     except HTTPException:
         raise
     except Exception as e:
-        print(f"Error processing web question: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"❌ Error answering question: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to answer question: {str(e)}"
+        )
+
+
+@router.post("/summarize")
+async def summarize_website(request: SummarizeWebRequest) -> Dict[str, Any]:
+    """
+    Generate a summary of a website.
+    
+    The website must be processed first using the /process endpoint.
+    
+    Args:
+        url: URL of the website
+        
+    Returns:
+        Dictionary with the summary
+    """
+    try:
+        print(f"📝 Summarizing website: {request.url}")
+        start_time = time.time()
+
+        # Get the service
+        service = get_web_service()
+
+        # Generate summary
+        result = await service.summarize_webpage(request.url)
+
+        processing_time = time.time() - start_time
+
+        return {
+            "success": True,
+            "url": request.url,
+            "title": result.get("title", "Unknown"),
+            "summary": result.get("summary", "No summary generated"),
+            "processing_time": f"{processing_time:.2f}s"
+        }
+
+    except Exception as e:
+        print(f"❌ Error summarizing website: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to summarize website: {str(e)}"
+        )
+
 
 @router.get("/health")
-async def web_service_health():
-    """Check if web scraping service is working"""
+async def health_check() -> Dict[str, str]:
+    """
+    Check if the Web service is running.
+    
+    Returns:
+        Dictionary with health status
+    """
     try:
         service = get_web_service()
         return {
             "status": "healthy",
-            "service": "web-scraping",
-            "timestamp": datetime.now()
+            "service": "Web RAG",
+            "timestamp": datetime.now().isoformat()
         }
     except Exception as e:
-        print(f"Web service health check failed: {str(e)}")
-        raise HTTPException(status_code=503, detail="Web service unavailable")
+        raise HTTPException(
+            status_code=503,
+            detail=f"Service unhealthy: {str(e)}"
+        )
