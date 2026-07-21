@@ -1,897 +1,421 @@
-# 🎬 AI Content Analysis Platform with RAG Architecture
+# AI Content Analysis
 
-> **Production-ready intelligent assistant for YouTube videos, web content, and documents**
+Analyze YouTube videos, websites, and text documents using AI. Get instant answers to questions about any content.
 
-<div align="center">
+## What Can You Do?
 
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com)
-[![LangChain](https://img.shields.io/badge/LangChain-LCEL-orange.svg)](https://langchain.com)
-[![Gemini AI](https://img.shields.io/badge/Gemini-2.5%20Flash-purple.svg)](https://ai.google.dev)
-[![RAG](https://img.shields.io/badge/Architecture-RAG-red.svg)](https://en.wikipedia.org/wiki/Retrieval-augmented_generation)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+- **YouTube Videos** - Ask questions about any YouTube video transcript
+- **Websites** - Scrape and analyze website content  
+- **Text Documents** - Analyze any text or document
+- **AI Answers** - Get instant AI-powered answers using Google Gemini
 
-**🚀 Advanced RAG system with vector embeddings, semantic search, and multi-source content analysis**
+## Quick Start (5 minutes)
 
-*Process YouTube videos, web pages, and PDF documents with AI-powered question answering*
-
-[Quick Start](#-quick-start) • [Architecture](#-architecture) • [Features](#-features) • [API Docs](#-api-documentation)
-
-</div>
-
----
-
-## � What Makes This Special?
-
-This isn't just another AI chatbot. It's a **production-grade RAG (Retrieval-Augmented Generation) system** that:
-
-- 🎥 **Processes multiple content types** - YouTube transcripts, web pages, PDF documents
-- 🧠 **Uses vector embeddings** for semantic search and intelligent context retrieval
-- ⚡ **40% faster** with optimized batch processing and modern LangChain LCEL patterns
-- 🎨 **ChatGPT-quality responses** with structured markdown formatting
-- 🔄 **Smart caching** - process once, query unlimited times
-- 📊 **Production-ready** - error handling, fallbacks, async processing
-
----
-
-## � Technical Highlights
-
-### RAG Implementation Details
-
-**What is RAG?**
-Retrieval-Augmented Generation combines the power of:
-1. **Retrieval** - Finding relevant information from a knowledge base
-2. **Generation** - Creating natural language responses with an LLM
-
-**Our Implementation:**
-```python
-# Modern LangChain LCEL Pattern
-rag_chain = create_retrieval_chain(
-    retriever=vectorstore.as_retriever(search_kwargs={"k": 8}),
-    combine_docs_chain=create_stuff_documents_chain(llm, prompt)
-)
-result = rag_chain.invoke({"input": question})
-```
-
-### Key Technical Decisions
-
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| **Backend** | FastAPI | Async support, auto API docs, type safety |
-| **LLM** | Gemini 2.5 Flash | Free, fast, high-quality, 1M token context |
-| **Embeddings** | HuggingFace | Open-source, multilingual, no API costs |
-| **Vector DB** | ChromaDB | Lightweight, in-memory, easy setup |
-| **Chunking** | Recursive | Maintains context better than naive splitting |
-| **Temperature** | 0.0 | Deterministic responses for consistency |
-
-### Performance Optimizations
-
-1. **Batch Processing** - Process 32 texts at once instead of 1-by-1
-   ```python
-   encode_kwargs={'batch_size': 32}  # 40% faster!
-   ```
-
-2. **Smart Caching** - Store processed content in memory
-   ```python
-   self.vectorstore_cache[url_hash] = rag_chain  # Instant reuse
-   ```
-
-3. **Async I/O** - Non-blocking operations throughout
-   ```python
-   async def process():  # Multiple requests in parallel
-   ```
-
-4. **LCEL Patterns** - Modern LangChain for efficiency
-   ```python
-   # Old way (slower)
-   chain = RetrievalQA.from_chain_type(...)
-   
-   # New way (faster)
-   chain = create_retrieval_chain(...)
-   ```
-
----
-
-## �🏗️ Architecture
-
-### High-Level System Design
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        USER INTERFACE                                │
-│                  (Modern Glassmorphism UI)                           │
-└────────────────────────┬────────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                      FASTAPI BACKEND                                 │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │
-│  │   YouTube    │  │     Web      │  │   Document   │              │
-│  │   Routes     │  │   Routes     │  │   Routes     │              │
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘              │
-│         │                  │                  │                       │
-└─────────┼──────────────────┼──────────────────┼───────────────────────┘
-          │                  │                  │
-          ▼                  ▼                  ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                      RAG SERVICES LAYER                              │
-│  ┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐   │
-│  │  YouTube RAG     │ │   Web RAG        │ │  Document RAG    │   │
-│  │  Service         │ │   Service        │ │  Service         │   │
-│  │                  │ │                  │ │                  │   │
-│  │ • Transcript     │ │ • Web Scraping   │ │ • PDF Parser     │   │
-│  │ • Text Chunking  │ │ • Content Clean  │ │ • Text Extract   │   │
-│  │ • Embeddings     │ │ • Chunking       │ │ • Chunking       │   │
-│  │ • Vector Store   │ │ • Embeddings     │ │ • Embeddings     │   │
-│  │ • Retrieval      │ │ • Vector Store   │ │ • Vector Store   │   │
-│  └──────────────────┘ └──────────────────┘ └──────────────────┘   │
-└───────────┬──────────────────┬──────────────────┬───────────────────┘
-            │                  │                  │
-            ▼                  ▼                  ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                     AI/ML INFRASTRUCTURE                             │
-│  ┌────────────────┐  ┌───────────────┐  ┌──────────────────┐      │
-│  │  HuggingFace   │  │   ChromaDB    │  │  Google Gemini   │      │
-│  │  Embeddings    │  │ Vector Store  │  │  2.5 Flash LLM   │      │
-│  │  (Multilingual)│  │  (Semantic    │  │  (Generation)    │      │
-│  │                │  │   Search)     │  │                  │      │
-│  └────────────────┘  └───────────────┘  └──────────────────┘      │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
-### RAG Pipeline Flow
-
-```mermaid
-graph TD
-    A[User Question] --> B{Content Type?}
-    B -->|YouTube| C[Extract Transcript]
-    B -->|Web URL| D[Scrape & Clean]
-    B -->|PDF| E[Parse Document]
-    
-    C --> F[Text Chunking<br/>800 chars, 100 overlap]
-    D --> G[Text Chunking<br/>1000 chars, 200 overlap]
-    E --> G
-    
-    F --> H[Generate Embeddings<br/>HuggingFace Models]
-    G --> H
-    
-    H --> I[Store in ChromaDB<br/>Vector Database]
-    
-    I --> J[Semantic Search<br/>Retrieve Top K Chunks]
-    
-    J --> K[Gemini AI<br/>Context-Aware Generation]
-    
-    K --> L[Structured Response<br/>Markdown Formatted]
-```
-
-
----
-
-## ✨ Key Features
-
-### 🎥 YouTube Video Analysis
-- **Multi-language Support** - Extract transcripts in 100+ languages automatically
-- **Smart Chunking Strategy** - 800-char segments with 100-char overlap for optimal context
-- **Semantic Vector Search** - Retrieves top 10 most relevant chunks using embeddings
-- **Intelligent Caching** - Process once, query unlimited times with instant responses
-- **Multilingual Embeddings** - `paraphrase-multilingual-MiniLM-L12-v2` (384-dim)
-
-### 🌐 Web Content Analysis  
-- **Advanced Web Scraping** - Removes ads, navigation, clutter using BeautifulSoup4
-- **Async Processing** - Non-blocking aiohttp for fast, efficient content handling
-- **Optimized Chunking** - 1000-char segments with 200-char overlap
-- **Wikipedia-Optimized** - Special extraction for Wikipedia and documentation sites
-- **Rich Context Retrieval** - Top 8 relevant sections with metadata
-
-### 📄 Document Processing
-- **PDF Support** - Extract and analyze text from PDF documents
-- **Text Files** - Process plain text documents
-- **Same RAG Pipeline** - Consistent chunking, embeddings, and retrieval
-- **Structured Summaries** - AI-generated comprehensive overviews
-
-### 🤖 AI Intelligence
-- **Google Gemini 2.5 Flash** - Latest, most powerful free LLM
-- **Deterministic Mode** - Temperature 0.0 for consistent, reliable answers
-- **ChatGPT-Quality Responses** - Professional markdown formatting with headers, lists, bold
-- **Context-Aware** - Understands nuance and provides comprehensive answers
-- **Production Prompts** - Carefully crafted system prompts for optimal output
-
-### ⚡ Performance Optimizations
-- **Batch Processing** - 32-batch size for embeddings (40% faster)
-- **Modern LCEL Patterns** - Latest LangChain Expression Language
-- **Smart Caching** - Vector stores and processed content cached in memory
-- **Async Architecture** - Non-blocking I/O throughout the stack
-- **Efficient Retrieval** - Optimized similarity search with ChromaDB
-
----
-
-## 🛠️ Technology Stack
-
-### Backend & AI
-| Component | Technology | Purpose |
-|-----------|-----------|---------|
-| **Backend Framework** | FastAPI 0.104+ | High-performance async API server with auto docs |
-| **AI Model** | Google Gemini 2.5 Flash | State-of-the-art LLM (free tier) |
-| **RAG Framework** | LangChain (LCEL) | Modern RAG with Expression Language patterns |
-| **Vector Database** | ChromaDB | In-memory vector storage with similarity search |
-| **Embeddings** | HuggingFace Transformers | Multilingual & English-optimized models |
-| **Text Processing** | RecursiveCharacterTextSplitter | Smart chunking with overlap |
-
-### Data Processing
-| Component | Technology | Purpose |
-|-----------|-----------|---------|
-| **YouTube** | youtube-transcript-api | Multi-language transcript extraction |
-| **Web Scraping** | aiohttp + BeautifulSoup4 | Async HTML parsing and cleaning |
-| **PDF Processing** | PyPDF2 | Text extraction from PDF documents |
-| **Text Splitting** | LangChain TextSplitters | Recursive character-based chunking |
-
-### Frontend & UI
-| Component | Technology | Purpose |
-|-----------|-----------|---------|
-| **UI** | Vanilla JavaScript | Clean, responsive glassmorphism design |
-| **Markdown** | marked.js | Client-side markdown rendering |
-| **Styling** | Custom CSS | Modern gradient animations |
-
-### Embedding Models
-| Use Case | Model | Dimensions | Language |
-|----------|-------|-----------|----------|
-| **YouTube & Documents** | paraphrase-multilingual-MiniLM-L12-v2 | 384 | 50+ languages |
-| **Web Content** | paraphrase-multilingual-MiniLM-L12-v2 | 384 | 50+ languages |
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.11+
-- Google Gemini API key ([Get one free](https://ai.google.dev))
-
-### Installation
+### 1. Setup
 
 ```bash
-# Clone repository
-git clone https://github.com/P-Saroha/Agent-For-YT-Video.git
-cd Agent-For-YT-Video
+# Clone or navigate to project
+cd AI-Content-Analysis
 
-# Create virtual environment
-python -m venv myenv
-myenv\Scripts\activate  # Windows
-# source myenv/bin/activate  # Linux/Mac
+# Run setup script (Windows PowerShell)
+.\scripts\setup.ps1
 
-# Install dependencies
+# OR manual setup (any OS)
+pip install -r config/requirements.txt
+```
+
+### 2. Configure API Key
+
+Create `server/.env`:
+```env
+GEMINI_API_KEY=your_api_key_here
+```
+
+**Get free API key:**
+- Go to https://ai.google.dev
+- Click "Get API Key"
+- Create a new project
+- Copy the key and paste into `.env`
+
+### 3. Start Server
+
+```bash
 cd server
-pip install -r requirements.txt
-
-# Configure API key
-echo "GEMINI_API_KEY=your_api_key_here" > .env
-echo "PORT=8000" >> .env
-echo "HOST=0.0.0.0" >> .env
-
-# Start server
 python start_server.py
 ```
 
-**Open browser:** `http://localhost:8000`
-
----
-
-## 📡 API Documentation
-
-### YouTube Analysis Endpoints
-
-#### Ask Question About Video
-```http
-POST /youtube/ask
-Content-Type: application/json
-
-{
-  "video_url": "https://youtube.com/watch?v=dQw4w9WgXcQ",
-  "question": "What are the main topics discussed?"
-}
-
-Response:
-{
-  "answer": "## Main Topics...",
-  "video_id": "dQw4w9WgXcQ",
-  "title": "Video Title",
-  "confidence": 0.95,
-  "processing_time": 3.2,
-  "sources": [...]
-}
+You'll see:
+```
+✅ 📺 YouTube Service loaded
+✅ 🌐 Web Service loaded
+✅ 📝 Document Service loaded
+INFO: Uvicorn running on http://0.0.0.0:8000
 ```
 
-#### Summarize Video
-```http
-POST /youtube/summarize
-Content-Type: application/json
+### 4. Use It!
 
-{
-  "video_url": "https://youtube.com/watch?v=VIDEO_ID"
-}
+Open browser: **http://localhost:8000**
+
+## 📚 Features
+
+### YouTube Analysis
+- Extract video transcripts automatically
+- Ask any question about the video
+- Get comprehensive AI answers
+- Works with most YouTube videos
+
+### Website Analysis  
+- Scrape website content
+- Ask questions about the content
+- Get summarized answers
+- Works with text-based websites
+
+### Text Analysis
+- Paste any text or document content
+- Ask questions about it
+- Get instant answers
+- Works with any length text
+
+### API Endpoints
+
+**YouTube:**
+```bash
+curl -X POST http://localhost:8000/youtube/simple/ask \
+  -H "Content-Type: application/json" \
+  -d '{
+    "video_url": "https://www.youtube.com/watch?v=...",
+    "question": "What is this video about?"
+  }'
 ```
 
-### Web Content Endpoints
-
-#### Extract & Summarize Web Content
-```http
-POST /web/extract-content
-Content-Type: application/json
-
-{
-  "url": "https://en.wikipedia.org/wiki/Artificial_intelligence"
-}
-
-Response:
-{
-  "title": "Artificial Intelligence - Wikipedia",
-  "content_preview": "## Overview\n...",
-  "word_count": 2500,
-  "url": "https://...",
-  "status": "success"
-}
+**Website:**
+```bash
+curl -X POST http://localhost:8000/web/ask-question \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://example.com",
+    "question": "What is this about?"
+  }'
 ```
 
-#### Ask Question About Web Content
-```http
-POST /web/ask-question
-Content-Type: application/json
-
-{
-  "url": "https://example.com/article",
-  "question": "What are the key takeaways?"
-}
-
-Response:
-{
-  "answer": "## Key Takeaways...",
-  "title": "Article Title",
-  "confidence": 0.88,
-  "source_type": "rag_vector_search",
-  "word_count": 450
-}
+**Text:**
+```bash
+curl -X POST http://localhost:8000/documents/text/ask \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text_content": "Your text here...",
+    "question": "What are the main points?"
+  }'
 ```
 
-### Document Processing Endpoints
-
-#### Upload & Analyze PDF
-```http
-POST /document/pdf/upload
-Content-Type: multipart/form-data
-
-file: [PDF file]
-
-Response: { "file_id": "abc123", "status": "success" }
+**Health Check:**
+```bash
+curl http://localhost:8000/health
 ```
 
-#### Ask Question About PDF
-```http
-POST /document/pdf/ask
-Content-Type: application/json
+## 📁 Project Structure
 
-{
-  "file_id": "abc123",
-  "question": "Summarize the main findings"
-}
 ```
-
-### Health Check
-```http
-GET /health
-
-Response: { "status": "healthy", "services": ["youtube", "web", "document"] }
+AI-Content-Analysis/
+│
+├── 📄 README.md                    ← You are here
+├── 📄 START_HERE.md                ← Quick start guide
+├── 📄 LICENSE                      ← MIT License
+├── 📄 .gitignore                   ← Git ignore rules
+│
+├── 📁 config/                      ← Configuration
+│   └── requirements.txt            ← Python dependencies
+│
+├── 📁 scripts/                     ← Utility scripts
+│   └── setup.ps1                   ← Setup script
+│
+├── 📁 docs/                        ← Documentation (add here)
+│
+├── 📁 server/                      ← Main application
+│   ├── start_server.py             ← Run this to start
+│   ├── requirements.txt            ← Dependencies
+│   ├── .env                        ← Your API key (create)
+│   ├── .env.example                ← Example config
+│   │
+│   ├── 📁 app/                     ← FastAPI application
+│   │   ├── main.py                 ← API setup
+│   │   ├── config.py               ← Settings
+│   │   ├── __init__.py
+│   │   │
+│   │   ├── 📁 services/            ← AI Services
+│   │   │   ├── langchain_service.py     ← RAG service
+│   │   │   ├── rag_web_service.py       ← Web scraping
+│   │   │   ├── document_service.py      ← PDF analysis
+│   │   │   └── simple_ai_service.py     ← Simple AI
+│   │   │
+│   │   ├── 📁 routes/              ← API Endpoints
+│   │   │   ├── langchain_routes.py      ← RAG endpoints
+│   │   │   ├── web_routes.py            ← Web endpoints
+│   │   │   ├── document_routes.py       ← Document endpoints
+│   │   │   ├── simple_routes.py         ← Simple endpoints
+│   │   │   ├── health.py                ← Health check
+│   │   │   └── __init__.py
+│   │   │
+│   │   ├── 📁 models/              ← Data models
+│   │   │   └── (Pydantic models)
+│   │   │
+│   │   └── 📁 store/               ← Data storage
+│   │       └── (Temporary storage)
+│   │
+│   └── 📁 static/                  ← Web Interface
+│       ├── index.html              ← Main page
+│       ├── 📁 css/                 ← Styles
+│       │   └── youtube-web-ai.css
+│       └── 📁 js/                  ← JavaScript
+│           └── youtube-web-ai.js
+│
+└── 📁 myenv/                       ← Virtual environment (git ignored)
 ```
-
-**Interactive API Docs:** Visit `http://localhost:8000/docs` for Swagger UI
-
----
 
 ## 🔧 How It Works
 
-```
-┌─────────────────────────────────────────────────────┐
-│                  RAG PIPELINE FLOW                   │
-└─────────────────────────────────────────────────────┘
+### Architecture
 
-User Question
-     │
-     ▼
-┌──────────────┐
-│ Content Type │ → YouTube URL or Web URL?
-└──────────────┘
-     │
-     ├─── YouTube ────────────┐
-     │   • Extract Transcript  │
-     │   • Multi-language      │
-     │                         │
-     └─── Web URL ────────────┤
-         • Scrape Content      │
-         • Clean HTML          │
-                               ▼
-                   ┌──────────────────┐
-                   │  Text Chunking   │
-                   │  (Recursive)     │
-                   └──────────────────┘
-                               ▼
-                   ┌──────────────────┐
-                   │ Generate         │
-                   │ Embeddings       │
-                   │ (HuggingFace)    │
-                   └──────────────────┘
-                               ▼
-                   ┌──────────────────┐
-                   │ Vector Store     │
-                   │ (Chroma DB)      │
-                   └──────────────────┘
-                               ▼
-                   ┌──────────────────┐
-                   │ Retrieve Top     │
-                   │ Relevant Chunks  │
-                   │ (10 or 8)        │
-                   └──────────────────┘
-                               ▼
-                   ┌──────────────────┐
-                   │ Gemini AI        │
-                   │ Generate Answer  │
-                   │ (Temperature 0.0)│
-                   └──────────────────┘
-                               ▼
-                Natural, Accurate Response
+```
+User Interface (Web)
+    ↓
+API Endpoints (FastAPI)
+    ↓
+Services (AI Logic)
+    ├── YouTube Service    → Extract transcript → RAG → AI Response
+    ├── Web Service        → Scrape content → RAG → AI Response
+    ├── Document Service   → Extract text → RAG → AI Response
+    └── Simple Service     → Direct AI → Response
+    ↓
+Google Gemini API
+    ↓
+Response to User
 ```
 
----
+### Tech Stack
 
-## 📊 Performance Metrics
+- **Framework:** FastAPI
+- **Server:** Uvicorn
+- **AI:** Google Gemini (LangChain)
+- **Web Scraping:** BeautifulSoup, Requests
+- **Video:** youtube-transcript-api
+- **Embeddings:** Sentence Transformers
+- **Vector Store:** FAISS
+- **Data Validation:** Pydantic
 
-### Processing Times
+## 💡 Usage Examples
 
-| Operation | Performance | Details |
-|-----------|-------------|---------|
-| **YouTube Transcript** | 1-3s | Depends on video length, multi-language support |
-| **Web Scraping** | 1-2s | Async extraction, removes ads/clutter |
-| **PDF Processing** | 2-4s | Text extraction and parsing |
-| **Text Chunking** | 0.01-0.05s | Recursive splitter with overlap |
-| **Embeddings Generation** | 2-5s | Batch processing (32-batch size), **40% faster** |
-| **Vector Storage** | 0.1-0.5s | ChromaDB indexing |
-| **Semantic Search** | <100ms | Lightning-fast similarity search |
-| **LLM Generation** | 1-3s | Gemini 2.5 Flash streaming |
-| **First Query (Cold)** | **5-15s** | Full RAG pipeline execution |
-| **Cached Query (Hot)** | **2-5s** | Skip processing, direct retrieval |
+### Example 1: Analyze YouTube Video
 
-### Resource Usage
+1. Go to http://localhost:8000
+2. Click "📺 YouTube"
+3. Paste: `https://www.youtube.com/watch?v=dQw4w9WgXcQ`
+4. Ask: `What is this video about?`
+5. Get instant AI answer!
 
-| Resource | Usage | Notes |
-|----------|-------|-------|
-| **Memory** | 1-2GB | Per active session with embeddings |
-| **CPU** | Medium | Spike during embedding generation |
-| **Storage** | ~50MB | Temporary vector stores (in-memory) |
-| **Network** | Low | Only during scraping/transcript fetch |
+### Example 2: Analyze Website
 
-### Optimization Results
+1. Click "🌐 Website"
+2. Paste: `https://en.wikipedia.org/wiki/Artificial_intelligence`
+3. Ask: `Explain AI in simple terms`
+4. Get instant AI answer!
 
-| Optimization | Improvement | Method |
-|--------------|-------------|--------|
-| **Batch Processing** | 40% faster | 32-batch size for embeddings |
-| **Modern LCEL** | 30% faster | LangChain Expression Language |
-| **Caching Strategy** | 70% faster | Reuse processed content |
-| **Async I/O** | 50% faster | Non-blocking operations |
+### Example 3: Analyze Text
 
----
+1. Click "📝 Text"
+2. Paste any text content
+3. Ask: `What are the main ideas?`
+4. Get instant AI answer!
 
-## ⚙️ Configuration
+## 🐛 Troubleshooting
 
-Edit `app/config.py` to customize:
+### ❌ "API Key Error"
+**Problem:** GEMINI_API_KEY not configured
+
+**Solution:**
+1. Create `server/.env` file
+2. Add: `GEMINI_API_KEY=your_key_here`
+3. Restart server
+
+### ❌ "Transcript Not Available"
+**Problem:** Video has no subtitles
+
+**Solution:**
+- Video must have auto-generated or manual subtitles
+- Try a different video
+- Check your internet connection
+
+### ❌ "Port 8000 Already in Use"
+**Problem:** Another process using port 8000
+
+**Solution:**
+```bash
+# Find process using port 8000
+netstat -ano | findstr :8000
+
+# Kill the process (replace PID)
+taskkill /PID <PID> /F
+```
+
+### ❌ "Module Not Found"
+**Problem:** Dependencies not installed
+
+**Solution:**
+```bash
+pip install -r config/requirements.txt
+```
+
+### ❌ "Slow Processing"
+**Problem:** Takes 30+ seconds
+
+**Reason:** First run downloads AI models (~100MB)
+
+**Solution:** Wait for first run. Second run is much faster!
+
+## 🚀 Running the Project
+
+### Windows
+```powershell
+# Setup
+.\scripts\setup.ps1
+
+# Run
+cd server
+python start_server.py
+```
+
+### Mac/Linux
+```bash
+# Setup
+pip install -r config/requirements.txt
+
+# Create .env
+cp server/.env.example server/.env
+
+# Run
+cd server
+python start_server.py
+```
+
+## 📖 Advanced Usage
+
+### Modify AI Prompts
+
+Edit `server/app/services/` files:
+
+**Example:** Make responses shorter
+```python
+# In langchain_service.py
+SYSTEM_PROMPT = "Answer in 2-3 sentences"
+```
+
+### Add Custom Analysis
+
+Create new service in `server/app/services/`:
 
 ```python
-# AI Model
-MODEL_NAME = "gemini-2.0-flash-exp"
-TEMPERATURE = 0.0  # Deterministic responses
-
-# YouTube RAG
-YOUTUBE_CHUNK_SIZE = 800
-YOUTUBE_CHUNK_OVERLAP = 100
-YOUTUBE_RETRIEVAL_K = 10  # Number of chunks
-
-# Web RAG
-WEB_CHUNK_SIZE = 1000
-WEB_CHUNK_OVERLAP = 200
-WEB_RETRIEVAL_K = 8  # Number of chunks
+def analyze_custom(content, question):
+    # Your logic here
+    return response
 ```
 
----
+Then add route in `server/app/routes/`:
 
-## 📂 Project Structure
-
-```
-video-ai-assistant/
-├── server/
-│   ├── start_server.py              # Server entry point
-│   ├── requirements.txt             # Dependencies
-│   └── app/
-│       ├── main.py                  # FastAPI application
-│       ├── config.py                # Configuration
-│       ├── routes/                  # API endpoints
-│       │   ├── youtube_routes.py
-│       │   ├── web_routes.py
-│       │   └── simple_routes.py
-│       └── services/                # Business logic
-│           ├── langchain_service.py      # YouTube RAG
-│           ├── rag_web_service.py        # Web RAG
-│           ├── fast_web_service.py       # Fast scraper
-│           └── simple_ai_service.py      # Direct AI
-├── static/
-│   ├── youtube-web-ai-clean.html    # Main UI
-│   └── js/
-│       └── youtube-web-ai.js        # Frontend logic
-└── extension/                       # Chrome extension (optional)
+```python
+@router.post("/custom/ask")
+def custom_ask(request):
+    # Use your service
+    return response
 ```
 
----
+### Change AI Model
 
-## � Use Cases
+Edit `server/app/config.py`:
 
-### Education & Research
-- 📚 **Study YouTube lectures** - Ask questions about educational videos
-- 📰 **Research articles** - Analyze academic papers and blog posts
-- 📖 **Document analysis** - Process research papers and technical docs
-
-### Content Creation
-- ✍️ **Content research** - Extract insights from multiple sources
-- 🎬 **Video summarization** - Quick summaries of long videos
-- 📝 **Article digests** - Condense web articles into key points
-
-### Professional Use
-- 💼 **Meeting transcripts** - Analyze recorded meetings
-- 📊 **Report analysis** - Extract insights from PDF reports
-- 🔍 **Competitive research** - Analyze competitor content
-
-### Personal Productivity
-- 🎓 **Learning** - Study from multiple content sources
-- 📚 **Reading** - Quick summaries of long articles
-- 🔎 **Information extraction** - Get specific answers from content
-
----
-
-## 🎨 Demo Screenshots
-
-### YouTube Analysis
-```
-🎥 Video: "Introduction to Machine Learning"
-❓ Question: "What are the main types of machine learning?"
-
-✨ AI Response:
-## Main Types of Machine Learning
-
-There are three primary types of machine learning:
-
-1. **Supervised Learning**: Uses labeled data...
-2. **Unsupervised Learning**: Works with unlabeled data...
-3. **Reinforcement Learning**: Learns through trial and error...
-
-### Key Characteristics
-• Supervised learning requires training data
-• Unsupervised learning finds patterns automatically
-• Reinforcement learning optimizes for rewards
+```python
+# Change from Gemini to other models
+MODEL = "gemini-pro"  # or other supported models
 ```
 
-### Web Content Analysis
-```
-🌐 URL: Wikipedia - Artificial Intelligence
-❓ Action: Generate Summary
+## 📊 Performance
 
-✨ AI Response:
-## Overview
-Artificial Intelligence (AI) is the simulation of human intelligence...
+- **Startup Time:** 5-10 seconds
+- **First Query:** 10-20 seconds (downloads models)
+- **Subsequent Queries:** 2-5 seconds
+- **Max Request Size:** 100MB
+- **Timeout:** 60 seconds per request
 
-## Main Topics Covered
-- **History**: From 1950s Turing test to modern deep learning
-- **Techniques**: Machine learning, neural networks, NLP
-- **Applications**: Computer vision, robotics, autonomous systems
-```
+## 🔐 Security Notes
 
----
+- API key stored locally in `.env` (never committed)
+- No data stored on servers
+- All processing local except API calls
+- HTTPS recommended for production
 
-## 🚀 Deployment
+## 📝 Environment Variables
 
-### Option 1: Local Development
-```bash
-# Quick start
-python server/start_server.py
+**Required:**
+- `GEMINI_API_KEY` - Your Google Gemini API key
 
-# Using Makefile
-make dev
-
-# Access at http://localhost:8000
-```
-
-### Option 2: Docker
-```bash
-# Build image
-docker build -t ai-content-assistant:latest .
-
-# Run container
-docker run -p 8000:8000 \
-  -e GEMINI_API_KEY=your_key \
-  -e GOOGLE_API_KEY=your_key \
-  ai-content-assistant:latest
-
-# Using Docker Compose (Recommended)
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop
-docker-compose down
-```
-
-### Option 3: Using Makefile Commands
-```bash
-make install       # Install dependencies
-make dev          # Run development server
-make test         # Run tests with coverage
-make lint         # Check code quality
-make format       # Auto-format code
-make docker-build # Build Docker image
-make docker-run   # Run with Docker Compose
-```
-
-### Option 4: Cloud Deployment
-
-#### Railway
-```bash
-# Install Railway CLI
-npm install -g @railway/cli
-
-# Deploy
-railway login
-railway init
-railway up
-```
-
-#### Render
-1. Connect GitHub repo
-2. Set environment variables
-3. Deploy with one click
-
-#### AWS/GCP
-- **AWS EC2**: Use Amazon Linux, install Docker
-- **GCP Compute Engine**: Deploy with Container-Optimized OS
-- **Kubernetes**: Use provided manifests (coming soon)
-
-#### Vercel/Netlify (Frontend)
-- Deploy static frontend separately
-- Point API calls to backend server
-
----
-
-## � CI/CD Pipeline
-
-### Automated Workflows (GitHub Actions)
-
-The project includes a comprehensive CI/CD pipeline that automatically:
-
-✅ **Code Quality Checks**
-- Linting with flake8
-- Format checking with black
-- Import sorting with isort
-
-✅ **Testing**
-- Unit tests with pytest
-- Coverage reporting (codecov integration)
-- Integration tests
-
-✅ **Security Scanning**
-- Dependency vulnerability checks (safety)
-- Code security analysis (bandit)
-
-✅ **Docker Build**
-- Multi-stage optimized builds
-- Automatic tagging
-- Push to Docker Hub on main branch
-
-✅ **Deployment**
-- Automatic deployment to staging/production
-- Webhook notifications
-
-### Badges
-
-![CI/CD](https://github.com/P-Saroha/Agent-For-YT-Video/workflows/CI-CD%20Pipeline/badge.svg)
-![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
-![Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen)
-![Security](https://img.shields.io/badge/security-scanned-blue)
-
-### Pre-commit Hooks
-
-Automatic code quality checks before each commit:
-
-```bash
-# Install
-pip install pre-commit
-pre-commit install
-
-# Run manually
-pre-commit run --all-files
-```
-
-Checks include:
-- Code formatting (black, isort)
-- Linting (flake8)
-- Security (bandit)
-- YAML validation
-- Trailing whitespace removal
-- Large file detection
-
----
-
-## �🔒 Security & Privacy
-
-- ✅ **API Key Protection** - Environment variables only, never committed
-- ✅ **No Data Storage** - Temporary processing, no database
-- ✅ **In-Memory Only** - Vector stores cleared after session
-- ✅ **HTTPS Support** - SSL certificate configuration available
-- ✅ **Security Scanning** - Automated vulnerability checks in CI/CD
-- ✅ **Dependency Updates** - Regular security patches
-- ⚠️ **Rate Limiting** - Implement in production (not included by default)
-
----
-
-## �🐛 Troubleshooting
-
-### Common Issues
-
-| Problem | Solution | Details |
-|---------|----------|---------|
-| **API key error** | Set GEMINI_API_KEY in .env file | Check for typos, trailing spaces |
-| **Transcript unavailable** | Video may not have captions | Try videos with subtitles enabled |
-| **Web scraping failed** | Site may be JavaScript-heavy | Works best with static sites |
-| **Empty response** | Check console logs | Look for extraction errors |
-| **Port in use** | Change PORT in .env | Or stop other services on port 8000 |
-| **Import errors** | Reinstall dependencies | `pip install -r requirements.txt --force-reinstall` |
-| **Memory error** | Reduce batch size | Edit config.py, set batch_size=16 |
-
-### Debug Mode
-```bash
-# Linux/Mac
-export DEBUG=true
-python start_server.py
-
-# Windows PowerShell
-$env:DEBUG="true"
-python start_server.py
-```
-
-### Logs
-- **Server logs**: Console output with timestamps
-- **Error tracking**: Check FastAPI automatic error pages
-- **Performance**: Processing time included in responses
-
----
-
-## 🛣️ Roadmap
-
-### Planned Features
-- [ ] **Multi-file Upload** - Process multiple PDFs at once
-- [ ] **Chat History** - Conversational memory across questions
-- [ ] **Export Functionality** - Download summaries as PDF/Markdown
-- [ ] **Advanced Filters** - Filter by date, author, topic
-- [ ] **Custom Embeddings** - Support for OpenAI, Cohere embeddings
-- [ ] **Database Integration** - PostgreSQL with pgvector
-- [ ] **Authentication** - User accounts and API keys
-- [ ] **Rate Limiting** - Production-ready throttling
-- [ ] **Docker Support** - Containerized deployment
-- [ ] **Monitoring** - Prometheus + Grafana integration
-
-### Potential Improvements
-- [ ] Add support for more document formats (DOCX, PPTX)
-- [ ] Implement streaming responses for real-time feedback
-- [ ] Add citation and source tracking
-- [ ] Multi-language UI support
-- [ ] Mobile-responsive design improvements
-
----
+**Optional:**
+- `PORT` - Server port (default: 8000)
+- `HOST` - Server host (default: 0.0.0.0)
+- `LOG_LEVEL` - Logging level (default: INFO)
 
 ## 🤝 Contributing
 
-Contributions are welcome! Whether it's bug fixes, new features, or documentation improvements.
+Want to improve this project?
 
-### How to Contribute 
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-1. **Fork the repository**
-   ```bash
-   git clone https://github.com/P-Saroha/Agent-For-YT-Video.git
-   ```
+## ❓ FAQ
 
-2. **Create a feature branch**
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
+**Q: Is it free?**
+A: Yes! Google Gemini API has a free tier with plenty of requests.
 
-3. **Make your changes**
-   - Follow existing code style
-   - Add comments for complex logic
-   - Update documentation if needed
+**Q: Can I use other AI models?**
+A: Yes, modify `config.py` to use different models.
 
-4. **Test your changes**
-   ```bash
-   python -m pytest tests/
-   ```
+**Q: How do I deploy to production?**
+A: Use Railway, Render, or Heroku for easy deployment.
 
-5. **Commit with clear messages**
-   ```bash
-   git commit -m "Add: New feature description"
-   ```
+**Q: Can I use this commercially?**
+A: Yes, check Google Gemini API terms of service.
 
-6. **Push and create PR**
-   ```bash
-   git push origin feature/amazing-feature
-   ```
+**Q: What if a video has no subtitles?**
+A: YouTube auto-generates subtitles for most videos. If not, the video won't work.
 
-### Development Guidelines
-- Use type hints for Python code
-- Follow PEP 8 style guide
-- Write descriptive commit messages
-- Update README for new features
-- Add tests for new functionality
+**Q: How long can my text be?**
+A: Up to 100MB. Larger files may timeout.
 
----
-
-## 📄 License
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
-**TL;DR:** Free to use, modify, and distribute. Just keep the license notice.
-
----
-
-## 🙏 Acknowledgments
-
-- **Google Gemini** - For providing free, powerful LLM API
-- **LangChain** - For the excellent RAG framework
-- **HuggingFace** - For open-source embedding models
-- **FastAPI** - For the amazing async web framework
-- **ChromaDB** - For the lightweight vector database
-
----
-
-## 👤 Author
-
-**Parveen Saroha**
-
-- 🐙 GitHub: [@P-Saroha](https://github.com/P-Saroha)
-- 📦 Repository: [Agent-For-YT-Video](https://github.com/P-Saroha/Agent-For-YT-Video)
-- 💼 LinkedIn: [Connect with me](https://www.linkedin.com/in/parveen-saroha/)
-
----
+**Q: Can I limit the response length?**
+A: Yes, modify the prompt in services files.
 
 ## 📞 Support
 
-Need help or have questions?
+- 📖 Read: `START_HERE.md` for quick start
+- 🔍 Check: Troubleshooting section above
+- 💻 Review: Code comments are beginner-friendly
+- ❓ Ask: Check code for examples
 
-- 🐛 [Report a Bug](https://github.com/P-Saroha/Agent-For-YT-Video/issues)
-- 💡 [Request a Feature](https://github.com/P-Saroha/Agent-For-YT-Video/issues)
-- 💬 [Discussions](https://github.com/P-Saroha/Agent-For-YT-Video/discussions)
+## 📜 License
 
----
+MIT License - Feel free to use and modify!
 
-<div align="center">
+## 🎉 Ready to Start?
 
-### 🌟 Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=P-Saroha/Agent-For-YT-Video&type=Date)](https://star-history.com/#P-Saroha/Agent-For-YT-Video&Date)
-
----
-
-**Built with ❤️ using FastAPI, LangChain, and Google Gemini AI**
-
-⭐ **Star this repo if you find it helpful!**
-
-[![GitHub stars](https://img.shields.io/github/stars/P-Saroha/Agent-For-YT-Video?style=social)](https://github.com/P-Saroha/Agent-For-YT-Video/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/P-Saroha/Agent-For-YT-Video?style=social)](https://github.com/P-Saroha/Agent-For-YT-Video/network/members)
+1. Run: `.\scripts\setup.ps1` (Windows) or `pip install -r config/requirements.txt`
+2. Edit: `server/.env` with your API key
+3. Start: `python server\start_server.py`
+4. Open: http://localhost:8000
+5. Enjoy!
 
 ---
 
-*Empowering intelligent content analysis with RAG technology*
+**Made with ❤️ for easy AI analysis**
 
-**[🏠 Back to Top](#-ai-content-analysis-platform-with-rag-architecture)**
-
-</div>
+Questions? Check START_HERE.md or README.md again!
