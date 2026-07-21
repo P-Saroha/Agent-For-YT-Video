@@ -23,14 +23,14 @@ Open: http://localhost:8000
 
 ## Features
 
-- 📺 YouTube videos
-- 🌐 Websites
-- 📝 Text documents
+- YouTube videos
+- Websites
+- Text documents
 
 ## Usage
 
-**YouTube:** Paste URL → Ask question → Get answer
+**YouTube:** Paste URL -> Ask question -> Get answer
 
-**Website:** Paste URL → Ask question → Get answer
+**Website:** Paste URL -> Ask question -> Get answer
 
-**Text:** Paste text → Ask question → Get answer
+**Text:** Paste text -> Ask question -> Get answer

@@ -41,7 +41,7 @@ class WebRAGService:
 
     def __init__(self):
         """Initialize components for web content analysis."""
-        print("🌐 Initializing Web Content Analysis Service...")
+        print("Initializing Web Content Analysis Service...")
 
         self.session = None
         
@@ -90,7 +90,7 @@ Rules:
         self.vector_stores = {}         # Maps url_hash -> vector database
         self.temp_directories = {}      # Maps url_hash -> temporary folder path
 
-        print("✅ Web Service ready!")
+        print("Web Service ready!")
 
     async def get_session(self):
         """Get or create an HTTP session for fetching webpages."""
@@ -239,13 +239,13 @@ Rules:
             
             # Check if already processed
             if url_hash in self.processed_content:
-                print(f"📦 URL already processed (using cached data)")
+                print(f"URL already processed (using cached data)")
                 return self.processed_content[url_hash]
 
-            print(f"🌐 Processing: {url}")
+            print(f"Processing: {url}")
 
             # Step 1: Fetch content
-            print(f"   1️⃣ Fetching webpage...")
+            print(f"   1. Fetching webpage...")
             if 'wikipedia.org' in url.lower():
                 title, content = await self._fetch_wikipedia_content(url)
             else:
@@ -265,7 +265,7 @@ Rules:
             )
 
             # Step 3: Split into chunks
-            print(f"   2️⃣ Splitting into chunks...")
+            print(f"   2. Splitting into chunks...")
             chunks = self.text_splitter.split_documents([doc])
             print(f"      Created {len(chunks)} chunks")
 
@@ -273,7 +273,7 @@ Rules:
             temp_dir = tempfile.mkdtemp(prefix=f"web_{url_hash}_")
 
             # Step 5: Convert to vectors
-            print(f"   3️⃣ Converting text to vectors...")
+            print(f"   3. Converting text to vectors...")
             vector_store = Chroma.from_documents(
                 documents=chunks,
                 embedding=self.embeddings,
@@ -305,12 +305,12 @@ Rules:
             self.vector_stores[url_hash] = rag_chain
             self.temp_directories[url_hash] = temp_dir
 
-            print(f"✅ URL processed successfully!")
+            print(f"URL processed successfully!")
 
             return self.processed_content[url_hash]
 
         except Exception as e:
-            print(f"❌ Error processing webpage: {str(e)}")
+            print(f"Error processing webpage: {str(e)}")
             raise
 
     async def ask_question(self, url: str, question: str) -> Dict[str, Any]:
@@ -331,7 +331,7 @@ Rules:
             if url_hash not in self.vector_stores:
                 await self.process_webpage(url)
 
-            print(f"❓ Question: {question[:50]}...")
+            print(f"Question: {question[:50]}...")
 
             # Get the RAG chain and ask
             rag_chain = self.vector_stores[url_hash]
@@ -340,7 +340,7 @@ Rules:
             answer = result["answer"]
             source_docs = result.get("context", [])
 
-            print(f"✅ Generated answer using {len(source_docs)} relevant sections")
+            print(f"Generated answer using {len(source_docs)} relevant sections")
 
             return {
                 "question": question,
@@ -350,7 +350,7 @@ Rules:
             }
 
         except Exception as e:
-            print(f"❌ Error answering question: {str(e)}")
+            print(f"Error answering question: {str(e)}")
             raise
 
     async def summarize_webpage(self, url: str) -> Dict[str, Any]:
@@ -375,20 +375,20 @@ Rules:
 
 Format your response as:
 
-## 📝 Overview
+## Overview
 [2-3 sentences about what this page covers]
 
-## 🎯 Main Topics
+## Main Topics
 - Topic 1: [Explanation]
 - Topic 2: [Explanation]
 - Topic 3: [Explanation]
 
-## 💡 Key Points
+## Key Points
 1. [Important point 1]
 2. [Important point 2]
 3. [Important point 3]
 
-## 📌 Summary
+## Summary
 [Final summary paragraph]"""
 
             result = await self.ask_question(url, summary_question)
@@ -403,7 +403,7 @@ Format your response as:
             }
 
         except Exception as e:
-            print(f"❌ Error summarizing webpage: {str(e)}")
+            print(f"Error summarizing webpage: {str(e)}")
             raise
 
     def cleanup_url(self, url: str):
@@ -424,9 +424,9 @@ Format your response as:
             if url_hash in self.temp_directories:
                 del self.temp_directories[url_hash]
 
-            print(f"🧹 Cleaned up URL")
+            print(f"Cleaned up URL")
         except Exception as e:
-            print(f"⚠️ Error cleaning up: {str(e)}")
+            print(f"Error cleaning up: {str(e)}")
 
     async def close(self):
         """Close the HTTP session."""

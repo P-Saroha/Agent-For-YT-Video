@@ -48,7 +48,7 @@ class SimpleYouTubeAIService:
         self.api_key = os.getenv("GEMINI_API_KEY", "")
         self.model = "gemini-2.5-flash"
         self.api_url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
-        print("🤖 Simple AI Service initialized")
+        print("Simple AI Service initialized")
 
     def extract_video_id(self, url: str) -> str:
         """

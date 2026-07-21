@@ -40,7 +40,7 @@ class YouTubeRAGService:
     def __init__(self):
         """Initialize all components needed for video analysis."""
         
-        print("📺 Initializing YouTube Video Analysis Service...")
+        print("Initializing YouTube Video Analysis Service...")
 
         # ==================== Component 1: Text-to-Vector Converter ====================
         # This converts text into numbers (vectors) that computers can compare
@@ -92,7 +92,7 @@ Rules:
         self.vector_stores = {}        # Maps video_id -> vector database
         self.temp_directories = {}    # Maps video_id -> temporary folder path
 
-        print("✅ YouTube Service ready!")
+        print("YouTube Service ready!")
 
     def extract_video_id(self, video_url: str) -> str:
         """
@@ -139,13 +139,13 @@ Rules:
             
             # Check if already processed
             if video_id in self.processed_videos:
-                print(f"📦 Video {video_id} already processed (using cached data)")
+                print(f"Video {video_id} already processed (using cached data)")
                 return self.processed_videos[video_id]
 
-            print(f"🎬 Processing video: {video_id}")
+            print(f"Processing video: {video_id}")
 
             # Step 1: Get transcript from YouTube
-            print(f"   1️⃣ Getting transcript...")
+            print(f"   1. Getting transcript...")
             transcript = await self._get_transcript(video_id)
             
             # Step 2: Create a document from the transcript
@@ -159,7 +159,7 @@ Rules:
             )
 
             # Step 3: Split into chunks
-            print(f"   2️⃣ Splitting into chunks...")
+            print(f"   2. Splitting into chunks...")
             chunks = self.text_splitter.split_documents([doc])
             print(f"      Created {len(chunks)} chunks")
 
@@ -167,7 +167,7 @@ Rules:
             temp_dir = tempfile.mkdtemp(prefix=f"video_{video_id}_")
 
             # Step 5: Convert chunks to vectors and store
-            print(f"   3️⃣ Converting text to vectors...")
+            print(f"   3. Converting text to vectors...")
             vector_store = Chroma.from_documents(
                 documents=chunks,
                 embedding=self.embeddings,
@@ -200,12 +200,12 @@ Rules:
             self.vector_stores[video_id] = rag_chain
             self.temp_directories[video_id] = temp_dir
 
-            print(f"✅ Video {video_id} processed successfully!")
+            print(f"Video {video_id} processed successfully!")
 
             return self.processed_videos[video_id]
 
         except Exception as e:
-            print(f"❌ Error processing video: {str(e)}")
+            print(f"Error processing video: {str(e)}")
             raise
 
     async def ask_question(self, video_id: str, question: str) -> Dict[str, Any]:
@@ -224,7 +224,7 @@ Rules:
             if video_id not in self.vector_stores:
                 raise Exception(f"Video {video_id} not processed. Process it first with process_video().")
 
-            print(f"❓ Question about {video_id}: {question[:50]}...")
+            print(f"Question about {video_id}: {question[:50]}...")
 
             # Get the RAG chain
             rag_chain = self.vector_stores[video_id]
@@ -236,7 +236,7 @@ Rules:
             answer = result["answer"]
             source_docs = result.get("context", [])
 
-            print(f"✅ Generated answer using {len(source_docs)} relevant sections")
+            print(f"Generated answer using {len(source_docs)} relevant sections")
 
             return {
                 "question": question,
@@ -246,7 +246,7 @@ Rules:
             }
 
         except Exception as e:
-            print(f"❌ Error answering question: {str(e)}")
+            print(f"Error answering question: {str(e)}")
             raise
 
     async def summarize_video(self, video_id: str) -> Dict[str, Any]:
@@ -269,20 +269,20 @@ Rules:
 
 Use this format:
 
-## 📝 Overview
+## Overview
 [2-3 sentences explaining what this video is about]
 
-## 🎯 Main Topics
+## Main Topics
 - Topic 1: [Explanation]
 - Topic 2: [Explanation]
 - Topic 3: [Explanation]
 
-## 💡 Key Takeaways
+## Key Takeaways
 1. [Important point 1]
 2. [Important point 2]
 3. [Important point 3]
 
-## 📌 Important Details
+## Important Details
 [Any other important information from the video]"""
 
             result = await self.ask_question(video_id, summary_question)
@@ -293,7 +293,7 @@ Use this format:
             }
 
         except Exception as e:
-            print(f"❌ Error creating summary: {str(e)}")
+            print(f"Error creating summary: {str(e)}")
             raise
 
     async def _get_transcript(self, video_id: str) -> Dict[str, str]:
@@ -332,7 +332,7 @@ Use this format:
             }
 
         except Exception as e:
-            print(f"   ❌ Could not get transcript: {str(e)}")
+            print(f"   Could not get transcript: {str(e)}")
             raise
 
     def cleanup_video(self, video_id: str):
@@ -351,9 +351,9 @@ Use this format:
             if video_id in self.temp_directories:
                 del self.temp_directories[video_id]
 
-            print(f"🧹 Cleaned up video {video_id}")
+            print(f"Cleaned up video {video_id}")
         except Exception as e:
-            print(f"⚠️ Error cleaning up: {str(e)}")
+            print(f"Error cleaning up: {str(e)}")
 
     def __del__(self):
         """Clean up all resources when the service is destroyed."""

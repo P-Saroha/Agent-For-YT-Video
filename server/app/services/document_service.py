@@ -40,7 +40,7 @@ class DocumentRAGService:
 
     def __init__(self):
         """Initialize components for document analysis."""
-        print("📄 Initializing Document Analysis Service...")
+        print("Initializing Document Analysis Service...")
 
         # ==================== Component 1: Text-to-Vector Converter ====================
         self.embeddings = HuggingFaceEmbeddings(
@@ -86,7 +86,7 @@ Rules:
         self.processed_docs = {}       # Maps doc_hash -> metadata
         self.vector_stores = {}         # Maps doc_hash -> vector database
 
-        print("✅ Document Service ready!")
+        print("Document Service ready!")
 
     def _extract_text_from_pdf(self, file_content: bytes) -> str:
         """

@@ -46,9 +46,9 @@ python start_server.py
 
 You'll see:
 ```
-✅ 📺 YouTube Service loaded
-✅ 🌐 Web Service loaded
-✅ 📝 Document Service loaded
+[OK] YouTube Service loaded
+[OK] Web Service loaded
+[OK] Document Service loaded
 INFO: Uvicorn running on http://0.0.0.0:8000
 ```
 
@@ -56,7 +56,7 @@ INFO: Uvicorn running on http://0.0.0.0:8000
 
 Open browser: **http://localhost:8000**
 
-## 📚 Features
+## Features
 
 ### YouTube Analysis
 - Extract video transcripts automatically
@@ -113,82 +113,86 @@ curl -X POST http://localhost:8000/documents/text/ask \
 curl http://localhost:8000/health
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 AI-Content-Analysis/
 │
-├── 📄 README.md                    ← You are here
-├── 📄 START_HERE.md                ← Quick start guide
-├── 📄 LICENSE                      ← MIT License
-├── 📄 .gitignore                   ← Git ignore rules
+├── README.md                       (You are here)
+├── START_HERE.md                   (Quick start guide)
+├── LICENSE                         (MIT License)
+├── .gitignore                      (Git ignore rules)
 │
-├── 📁 config/                      ← Configuration
-│   └── requirements.txt            ← Python dependencies
+├── config/                         (Configuration)
+│   └── requirements.txt            (Python dependencies)
 │
-├── 📁 scripts/                     ← Utility scripts
-│   └── setup.ps1                   ← Setup script
+├── scripts/                        (Utility scripts)
+│   └── setup.ps1                   (Setup script)
 │
-├── 📁 docs/                        ← Documentation (add here)
+├── docs/                           (Documentation)
 │
-├── 📁 server/                      ← Main application
-│   ├── start_server.py             ← Run this to start
-│   ├── requirements.txt            ← Dependencies
-│   ├── .env                        ← Your API key (create)
-│   ├── .env.example                ← Example config
+├── server/                         (Main application)
+│   ├── start_server.py             (Run this to start)
+│   ├── requirements.txt            (Dependencies)
+│   ├── .env                        (Your API key - create)
+│   ├── .env.example                (Example config)
 │   │
-│   ├── 📁 app/                     ← FastAPI application
-│   │   ├── main.py                 ← API setup
-│   │   ├── config.py               ← Settings
+│   ├── app/                        (FastAPI application)
+│   │   ├── main.py                 (API setup)
+│   │   ├── config.py               (Settings)
 │   │   ├── __init__.py
 │   │   │
-│   │   ├── 📁 services/            ← AI Services
-│   │   │   ├── langchain_service.py     ← RAG service
-│   │   │   ├── rag_web_service.py       ← Web scraping
-│   │   │   ├── document_service.py      ← PDF analysis
-│   │   │   └── simple_ai_service.py     ← Simple AI
+│   │   ├── services/               (AI Services)
+│   │   │   ├── langchain_service.py     (RAG service)
+│   │   │   ├── rag_web_service.py       (Web scraping)
+│   │   │   ├── document_service.py      (PDF analysis)
+│   │   │   └── simple_ai_service.py     (Simple AI)
 │   │   │
-│   │   ├── 📁 routes/              ← API Endpoints
-│   │   │   ├── langchain_routes.py      ← RAG endpoints
-│   │   │   ├── web_routes.py            ← Web endpoints
-│   │   │   ├── document_routes.py       ← Document endpoints
-│   │   │   ├── simple_routes.py         ← Simple endpoints
-│   │   │   ├── health.py                ← Health check
+│   │   ├── routes/                 (API Endpoints)
+│   │   │   ├── langchain_routes.py      (RAG endpoints)
+│   │   │   ├── web_routes.py            (Web endpoints)
+│   │   │   ├── document_routes.py       (Document endpoints)
+│   │   │   ├── simple_routes.py         (Simple endpoints)
+│   │   │   ├── health.py                (Health check)
 │   │   │   └── __init__.py
 │   │   │
-│   │   ├── 📁 models/              ← Data models
+│   │   ├── models/                 (Data models)
 │   │   │   └── (Pydantic models)
 │   │   │
-│   │   └── 📁 store/               ← Data storage
+│   │   └── store/                  (Data storage)
 │   │       └── (Temporary storage)
 │   │
-│   └── 📁 static/                  ← Web Interface
-│       ├── index.html              ← Main page
-│       ├── 📁 css/                 ← Styles
+│   └── static/                     (Web Interface)
+│       ├── index.html              (Main page)
+│       ├── css/                    (Styles)
 │       │   └── youtube-web-ai.css
-│       └── 📁 js/                  ← JavaScript
+│       └── js/                     (JavaScript)
 │           └── youtube-web-ai.js
 │
-└── 📁 myenv/                       ← Virtual environment (git ignored)
+└── myenv/                          (Virtual environment - git ignored)
 ```
 
-## 🔧 How It Works
+## How It Works
 
 ### Architecture
 
 ```
 User Interface (Web)
-    ↓
+    |
+    v
 API Endpoints (FastAPI)
-    ↓
+    |
+    v
 Services (AI Logic)
-    ├── YouTube Service    → Extract transcript → RAG → AI Response
-    ├── Web Service        → Scrape content → RAG → AI Response
-    ├── Document Service   → Extract text → RAG → AI Response
-    └── Simple Service     → Direct AI → Response
-    ↓
+    |-- YouTube Service    -> Extract transcript -> RAG -> AI Response
+    |-- Web Service        -> Scrape content -> RAG -> AI Response
+    |-- Document Service   -> Extract text -> RAG -> AI Response
+    |-- Simple Service     -> Direct AI -> Response
+    |
+    v
 Google Gemini API
-    ↓
+    |
+    v
 Response to User
 ```
 
@@ -203,33 +207,33 @@ Response to User
 - **Vector Store:** FAISS
 - **Data Validation:** Pydantic
 
-## 💡 Usage Examples
+## Usage Examples
 
 ### Example 1: Analyze YouTube Video
 
 1. Go to http://localhost:8000
-2. Click "📺 YouTube"
+2. Click "YouTube"
 3. Paste: `https://www.youtube.com/watch?v=dQw4w9WgXcQ`
 4. Ask: `What is this video about?`
 5. Get instant AI answer!
 
 ### Example 2: Analyze Website
 
-1. Click "🌐 Website"
+1. Click "Website"
 2. Paste: `https://en.wikipedia.org/wiki/Artificial_intelligence`
 3. Ask: `Explain AI in simple terms`
 4. Get instant AI answer!
 
 ### Example 3: Analyze Text
 
-1. Click "📝 Text"
+1. Click "Text"
 2. Paste any text content
 3. Ask: `What are the main ideas?`
 4. Get instant AI answer!
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
-### ❌ "API Key Error"
+### ERROR: API Key Error
 **Problem:** GEMINI_API_KEY not configured
 
 **Solution:**
@@ -237,7 +241,7 @@ Response to User
 2. Add: `GEMINI_API_KEY=your_key_here`
 3. Restart server
 
-### ❌ "Transcript Not Available"
+### ERROR: Transcript Not Available
 **Problem:** Video has no subtitles
 
 **Solution:**
@@ -245,7 +249,7 @@ Response to User
 - Try a different video
 - Check your internet connection
 
-### ❌ "Port 8000 Already in Use"
+### ERROR: Port 8000 Already in Use
 **Problem:** Another process using port 8000
 
 **Solution:**
@@ -257,7 +261,7 @@ netstat -ano | findstr :8000
 taskkill /PID <PID> /F
 ```
 
-### ❌ "Module Not Found"
+### ERROR: Module Not Found
 **Problem:** Dependencies not installed
 
 **Solution:**
@@ -265,14 +269,14 @@ taskkill /PID <PID> /F
 pip install -r config/requirements.txt
 ```
 
-### ❌ "Slow Processing"
+### ERROR: Slow Processing
 **Problem:** Takes 30+ seconds
 
 **Reason:** First run downloads AI models (~100MB)
 
 **Solution:** Wait for first run. Second run is much faster!
 
-## 🚀 Running the Project
+## Running the Project
 
 ### Windows
 ```powershell
@@ -297,7 +301,7 @@ cd server
 python start_server.py
 ```
 
-## 📖 Advanced Usage
+## Advanced Usage
 
 ### Modify AI Prompts
 
@@ -337,7 +341,7 @@ Edit `server/app/config.py`:
 MODEL = "gemini-pro"  # or other supported models
 ```
 
-## 📊 Performance
+## Performance
 
 - **Startup Time:** 5-10 seconds
 - **First Query:** 10-20 seconds (downloads models)
@@ -345,14 +349,14 @@ MODEL = "gemini-pro"  # or other supported models
 - **Max Request Size:** 100MB
 - **Timeout:** 60 seconds per request
 
-## 🔐 Security Notes
+## Security Notes
 
 - API key stored locally in `.env` (never committed)
 - No data stored on servers
 - All processing local except API calls
 - HTTPS recommended for production
 
-## 📝 Environment Variables
+## Environment Variables
 
 **Required:**
 - `GEMINI_API_KEY` - Your Google Gemini API key
@@ -362,7 +366,7 @@ MODEL = "gemini-pro"  # or other supported models
 - `HOST` - Server host (default: 0.0.0.0)
 - `LOG_LEVEL` - Logging level (default: INFO)
 
-## 🤝 Contributing
+## Contributing
 
 Want to improve this project?
 
@@ -372,7 +376,7 @@ Want to improve this project?
 4. Test thoroughly
 5. Submit a pull request
 
-## ❓ FAQ
+## FAQ
 
 **Q: Is it free?**
 A: Yes! Google Gemini API has a free tier with plenty of requests.
@@ -395,18 +399,18 @@ A: Up to 100MB. Larger files may timeout.
 **Q: Can I limit the response length?**
 A: Yes, modify the prompt in services files.
 
-## 📞 Support
+## Support
 
-- 📖 Read: `START_HERE.md` for quick start
-- 🔍 Check: Troubleshooting section above
-- 💻 Review: Code comments are beginner-friendly
-- ❓ Ask: Check code for examples
+- Read: `START_HERE.md` for quick start
+- Check: Troubleshooting section above
+- Review: Code comments are beginner-friendly
+- Ask: Check code for examples
 
-## 📜 License
+## License
 
 MIT License - Feel free to use and modify!
 
-## 🎉 Ready to Start?
+## Ready to Start?
 
 1. Run: `.\scripts\setup.ps1` (Windows) or `pip install -r config/requirements.txt`
 2. Edit: `server/.env` with your API key
@@ -416,6 +420,6 @@ MIT License - Feel free to use and modify!
 
 ---
 
-**Made with ❤️ for easy AI analysis**
+Made with care for easy AI analysis
 
 Questions? Check START_HERE.md or README.md again!
