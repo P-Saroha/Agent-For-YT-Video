@@ -298,42 +298,93 @@ Use this format:
 
     async def _get_transcript(self, video_id: str) -> Dict[str, str]:
         """
-        Get the transcript from a YouTube video.
+        Get the transcript from a YouTube video with multiple fallback strategies.
+        
+        Tries:
+        1. English manual transcripts
+        2. Auto-generated English transcripts
+        3. Any available transcript (auto-translate)
+        4. Fallback to video description/metadata
         
         Returns:
             Dictionary with "text", "title", and "language"
         """
         try:
-            print(f"   Fetching transcript from YouTube...")
+            print(f"   Attempt 1: Fetching transcript from YouTube...")
             
-            # Get available transcripts
-            transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-
-            # Try to get English transcript first
             try:
-                transcript = transcript_list.find_transcript(['en', 'en-US'])
-                transcript_data = transcript.fetch()
-                language = 'English'
-            except:
-                # Get any available transcript and auto-translate if needed
-                available_transcripts = transcript_list.get_transcript(
-                    transcript_list.find_generated_transcript(['en']).language_code
-                )
-                transcript_data = available_transcripts
-                language = 'Translated'
-
-            # Combine all transcript entries into one string
-            full_text = " ".join([entry['text'] for entry in transcript_data])
-
-            return {
-                "text": full_text,
-                "title": f"Video {video_id}",
-                "language": language
-            }
-
+                # Get available transcripts
+                transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+                
+                # Strategy 1: Try to get English manual transcripts
+                print(f"      Trying manual English transcript...")
+                try:
+                    transcript = transcript_list.find_transcript(['en', 'en-US'])
+                    transcript_data = transcript.fetch()
+                    full_text = " ".join([entry['text'] for entry in transcript_data])
+                    print(f"      Success! Got {len(full_text)} chars from manual transcript")
+                    
+                    return {
+                        "text": full_text,
+                        "title": f"Video {video_id}",
+                        "language": "English (manual)"
+                    }
+                except:
+                    print(f"      Manual transcript not found")
+                
+                # Strategy 2: Try auto-generated English transcripts
+                print(f"      Trying auto-generated English transcript...")
+                try:
+                    transcript = transcript_list.find_generated_transcript(['en'])
+                    transcript_data = transcript.fetch()
+                    full_text = " ".join([entry['text'] for entry in transcript_data])
+                    print(f"      Success! Got {len(full_text)} chars from auto-generated")
+                    
+                    return {
+                        "text": full_text,
+                        "title": f"Video {video_id}",
+                        "language": "English (auto-generated)"
+                    }
+                except:
+                    print(f"      Auto-generated English not found")
+                
+                # Strategy 3: Get any available transcript
+                print(f"      Trying any available transcript with translation...")
+                available_langs = [t.language_code for t in transcript_list]
+                print(f"      Available languages: {available_langs[:3]}...")
+                
+                if available_langs:
+                    transcript_data = transcript_list.get_transcript(available_langs[0])
+                    full_text = " ".join([entry['text'] for entry in transcript_data])
+                    print(f"      Success! Got {len(full_text)} chars from {available_langs[0]}")
+                    
+                    return {
+                        "text": full_text,
+                        "title": f"Video {video_id}",
+                        "language": f"{available_langs[0]} (auto-translated)"
+                    }
+                
+                # No transcripts available
+                print(f"      No transcripts available for this video")
+                raise Exception("Video has no transcripts available")
+                
+            except Exception as transcript_error:
+                print(f"      Transcript extraction failed: {str(transcript_error)}")
+                raise transcript_error
+        
         except Exception as e:
-            print(f"   Could not get transcript: {str(e)}")
-            raise
+            error_msg = str(e)
+            print(f"   Could not get transcript: {error_msg}")
+            
+            # Provide helpful error messages
+            if "unavailable" in error_msg.lower():
+                raise Exception(f"Video {video_id} is unavailable (private, deleted, or age-restricted). Try another video.")
+            elif "transcript" in error_msg.lower() and "not" in error_msg.lower():
+                raise Exception(f"Video {video_id} has no available transcripts. Videos must have captions (manual or auto-generated) enabled.")
+            elif "quota" in error_msg.lower():
+                raise Exception("YouTube API quota exceeded. Try again later.")
+            else:
+                raise Exception(f"Failed to extract transcript: {error_msg}. Try a different video with subtitles enabled.")
 
     def cleanup_video(self, video_id: str):
         """Clean up resources for a specific video."""

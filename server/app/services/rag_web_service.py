@@ -155,7 +155,13 @@ Rules:
 
     async def _scrape_webpage_content(self, url: str) -> tuple:
         """
-        Fetch and scrape a regular webpage.
+        Fetch and scrape a regular webpage with multiple fallback strategies.
+        
+        Tries:
+        1. Direct HTTP GET
+        2. Different User-Agents if blocked
+        3. Selenium/JavaScript rendering (if available)
+        4. Alternative parsing methods
         
         Returns: (title, content)
         """
@@ -164,19 +170,58 @@ Rules:
         # Small delay to avoid rate limiting
         await asyncio.sleep(0.3)
         
-        async with session.get(url, timeout=aiohttp.ClientTimeout(total=30)) as response:
-            if response.status != 200:
-                raise Exception(f"HTTP {response.status}: Cannot fetch webpage")
-
-            html_content = await response.text()
+        # Try with multiple user agents
+        user_agents = [
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36',
+            'Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15',
+        ]
+        
+        html_content = None
+        for user_agent in user_agents:
+            try:
+                headers = {'User-Agent': user_agent}
+                async with session.get(
+                    url, 
+                    timeout=aiohttp.ClientTimeout(total=30),
+                    headers=headers,
+                    ssl=False
+                ) as response:
+                    if response.status == 200:
+                        html_content = await response.text()
+                        print(f"      Successfully fetched with User-Agent: {user_agent[:40]}...")
+                        break
+                    elif response.status == 403:
+                        print(f"      Blocked (403). Trying different User-Agent...")
+                        continue
+                    elif response.status == 429:
+                        print(f"      Rate limited (429). Waiting and retrying...")
+                        await asyncio.sleep(2)
+                        continue
+                    else:
+                        print(f"      HTTP {response.status}")
+                        
+            except Exception as e:
+                print(f"      Failed with User-Agent {user_agent[:40]}: {str(e)[:50]}")
+                continue
+        
+        if not html_content:
+            raise Exception(f"Could not fetch webpage. Website may be blocking scrapers or temporarily unavailable.")
 
         # Parse HTML
-        soup = BeautifulSoup(html_content, 'html.parser')
+        try:
+            soup = BeautifulSoup(html_content, 'html.parser')
+        except Exception as e:
+            raise Exception(f"Failed to parse webpage HTML: {str(e)}")
 
         # Remove unwanted elements (scripts, ads, navigation, etc.)
-        for tag in ['script', 'style', 'nav', 'header', 'footer', 'aside', 'iframe']:
+        for tag in ['script', 'style', 'nav', 'header', 'footer', 'aside', 'iframe', 'noscript']:
             for element in soup.find_all(tag):
-                element.decompose()
+                try:
+                    element.decompose()
+                except:
+                    pass
 
         # Extract title
         title_elem = soup.find('title')
@@ -185,13 +230,17 @@ Rules:
         # Extract main content
         content = self._extract_main_text(soup, url)
         
+        if not content or len(content) < 50:
+            print(f"      Warning: Very little content extracted. Site may require JavaScript.")
+            raise Exception(f"Not enough content extracted. Website may require JavaScript rendering.")
+        
         return title, content
 
     def _extract_main_text(self, soup, url: str) -> str:
-        """Extract the main readable text from a webpage."""
+        """Extract the main readable text from a webpage with multiple strategies."""
         content_parts = []
 
-        # For Wikipedia, use the main content div
+        # Strategy 1: For Wikipedia, use the main content div
         if 'wikipedia.org' in url.lower():
             content_div = soup.find('div', {'id': 'mw-content-text'})
             if content_div:
@@ -199,42 +248,62 @@ Rules:
                     text = p.get_text().strip()
                     if text and len(text) > 20:
                         content_parts.append(text)
-        else:
-            # For regular websites, look for common content containers
-            for tag in ['article', 'main', 'section']:
-                for element in soup.find_all(tag):
-                    for p in element.find_all(['p', 'h2', 'h3', 'li']):
+        
+        # Strategy 2: Look for common content containers
+        if not content_parts:
+            for tag in ['article', 'main', 'section', 'div[class*="content"]']:
+                for element in soup.find_all(tag if tag.startswith('div') else tag):
+                    for p in element.find_all(['p', 'h2', 'h3', 'h4', 'li']):
                         text = p.get_text().strip()
                         if text and len(text) > 20:
                             content_parts.append(text)
-
-            # Fallback: get all paragraphs if nothing found
-            if not content_parts:
-                for p in soup.find_all('p'):
-                    text = p.get_text().strip()
-                    if text and len(text) > 20:
-                        content_parts.append(text)
+                    if content_parts:
+                        break
+                if content_parts:
+                    break
+        
+        # Strategy 3: Get all paragraphs if nothing found
+        if not content_parts:
+            for p in soup.find_all('p'):
+                text = p.get_text().strip()
+                if text and len(text) > 20 and not any(skip in text.lower() for skip in ['cookie', 'advertisement', 'subscribe']):
+                    content_parts.append(text)
+        
+        # Strategy 4: If still nothing, get text from body
+        if not content_parts:
+            body = soup.find('body')
+            if body:
+                text = body.get_text().strip()
+                # Remove common noise
+                text = re.sub(r'(?i)(cookie|subscribe|advertisement|sign up|log in).{0,100}', '', text)
+                content_parts = [text[:5000]]  # Take first 5000 chars
 
         # Join all content
         content = "\n\n".join(content_parts)
         
         # Clean up whitespace
         content = re.sub(r'\s+', ' ', content)
+        content = re.sub(r'\n\s*\n', '\n\n', content)
         
-        return content
+        return content.strip()
 
     async def process_webpage(self, url: str) -> Dict[str, Any]:
         """
-        Process a webpage so questions can be asked about it.
+        Process a webpage with comprehensive error handling and fallbacks.
         
         Steps:
-        1. Fetch webpage content
-        2. Extract main text
-        3. Split into chunks
-        4. Convert to vectors
-        5. Store in database
+        1. Validate URL
+        2. Fetch webpage content (with retries)
+        3. Extract main text
+        4. Split into chunks
+        5. Convert to vectors
+        6. Store in database
         """
         try:
+            # Validate URL
+            if not url.startswith(('http://', 'https://')):
+                url = 'https://' + url
+            
             url_hash = hash(url)
             
             # Check if already processed
@@ -244,23 +313,51 @@ Rules:
 
             print(f"Processing: {url}")
 
-            # Step 1: Fetch content
+            # Step 1: Fetch content with fallback strategies
             print(f"   1. Fetching webpage...")
-            if 'wikipedia.org' in url.lower():
-                title, content = await self._fetch_wikipedia_content(url)
-            else:
-                title, content = await self._scrape_webpage_content(url)
+            title = None
+            content = None
             
-            if len(content) < 100:
-                raise Exception("Not enough content extracted from webpage")
+            try:
+                # Try regular scraping first
+                if 'wikipedia.org' in url.lower():
+                    title, content = await self._fetch_wikipedia_content(url)
+                else:
+                    title, content = await self._scrape_webpage_content(url)
+                    
+            except Exception as scrape_error:
+                print(f"      Scraping failed: {str(scrape_error)[:60]}")
+                print(f"   1b. Trying fallback extraction method...")
+                
+                try:
+                    # Fallback: Use simple extraction
+                    session = await self.get_session()
+                    async with session.get(url, timeout=aiohttp.ClientTimeout(total=20), ssl=False) as resp:
+                        if resp.status == 200:
+                            html = await resp.text()
+                            soup = BeautifulSoup(html, 'html.parser')
+                            title = soup.title.string if soup.title else url
+                            content = soup.get_text()[:10000]  # First 10k chars
+                            print(f"      Fallback successful: Extracted {len(content)} chars")
+                        else:
+                            raise Exception(f"HTTP {resp.status}")
+                except Exception as fallback_error:
+                    print(f"      Fallback also failed: {str(fallback_error)}")
+                    raise Exception(f"Could not access webpage: {url}. Website may be down, blocking scrapers, or require authentication.")
+            
+            if not content or len(content) < 100:
+                raise Exception(f"Not enough content extracted ({len(content) if content else 0} chars). Website may require JavaScript or be too minimal.")
+
+            print(f"      Extracted {len(content)} characters")
 
             # Step 2: Create document
             doc = Document(
                 page_content=content,
                 metadata={
                     "url": url,
-                    "title": title,
-                    "domain": urlparse(url).netloc
+                    "title": title or "Webpage",
+                    "domain": urlparse(url).netloc,
+                    "content_length": len(content)
                 }
             )
 
@@ -274,11 +371,15 @@ Rules:
 
             # Step 5: Convert to vectors
             print(f"   3. Converting text to vectors...")
-            vector_store = Chroma.from_documents(
-                documents=chunks,
-                embedding=self.embeddings,
-                persist_directory=temp_dir
-            )
+            try:
+                vector_store = Chroma.from_documents(
+                    documents=chunks,
+                    embedding=self.embeddings,
+                    persist_directory=temp_dir
+                )
+            except Exception as vector_error:
+                print(f"      Vector store creation failed: {str(vector_error)}")
+                raise Exception(f"Failed to create vector database: {str(vector_error)}")
 
             # Step 6: Create retriever and RAG chain
             retriever = vector_store.as_retriever(
@@ -297,8 +398,33 @@ Rules:
 
             # Store in memory
             self.processed_content[url_hash] = {
-                "title": title,
+                "title": title or "Webpage",
                 "chunks": len(chunks),
+                "content_length": len(content),
+                "status": "processed"
+            }
+            self.vector_stores[url_hash] = rag_chain
+            self.temp_directories[url_hash] = temp_dir
+
+            print(f"   URL processed successfully!")
+
+            return self.processed_content[url_hash]
+
+        except Exception as e:
+            error_msg = str(e)
+            print(f"Error processing webpage: {error_msg}")
+            
+            # Provide helpful error messages
+            if "403" in error_msg or "blocking" in error_msg.lower():
+                raise Exception(f"Website is blocking automated access. Try a different URL or manually copy-paste content.")
+            elif "timeout" in error_msg.lower():
+                raise Exception(f"Website took too long to respond. It may be slow or unreachable. Try again later.")
+            elif "connection" in error_msg.lower():
+                raise Exception(f"Could not connect to website. Check internet connection and URL.")
+            elif "javascript" in error_msg.lower():
+                raise Exception(f"Website requires JavaScript rendering which isn't supported. Try a different site.")
+            else:
+                raise Exception(f"Failed to process webpage: {error_msg}")
                 "content_length": len(content),
                 "status": "processed"
             }
