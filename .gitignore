@@ -145,5 +145,7 @@ personal/
 private/
 secrets/
 
-# Interview preparation (personal notes)
+# Interview preparation 
 INTERVIEW_PREP.md
+interview_notes.md
+interview_prep/

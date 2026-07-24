@@ -9,6 +9,64 @@ Analyze YouTube videos, websites, and text documents using AI. Get instant answe
 - **Text Documents** - Analyze any text or document
 - **AI Answers** - Get instant AI-powered answers using Google Gemini
 
+## System Architecture
+
+```mermaid
+flowchart TD
+    U[User Input] --> M{Select Mode}
+    
+    M -->|YouTube| YT["YouTubeRAGService"]
+    M -->|Website| WEB["WebRAGService"]
+    M -->|PDF| DOC["DocumentRAGService"]
+    M -->|Text| TXT["SimpleAIService"]
+    
+    YT --> YE["Extract YouTube Transcript<br/>youtube-transcript-api"]
+    WEB --> WS["Web Scrape + Parse<br/>BeautifulSoup"]
+    DOC --> DP["Extract PDF Text<br/>PyPDF2"]
+    TXT --> TA["Direct Text Input"]
+    
+    YE --> CHUNK["Text Chunking<br/>800-1000 chars<br/>100-200 overlap"]
+    WS --> CHUNK
+    DP --> CHUNK
+    TA --> CHUNK
+    
+    CHUNK --> EMB["Generate Embeddings<br/>Sentence Transformers<br/>multilingual-MiniLM"]
+    
+    EMB --> FAISS["Store in FAISS<br/>Vector Database"]
+    
+    FAISS --> CACHE["In-Memory Cache<br/>processed_videos/<br/>processed_content"]
+    
+    CACHE --> USER_Q{User Action}
+    
+    USER_Q -->|Ask Question| SEARCH["Semantic Search<br/>FAISS top-K retrieval"]
+    USER_Q -->|Summarize| SUM["Generate Summary<br/>via LLM prompt"]
+    
+    SEARCH --> CONTEXT["Retrieve Context<br/>Top matching chunks"]
+    SUM --> CONTEXT
+    
+    CONTEXT --> LCEL["LangChain LCEL<br/>RAG Pipeline"]
+    
+    LCEL --> GEMINI["Google Gemini 2.5 Flash<br/>Generate Response"]
+    
+    GEMINI --> RESPONSE["Formatted Response<br/>with Markdown"]
+    
+    RESPONSE --> API["FastAPI Response<br/>11 REST endpoints"]
+    
+    API --> UI["Web UI Display<br/>HTML/CSS/JS"]
+    
+    UI --> USER[User Gets Answer]
+```
+
+### How It Works
+
+1. **Content Extraction** - Extract text from YouTube, web, PDF, or raw text
+2. **Chunking** - Split into 800-1000 character chunks with overlap
+3. **Embeddings** - Convert text to vectors using Sentence Transformers
+4. **Vector Search** - Store vectors in FAISS for semantic search
+5. **Retrieval** - Find top-4 most relevant chunks for user question
+6. **Generation** - Google Gemini generates response based on retrieved context
+7. **Response** - Return formatted answer with sources
+
 ## Quick Start (5 minutes)
 
 ### 1. Setup
