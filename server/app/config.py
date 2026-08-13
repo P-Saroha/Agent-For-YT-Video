@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     youtube_api_key: str = os.getenv("YOUTUBE_API_KEY", "")
     
     # ==================== AI Model Configuration ====================
-    gemini_model: str = "gemini-2.5-flash"  # Google's free, fast LLM
+    gemini_model: str = "gemini-2.5-flash"  # Google's fast, reliable LLM
     
     # ==================== Embeddings Configuration ====================
     # HuggingFace model for converting text to vectors

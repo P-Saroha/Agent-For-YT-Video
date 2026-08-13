@@ -64,7 +64,7 @@ class YouTubeRAGService:
         # ==================== Component 3: AI Model (Gemini) ====================
         # This is the brain that generates answers
         self.llm = ChatGoogleGenerativeAI(
-            model="gemini-2.5-flash",  # Fast and free model from Google
+            model="gemini-2.5-flash",  # Fast and reliable model
             temperature=0.0,           # 0 = deterministic (same answer every time), higher = more creative
             convert_system_message_to_human=True
         )

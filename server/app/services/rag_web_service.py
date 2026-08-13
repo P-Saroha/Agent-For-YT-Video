@@ -425,19 +425,6 @@ Rules:
                 raise Exception(f"Website requires JavaScript rendering which isn't supported. Try a different site.")
             else:
                 raise Exception(f"Failed to process webpage: {error_msg}")
-                "content_length": len(content),
-                "status": "processed"
-            }
-            self.vector_stores[url_hash] = rag_chain
-            self.temp_directories[url_hash] = temp_dir
-
-            print(f"URL processed successfully!")
-
-            return self.processed_content[url_hash]
-
-        except Exception as e:
-            print(f"Error processing webpage: {str(e)}")
-            raise
 
     async def ask_question(self, url: str, question: str) -> Dict[str, Any]:
         """
