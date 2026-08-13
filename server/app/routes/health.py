@@ -7,13 +7,13 @@ Endpoint:
 
 from fastapi import APIRouter
 from datetime import datetime
-from typing import Dict
+from typing import Dict, Any
 
 router = APIRouter(prefix="/health", tags=["Health"])
 
 
 @router.get("/")
-async def health_check() -> Dict[str, any]:
+async def health_check() -> Dict[str, Any]:
     """
     Health check endpoint.
     
