@@ -23,23 +23,28 @@ Watch this demo to see the platform in action:
 ## 📸 Screenshots
 
 ### Main UI
-![Main UI](./docs/screenshots/ui.png)
+<img src="./docs/screenshots/ui.png" alt="Main UI" width="400">
+
 *Clean dark-themed interface with all 4 modes*
 
 ### YouTube Analysis
-![YouTube Mode](./docs/screenshots/YT.png)
+<img src="./docs/screenshots/YT.png" alt="YouTube Mode" width="400">
+
 *Analyze any YouTube video - extract transcripts and get AI answers*
 
 ### Website Analysis
-![Website Mode](./docs/screenshots/web.png)
+<img src="./docs/screenshots/web.png" alt="Website Mode" width="400">
+
 *Scrape and analyze any website content with smart parsing*
 
 ### PDF Analysis
-![PDF Mode](./docs/screenshots/pdf.png)
+<img src="./docs/screenshots/pdf.png" alt="PDF Mode" width="400">
+
 *Upload PDFs and ask questions about document content*
 
 ### Text Analysis
-![Text Mode](./docs/screenshots/text.png)
+<img src="./docs/screenshots/text.png" alt="Text Mode" width="400">
+
 *Paste any text and get instant AI-powered analysis*
 
 [⬆️ Back to Top](#ai-content-analysis)
