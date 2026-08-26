@@ -22,30 +22,19 @@ Watch this demo to see the platform in action:
 
 ## 📸 Screenshots
 
-### Main UI
-<img src="./docs/screenshots/ui.png" alt="Main UI" width="400">
-
-*Clean dark-themed interface with all 4 modes*
-
-### YouTube Analysis
-<img src="./docs/screenshots/YT.png" alt="YouTube Mode" width="400">
-
-*Analyze any YouTube video - extract transcripts and get AI answers*
-
-### Website Analysis
-<img src="./docs/screenshots/web.png" alt="Website Mode" width="400">
-
-*Scrape and analyze any website content with smart parsing*
-
-### PDF Analysis
-<img src="./docs/screenshots/pdf.png" alt="PDF Mode" width="400">
-
-*Upload PDFs and ask questions about document content*
-
-### Text Analysis
-<img src="./docs/screenshots/text.png" alt="Text Mode" width="400">
-
-*Paste any text and get instant AI-powered analysis*
+<table>
+  <tr>
+    <td width="50%"><b>Main UI</b><br><img src="./docs/screenshots/ui.png" width="100%"><br><em>Clean dark-themed interface with all 4 modes</em></td>
+    <td width="50%"><b>YouTube Analysis</b><br><img src="./docs/screenshots/YT.png" width="100%"><br><em>Analyze YouTube videos - extract transcripts and get AI answers</em></td>
+  </tr>
+  <tr>
+    <td width="50%"><b>Website Analysis</b><br><img src="./docs/screenshots/web.png" width="100%"><br><em>Scrape and analyze website content</em></td>
+    <td width="50%"><b>PDF Analysis</b><br><img src="./docs/screenshots/pdf.png" width="100%"><br><em>Upload PDFs and ask questions</em></td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center"><b>Text Analysis</b><br><img src="./docs/screenshots/text.png" width="50%"><br><em>Paste any text and get instant AI-powered analysis</em></td>
+  </tr>
+</table>
 
 [⬆️ Back to Top](#ai-content-analysis)
 
