@@ -22,19 +22,35 @@ Watch this demo to see the platform in action:
 
 ## 📸 Screenshots
 
-<table>
-  <tr>
-    <td width="50%"><b>Main UI</b><br><img src="./docs/screenshots/ui.png" width="100%"><br><em>Clean dark-themed interface with all 4 modes</em></td>
-    <td width="50%"><b>YouTube Analysis</b><br><img src="./docs/screenshots/YT.png" width="100%"><br><em>Analyze YouTube videos - extract transcripts and get AI answers</em></td>
-  </tr>
-  <tr>
-    <td width="50%"><b>Website Analysis</b><br><img src="./docs/screenshots/web.png" width="100%"><br><em>Scrape and analyze website content</em></td>
-    <td width="50%"><b>PDF Analysis</b><br><img src="./docs/screenshots/pdf.png" width="100%"><br><em>Upload PDFs and ask questions</em></td>
-  </tr>
-  <tr>
-    <td colspan="2" align="center"><b>Text Analysis</b><br><img src="./docs/screenshots/text.png" width="50%"><br><em>Paste any text and get instant AI-powered analysis</em></td>
-  </tr>
-</table>
+<details>
+<summary><b>🖼️ Click to view screenshots</b></summary>
+
+### Main UI
+<img src="./docs/screenshots/ui.png" style="max-width: 800px; width: 100%; display: block; margin: 20px 0;">
+
+*Clean dark-themed interface with all 4 modes*
+
+### YouTube Analysis
+<img src="./docs/screenshots/YT.png" style="max-width: 800px; width: 100%; display: block; margin: 20px 0;">
+
+*Analyze any YouTube video - extract transcripts and get AI answers*
+
+### Website Analysis
+<img src="./docs/screenshots/web.png" style="max-width: 800px; width: 100%; display: block; margin: 20px 0;">
+
+*Scrape and analyze any website content with smart parsing*
+
+### PDF Analysis
+<img src="./docs/screenshots/pdf.png" style="max-width: 800px; width: 100%; display: block; margin: 20px 0;">
+
+*Upload PDFs and ask questions about document content*
+
+### Text Analysis
+<img src="./docs/screenshots/text.png" style="max-width: 800px; width: 100%; display: block; margin: 20px 0;">
+
+*Paste any text and get instant AI-powered analysis*
+
+</details>
 
 [⬆️ Back to Top](#ai-content-analysis)
 
