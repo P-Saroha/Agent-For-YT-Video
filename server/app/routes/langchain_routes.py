@@ -28,13 +28,13 @@ class ProcessVideoRequest(BaseModel):
 
 class AskQuestionRequest(BaseModel):
     """Request to ask a question about a video"""
-    video_id: str
+    video_url: str
     question: str
     
     class Config:
         json_schema_extra = {
             "example": {
-                "video_id": "dQw4w9WgXcQ",
+                "video_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
                 "question": "What is this video about?"
             }
         }
@@ -42,12 +42,12 @@ class AskQuestionRequest(BaseModel):
 
 class SummarizeVideoRequest(BaseModel):
     """Request to summarize a video"""
-    video_id: str
+    video_url: str
     
     class Config:
         json_schema_extra = {
             "example": {
-                "video_id": "dQw4w9WgXcQ"
+                "video_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
             }
         }
 
@@ -122,7 +122,7 @@ async def ask_question(request: AskQuestionRequest) -> Dict[str, Any]:
     The video must be processed first using the /process endpoint.
     
     Args:
-        video_id: ID of the processed video
+        video_url: URL of the YouTube video
         question: The question to ask
         
     Returns:
@@ -136,7 +136,7 @@ async def ask_question(request: AskQuestionRequest) -> Dict[str, Any]:
         service = get_youtube_service()
 
         # Ask the question
-        result = await service.ask_question(request.video_id, request.question)
+        result = await service.ask_question(request.video_url, request.question)
 
         processing_time = time.time() - start_time
 
@@ -165,26 +165,26 @@ async def summarize_video(request: SummarizeVideoRequest) -> Dict[str, Any]:
     The video must be processed first using the /process endpoint.
     
     Args:
-        video_id: ID of the processed video
+        video_url: URL of the YouTube video
         
     Returns:
         Dictionary with the summary
     """
     try:
-        print(f"📝 Summarizing video: {request.video_id}")
+        print(f"📝 Summarizing video: {request.video_url}")
         start_time = time.time()
 
         # Get the service
         service = get_youtube_service()
 
         # Generate summary
-        result = await service.summarize_video(request.video_id)
+        result = await service.summarize_video(request.video_url)
 
         processing_time = time.time() - start_time
 
         return {
             "success": True,
-            "video_id": request.video_id,
+            "video_url": request.video_url,
             "summary": result.get("summary", "No summary generated"),
             "processing_time": f"{processing_time:.2f}s"
         }
