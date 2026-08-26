@@ -84,15 +84,15 @@ class SimpleYouTubeAIService:
 
             # Try to get English first
             try:
-                transcript = transcript_list.find_transcript(['en', 'en-US'])
+                transcript_obj = transcript_list.find_transcript(['en', 'en-US'])
+                transcript_data = transcript_obj.fetch()
             except:
                 # Get any available transcript
-                transcript = transcript_list.get_transcript(
-                    transcript_list.find_generated_transcript(['en']).language_code
-                )
+                transcript_obj = transcript_list.find_generated_transcript(['en'])
+                transcript_data = transcript_obj.fetch()
 
             # Extract text from all entries
-            text_parts = [entry['text'] for entry in transcript]
+            text_parts = [entry['text'] for entry in transcript_data]
             full_text = " ".join(text_parts)
 
             print(f"   Got {len(full_text)} characters")

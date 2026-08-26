@@ -30,13 +30,13 @@ body {
 .header {
     text-align: center;
     margin-bottom: 40px;
-    background: rgba(15, 15, 35, 0.95);
+    background: linear-gradient(135deg, rgba(15, 15, 35, 0.98) 0%, rgba(26, 26, 46, 0.98) 50%, rgba(22, 33, 62, 0.98) 100%);
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     padding: 40px;
     border-radius: 24px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(0, 212, 255, 0.2);
     position: relative;
     overflow: hidden;
 }
@@ -44,20 +44,19 @@ body {
 h1 {
     font-size: 3rem;
     font-weight: 800;
-    background: linear-gradient(135deg, #00d4ff 0%, #5b21b6 50%, #ec4899 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #00d4ff;
+    text-shadow: 0 0 30px rgba(0, 212, 255, 0.8), 0 0 60px rgba(0, 212, 255, 0.4);
     margin-bottom: 16px;
-    text-shadow: none !important;
     letter-spacing: -0.025em;
+    filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.6));
 }
 
 .subtitle {
     font-size: 1.25rem;
-    color: #94a3b8;
+    color: #60a5fa;
     font-weight: 500;
     margin-bottom: 0;
+    text-shadow: 0 0 10px rgba(96, 165, 250, 0.3);
 }
 
 .main-content {
@@ -125,8 +124,15 @@ h1 {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .form-group {
@@ -141,7 +147,9 @@ label {
     font-size: 15px;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
     width: 100%;
     padding: 18px 24px;
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -155,11 +163,14 @@ input, textarea, select {
     backdrop-filter: blur(10px);
 }
 
-input::placeholder, textarea::placeholder {
+input::placeholder,
+textarea::placeholder {
     color: #64748b;
 }
 
-input:focus, textarea:focus, select:focus {
+input:focus,
+textarea:focus,
+select:focus {
     outline: none;
     border-color: #00d4ff;
     box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15), 0 8px 25px rgba(0, 212, 255, 0.1);
@@ -167,7 +178,9 @@ input:focus, textarea:focus, select:focus {
     transform: translateY(-1px);
 }
 
-input:hover, textarea:hover, select:hover {
+input:hover,
+textarea:hover,
+select:hover {
     border-color: rgba(255, 255, 255, 0.2);
     background: rgba(255, 255, 255, 0.07);
 }
@@ -213,8 +226,15 @@ input:hover, textarea:hover, select:hover {
 }
 
 @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .success {
@@ -255,8 +275,13 @@ input:hover, textarea:hover, select:hover {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .quick-examples {
@@ -351,7 +376,8 @@ input:hover, textarea:hover, select:hover {
     font-size: 1.1em;
 }
 
-.ai-response ul, .ai-response ol {
+.ai-response ul,
+.ai-response ol {
     margin: 16px 0;
     padding-left: 24px;
 }
@@ -418,12 +444,14 @@ input:hover, textarea:hover, select:hover {
 .ai-response-container {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
-    color: #ffffff !important; /* White text for dark background */
+    color: #ffffff !important;
+    /* White text for dark background */
 }
 
 /* Ensure ALL text elements are visible on dark background */
 .ai-response-container * {
-    color: #ffffff !important; /* Force white text for everything */
+    color: #ffffff !important;
+    /* Force white text for everything */
 }
 
 .ai-response-container p,
@@ -436,7 +464,8 @@ input:hover, textarea:hover, select:hover {
 .ai-response-container h4,
 .ai-response-container h5,
 .ai-response-container h6 {
-    color: #ffffff !important; /* White text for all text elements */
+    color: #ffffff !important;
+    /* White text for all text elements */
     margin-bottom: 12px;
 }
 
@@ -444,7 +473,8 @@ input:hover, textarea:hover, select:hover {
     margin-top: 24px;
     margin-bottom: 16px;
     font-weight: 700;
-    color: #60a5fa !important; /* Bright blue for visibility */
+    color: #60a5fa !important;
+    /* Bright blue for visibility */
     border-bottom: 2px solid rgba(96, 165, 250, 0.3);
     padding-bottom: 8px;
     padding-top: 4px;
@@ -453,7 +483,8 @@ input:hover, textarea:hover, select:hover {
 
 .ai-header.level-1 {
     font-size: 1.4em;
-    color: #60a5fa !important; /* Bright blue */
+    color: #60a5fa !important;
+    /* Bright blue */
     text-align: left;
     border-bottom: 3px solid #60a5fa;
     margin-bottom: 20px;
@@ -463,7 +494,8 @@ input:hover, textarea:hover, select:hover {
 
 .ai-header.level-2 {
     font-size: 1.2em;
-    color: #34d399 !important; /* Bright green */
+    color: #34d399 !important;
+    /* Bright green */
     margin-top: 24px;
     margin-bottom: 16px;
     border-bottom: 2px solid #34d399;
@@ -473,7 +505,8 @@ input:hover, textarea:hover, select:hover {
 
 .ai-header.level-3 {
     font-size: 1.1em;
-    color: #fbbf24 !important; /* Bright yellow */
+    color: #fbbf24 !important;
+    /* Bright yellow */
     margin-top: 20px;
     margin-bottom: 14px;
     border-bottom: 1px solid #fbbf24;
@@ -485,19 +518,23 @@ input:hover, textarea:hover, select:hover {
     margin-bottom: 16px;
     text-align: left;
     padding: 4px 0;
-    color: #ffffff !important; /* White text for paragraphs */
+    color: #ffffff !important;
+    /* White text for paragraphs */
     line-height: 1.7;
 }
 
 .ai-paragraph:first-of-type {
     font-size: 1.0em;
-    color: #ffffff !important; /* White text for dark background */
+    color: #ffffff !important;
+    /* White text for dark background */
     font-weight: 400;
     margin-bottom: 20px;
-    background: rgba(30, 41, 59, 0.6) !important; /* Subtle dark background */
+    background: rgba(30, 41, 59, 0.6) !important;
+    /* Subtle dark background */
     padding: 12px 16px;
     border-radius: 6px;
-    border-left: 3px solid #60a5fa; /* Blue accent */
+    border-left: 3px solid #60a5fa;
+    /* Blue accent */
 }
 
 .ai-list {
@@ -517,7 +554,8 @@ input:hover, textarea:hover, select:hover {
     content: "•";
     position: absolute;
     left: 0;
-    color: #60a5fa !important; /* Blue bullet points */
+    color: #60a5fa !important;
+    /* Blue bullet points */
     font-weight: bold;
     font-size: 1.2em;
 }
@@ -540,9 +578,11 @@ input:hover, textarea:hover, select:hover {
     content: counter(list-counter) ".";
     position: absolute;
     left: 0;
-    color: #ffffff !important; /* White text */
+    color: #ffffff !important;
+    /* White text */
     font-weight: bold;
-    background: #059669 !important; /* Green background */
+    background: #059669 !important;
+    /* Green background */
     padding: 1px 6px;
     border-radius: 50%;
     font-size: 0.85em;
@@ -551,18 +591,22 @@ input:hover, textarea:hover, select:hover {
 }
 
 .ai-response-container strong {
-    color: #60a5fa !important; /* Bright blue for emphasis */
+    color: #60a5fa !important;
+    /* Bright blue for emphasis */
     font-weight: bold !important;
 }
 
 .ai-response-container em {
-    color: #34d399 !important; /* Green for emphasis instead of red */
+    color: #34d399 !important;
+    /* Green for emphasis instead of red */
     font-style: italic !important;
 }
 
 .ai-response-container code {
-    color: #fbbf24 !important; /* Yellow for code */
-    background: rgba(15, 23, 42, 0.9) !important; /* Dark background for code */
+    color: #fbbf24 !important;
+    /* Yellow for code */
+    background: rgba(15, 23, 42, 0.9) !important;
+    /* Dark background for code */
     padding: 2px 6px;
     border-radius: 4px;
     font-family: 'Courier New', monospace;
@@ -598,50 +642,52 @@ input:hover, textarea:hover, select:hover {
         padding: 20px 15px;
         width: 95%;
     }
-    
+
     .header {
         padding: 25px 20px;
         margin-bottom: 20px;
     }
-    
+
     h1 {
         font-size: 2rem;
     }
-    
+
     .main-content {
         padding: 25px 20px;
     }
-    
+
     .mode-selector {
         flex-direction: column;
         gap: 8px;
     }
-    
+
     .examples-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .ai-header.level-1 {
         font-size: 1.3em;
     }
-    
+
     .ai-header.level-2 {
         font-size: 1.2em;
     }
-    
+
     .ai-paragraph {
         text-align: left;
     }
-    
+
     .ai-ul li,
     .ai-ol li {
         padding-left: 20px;
     }
-    
-    input, textarea, select {
+
+    input,
+    textarea,
+    select {
         padding: 14px 16px;
     }
-    
+
     .primary-btn {
         padding: 16px 24px;
     }
@@ -652,11 +698,11 @@ input:hover, textarea:hover, select:hover {
         width: 80%;
         padding: 60px 40px;
     }
-    
+
     .main-content {
         padding: 50px;
     }
-    
+
     .header {
         padding: 40px;
     }
@@ -711,25 +757,29 @@ input:hover, textarea:hover, select:hover {
 /* Accent colors - using bright colors for better visibility */
 .ai-response strong,
 .ai-response-container strong {
-    color: #60a5fa !important; /* Bright blue for emphasis */
+    color: #60a5fa !important;
+    /* Bright blue for emphasis */
     font-weight: bold !important;
 }
 
 .ai-response em,
 .ai-response-container em {
-    color: #f87171 !important; /* Bright red for emphasis */
+    color: #f87171 !important;
+    /* Bright red for emphasis */
     font-style: italic !important;
 }
 
 .ai-response code,
 .ai-response-container code {
-    color: #fbbf24 !important; /* Yellow for code */
-    background: rgba(15, 23, 42, 0.9) !important; /* Dark background for code */
+    color: #fbbf24 !important;
+    /* Yellow for code */
+    background: rgba(15, 23, 42, 0.9) !important;
+    /* Dark background for code */
 }
 
 /* Enhanced header visibility - override all heading colors */
 .ai-response h1,
-.ai-response h2, 
+.ai-response h2,
 .ai-response h3,
 .ai-response h4,
 .ai-response h5,
@@ -740,7 +790,8 @@ input:hover, textarea:hover, select:hover {
 .ai-response-container h4,
 .ai-response-container h5,
 .ai-response-container h6 {
-    color: #60a5fa !important; /* Bright blue for all headings */
+    color: #60a5fa !important;
+    /* Bright blue for all headings */
     font-weight: 700 !important;
     text-shadow: 0 0 8px rgba(96, 165, 250, 0.4) !important;
     border-bottom: 2px solid rgba(96, 165, 250, 0.3) !important;
@@ -752,14 +803,16 @@ input:hover, textarea:hover, select:hover {
 /* Different colors for different heading levels */
 .ai-response h2,
 .ai-response-container h2 {
-    color: #34d399 !important; /* Green for h2 */
+    color: #34d399 !important;
+    /* Green for h2 */
     text-shadow: 0 0 8px rgba(52, 211, 153, 0.4) !important;
     border-bottom: 2px solid rgba(52, 211, 153, 0.3) !important;
 }
 
 .ai-response h3,
 .ai-response-container h3 {
-    color: #fbbf24 !important; /* Yellow for h3 */
+    color: #fbbf24 !important;
+    /* Yellow for h3 */
     text-shadow: 0 0 6px rgba(251, 191, 36, 0.4) !important;
     border-bottom: 1px solid rgba(251, 191, 36, 0.3) !important;
 }
@@ -780,17 +833,44 @@ input:hover, textarea:hover, select:hover {
 .ai-list,
 .ai-ul,
 .ai-ol {
-    color: #ffffff !important; /* White for body text */
+    color: #ffffff !important;
+    /* White for body text */
     text-shadow: none !important;
 }
 
 /* HEADINGS MUST BE BRIGHT AND VISIBLE */
-h1, h2, h3, h4, h5, h6,
-.ai-response h1, .ai-response h2, .ai-response h3, .ai-response h4, .ai-response h5, .ai-response h6,
-.ai-response-container h1, .ai-response-container h2, .ai-response-container h3, .ai-response-container h4, .ai-response-container h5, .ai-response-container h6,
-.result h1, .result h2, .result h3, .result h4, .result h5, .result h6,
-.success h1, .success h2, .success h3, .success h4, .success h5, .success h6 {
-    color: #60a5fa !important; /* BRIGHT BLUE for maximum visibility */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.ai-response h1,
+.ai-response h2,
+.ai-response h3,
+.ai-response h4,
+.ai-response h5,
+.ai-response h6,
+.ai-response-container h1,
+.ai-response-container h2,
+.ai-response-container h3,
+.ai-response-container h4,
+.ai-response-container h5,
+.ai-response-container h6,
+.result h1,
+.result h2,
+.result h3,
+.result h4,
+.result h5,
+.result h6,
+.success h1,
+.success h2,
+.success h3,
+.success h4,
+.success h5,
+.success h6 {
+    color: #60a5fa !important;
+    /* BRIGHT BLUE for maximum visibility */
     font-weight: 800 !important;
     text-shadow: 0 0 10px rgba(96, 165, 250, 0.6) !important;
     border-bottom: 2px solid rgba(96, 165, 250, 0.5) !important;
@@ -802,10 +882,21 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* Additional utility classes */
-.text-center { text-align: center; }
-.mb-4 { margin-bottom: 1rem; }
-.mt-4 { margin-top: 1rem; }
-.hidden { display: none; }
+.text-center {
+    text-align: center;
+}
+
+.mb-4 {
+    margin-bottom: 1rem;
+}
+
+.mt-4 {
+    margin-top: 1rem;
+}
+
+.hidden {
+    display: none;
+}
 
 /* =============================================================================
    PDF AND TEXT DOCUMENT STYLES
@@ -884,8 +975,15 @@ h1, h2, h3, h4, h5, h6,
 }
 
 @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
 }
 
 /* Text area for documents */
@@ -938,11 +1036,11 @@ h1, h2, h3, h4, h5, h6,
     .file-upload-area {
         padding: 30px 20px;
     }
-    
+
     .upload-icon {
         font-size: 48px;
     }
-    
+
     #text-content {
         min-height: 150px;
         font-size: 13px;
