@@ -2,6 +2,45 @@
 
 Analyze YouTube videos, websites, and text documents using AI. Get instant answers to questions about any content.
 
+## 🎬 Demo Video
+
+Watch this 4-minute demo to see the platform in action:
+
+[![Demo Video](https://img.youtube.com/vi/YOUR_VIDEO_ID/maxresdefault.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+
+**Video shows:**
+- ✅ YouTube video analysis
+- ✅ Website content scraping
+- ✅ Text document analysis
+- ✅ AI-powered Q&A
+- ✅ Real-time processing
+
+[⬆️ Back to Top](#ai-content-analysis)
+
+## 📸 Screenshots
+
+### Main Interface
+![Main UI](./docs/screenshots/main-ui.png)
+*The clean, dark-themed interface with mode selector*
+
+### YouTube Analysis
+![YouTube Mode](./docs/screenshots/youtube-mode.png)
+*Analyze any YouTube video with AI*
+
+### Website Analysis
+![Website Mode](./docs/screenshots/website-mode.png)
+*Scrape and analyze website content*
+
+### Text Analysis
+![Text Mode](./docs/screenshots/text-mode.png)
+*Paste text and get instant analysis*
+
+### AI Response
+![AI Response](./docs/screenshots/ai-response.png)
+*Get beautifully formatted AI-powered answers*
+
+[⬆️ Back to Top](#ai-content-analysis)
+
 ## What Can You Do?
 
 - **YouTube Videos** - Ask questions about any YouTube video transcript
