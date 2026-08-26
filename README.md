@@ -4,40 +4,43 @@ Analyze YouTube videos, websites, and text documents using AI. Get instant answe
 
 ## 🎬 Demo Video
 
-Watch this 4-minute demo to see the platform in action:
+Watch this demo to see the platform in action:
 
-[![Demo Video](https://img.youtube.com/vi/YOUR_VIDEO_ID/maxresdefault.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+[![Demo Video](https://drive.google.com/thumbnail?id=16gm0cpIDdzRyvRvSDXW4d0UmOJt4T_i1&sz=w320)](https://drive.google.com/file/d/16gm0cpIDdzRyvRvSDXW4d0UmOJt4T_i1/view?usp=drive_link)
 
 **Video shows:**
 - ✅ YouTube video analysis
 - ✅ Website content scraping
+- ✅ PDF document analysis
 - ✅ Text document analysis
 - ✅ AI-powered Q&A
 - ✅ Real-time processing
+
+[Watch Full Demo](https://drive.google.com/file/d/16gm0cpIDdzRyvRvSDXW4d0UmOJt4T_i1/view?usp=drive_link)
 
 [⬆️ Back to Top](#ai-content-analysis)
 
 ## 📸 Screenshots
 
-### Main Interface
-![Main UI](./docs/screenshots/main-ui.png)
-*The clean, dark-themed interface with mode selector*
+### Main UI
+![Main UI](./docs/screenshots/ui.png)
+*Clean dark-themed interface with all 4 modes*
 
 ### YouTube Analysis
-![YouTube Mode](./docs/screenshots/youtube-mode.png)
-*Analyze any YouTube video with AI*
+![YouTube Mode](./docs/screenshots/YT.png)
+*Analyze any YouTube video - extract transcripts and get AI answers*
 
 ### Website Analysis
-![Website Mode](./docs/screenshots/website-mode.png)
-*Scrape and analyze website content*
+![Website Mode](./docs/screenshots/web.png)
+*Scrape and analyze any website content with smart parsing*
+
+### PDF Analysis
+![PDF Mode](./docs/screenshots/pdf.png)
+*Upload PDFs and ask questions about document content*
 
 ### Text Analysis
-![Text Mode](./docs/screenshots/text-mode.png)
-*Paste text and get instant analysis*
-
-### AI Response
-![AI Response](./docs/screenshots/ai-response.png)
-*Get beautifully formatted AI-powered answers*
+![Text Mode](./docs/screenshots/text.png)
+*Paste any text and get instant AI-powered analysis*
 
 [⬆️ Back to Top](#ai-content-analysis)
 

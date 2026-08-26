@@ -10,8 +10,12 @@ Endpoints:
 from fastapi import APIRouter, HTTPException, File, UploadFile
 from datetime import datetime
 import time
+import hashlib
 from typing import Dict, Any
 from pydantic import BaseModel
+
+# In-memory PDF storage (filename -> content mapping)
+PDF_STORAGE: Dict[str, bytes] = {}
 
 # ==================== Data Models ====================
 class AskPDFQuestionRequest(BaseModel):
@@ -75,80 +79,48 @@ def get_document_service():
 async def upload_pdf(file: UploadFile = File(...)) -> Dict[str, Any]:
     """
     Upload a PDF file for analysis.
-    
-    This endpoint:
-    1. Accepts a PDF file
-    2. Extracts text from all pages
-    3. Splits into chunks
-    4. Converts to vectors
-    5. Stores in a database
-    
-    After uploading, you can ask questions about the PDF.
-    
-    Args:
-        file: The PDF file to upload
-        
-    Returns:
-        Dictionary with upload status and file info
     """
     try:
-        print(f"📄 Uploading PDF: {file.filename}")
-        start_time = time.time()
-
-        # Validate file
+        print(f"Uploading PDF: {file.filename}")
+        
         if not file.filename.endswith('.pdf'):
-            raise HTTPException(
-                status_code=400,
-                detail="Only PDF files are supported"
-            )
+            raise HTTPException(status_code=400, detail="Only PDF files supported")
 
-        if file.size and file.size > 50 * 1024 * 1024:  # 50MB limit
-            raise HTTPException(
-                status_code=413,
-                detail="File too large (max 50MB)"
-            )
+        if file.size and file.size > 50 * 1024 * 1024:
+            raise HTTPException(status_code=413, detail="File too large (max 50MB)")
 
-        # Read file content
         file_content = await file.read()
-
-        # Get the service
+        
+        # Store PDF in memory for later questions
+        PDF_STORAGE[file.filename] = file_content
+        
         service = get_document_service()
-
+        
         # Extract text from PDF
-        pdf_data = await service.extract_text_from_pdf(file_content)
-
+        pdf_text = service._extract_text_from_pdf(file_content)
+        
         # Process the document
-        result = await service.process_document(
-            pdf_data["text"],
-            doc_title=file.filename
-        )
-
-        processing_time = time.time() - start_time
+        result = await service.process_document(pdf_text, doc_title=file.filename)
 
         return {
             "success": True,
             "file_name": file.filename,
             "file_size": len(file_content),
-            "pages": pdf_data.get("page_count", 0),
             "chunks": result.get("chunks", 0),
-            "processing_time": f"{processing_time:.2f}s",
-            "message": "PDF uploaded successfully. You can now ask questions about it."
+            "message": "PDF uploaded successfully"
         }
 
     except HTTPException:
         raise
     except Exception as e:
-        print(f"❌ Error uploading PDF: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to upload PDF: {str(e)}"
-        )
+        print(f"Error uploading PDF: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to upload PDF: {str(e)}")
 
 
 @router.post("/pdf/ask")
 async def ask_pdf_question(request: AskPDFQuestionRequest) -> Dict[str, Any]:
     """
-    Ask a question about a previously uploaded PDF.
+    Ask a question about a PDF document.
     
     Args:
         file_name: Name of the uploaded PDF file
@@ -158,7 +130,7 @@ async def ask_pdf_question(request: AskPDFQuestionRequest) -> Dict[str, Any]:
         Dictionary with the answer and metadata
     """
     try:
-        print(f"❓ Question about PDF: {request.question[:50]}...")
+        print(f"Question about document: {request.question[:50]}...")
 
         # Validate inputs
         if not request.file_name or not request.file_name.strip():
@@ -166,18 +138,47 @@ async def ask_pdf_question(request: AskPDFQuestionRequest) -> Dict[str, Any]:
         if not request.question or not request.question.strip():
             raise HTTPException(status_code=400, detail="Question is required")
 
-        raise HTTPException(
-            status_code=501,
-            detail="PDF question answering requires file storage. Please upload the PDF again with your question, or use the /text/ask endpoint."
+        # Check if PDF was uploaded
+        if request.file_name not in PDF_STORAGE:
+            raise HTTPException(status_code=404, detail="PDF not found. Please upload it first.")
+
+        start_time = time.time()
+
+        # Get the service
+        service = get_document_service()
+        
+        # Get stored PDF content
+        pdf_content = PDF_STORAGE[request.file_name]
+        
+        # Extract text
+        pdf_text = service._extract_text_from_pdf(pdf_content)
+
+        # Ask question about the document
+        result = await service.ask_question(
+            pdf_text,
+            request.question,
+            doc_title=request.file_name
         )
+
+        processing_time = time.time() - start_time
+
+        return {
+            "success": True,
+            "document": request.file_name,
+            "question": request.question,
+            "answer": result.get("answer", "No answer generated"),
+            "sources_used": result.get("sources_used", 0),
+            "processing_time": f"{processing_time:.2f}s"
+        }
 
     except HTTPException:
         raise
     except Exception as e:
-        print(f"❌ Error answering PDF question: {str(e)}")
+        error_msg = str(e)[:80]
+        print(f"Error answering PDF question: {error_msg}")
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to answer question: {str(e)}"
+            detail=f"Failed to answer question: {error_msg}"
         )
 
 

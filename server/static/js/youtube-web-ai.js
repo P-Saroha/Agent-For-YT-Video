@@ -25,18 +25,18 @@ function switchMode(mode) {
     document.querySelectorAll('.mode-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    
+
     // Add active class to clicked button
     event.target.classList.add('active');
-    
+
     // Hide all sections
     document.querySelectorAll('.form-section').forEach(section => {
         section.classList.remove('active');
     });
-    
+
     // Show selected section
     document.getElementById(mode + '-section').classList.add('active');
-    
+
     // Clear previous results
     document.getElementById('result').innerHTML = '';
 }
@@ -142,10 +142,10 @@ function showError(message) {
  */
 function showResponse(response, title, metadata = {}) {
     const resultDiv = document.getElementById('result');
-    
+
     // Create result container
     let html = `<div class="result success"><h3>${title}</h3>`;
-    
+
     // Add metadata if provided
     if (metadata.url) {
         html += `<p><strong>URL:</strong> ${metadata.url}</p>`;
@@ -156,16 +156,16 @@ function showResponse(response, title, metadata = {}) {
     if (metadata.document) {
         html += `<p><strong>Document:</strong> ${metadata.document}</p>`;
     }
-    
+
     // Render markdown response
     const htmlResponse = marked.parse(response);
     html += `<div class="ai-response">${htmlResponse}</div>`;
-    
+
     // Add processing time if available
     if (metadata.time) {
         html += `<p class="processing-time">⏱️ Processing time: ${metadata.time}</p>`;
     }
-    
+
     html += '</div>';
     resultDiv.innerHTML = html;
 }
@@ -219,7 +219,7 @@ async function processYouTube() {
 
     try {
         let result;
-        
+
         if (question) {
             // If question provided, ask about video
             result = await callAPI('/youtube/simple/ask', {
@@ -236,7 +236,7 @@ async function processYouTube() {
         // Display response
         const title = question ? '📺 YouTube Video Analysis' : '📺 YouTube Video Summary';
         const response = result.summary || result.answer || 'No response';
-        
+
         showResponse(response, title, {
             url: url,
             question: question || undefined,
@@ -273,7 +273,7 @@ async function processWebsite() {
 
     try {
         let result;
-        
+
         if (action === 'question') {
             // Ask question about website
             result = await callAPI('/web/ask-question', {
@@ -290,7 +290,7 @@ async function processWebsite() {
         // Display response
         const title = action === 'question' ? '🌐 Website Analysis' : '🌐 Website Summary';
         const response = result.summary || result.answer || 'No response';
-        
+
         showResponse(response, title, {
             url: url,
             question: question || undefined,
@@ -310,14 +310,56 @@ async function processWebsite() {
 async function processPDF() {
     const file = document.getElementById('pdf-file').files[0];
     const action = document.getElementById('pdf-action').value;
+    const question = document.getElementById('pdf-question').value.trim();
 
-    // Validate input
     if (!file) {
-        showError('❌ Please select a PDF file');
+        showError('Please select a PDF file');
         return;
     }
 
-    showError('❌ PDF upload feature coming soon! Use the Text mode to paste text from your PDF instead.');
+    if (action === 'question' && !question) {
+        showError('Please enter a question');
+        return;
+    }
+
+    showLoading();
+
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const uploadResponse = await fetch('/documents/pdf/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!uploadResponse.ok) {
+            throw new Error('PDF upload failed');
+        }
+
+        const uploadData = await uploadResponse.json();
+
+        if (action === 'question') {
+            const result = await callAPI('/documents/pdf/ask', {
+                file_name: file.name,
+                question: question
+            });
+
+            showResponse(result.answer, 'PDF Analysis', {
+                'Document': result.document,
+                'Question': result.question,
+                'Time': result.processing_time
+            });
+        } else {
+            showResponse(uploadData.message, 'PDF Uploaded', {
+                'File': uploadData.file_name,
+                'Pages': uploadData.pages
+            });
+        }
+
+    } catch (error) {
+        showError('Error: ' + error.message);
+    }
 }
 
 // ==================== Text Processing ====================
@@ -346,7 +388,7 @@ async function processText() {
 
     try {
         let result;
-        
+
         if (action === 'question') {
             // Ask question about text
             result = await callAPI('/documents/text/ask', {
@@ -365,7 +407,7 @@ async function processText() {
         // Display response
         const responseTitle = action === 'question' ? '📝 Text Analysis' : '📝 Text Summary';
         const response = result.summary || result.answer || 'No response';
-        
+
         showResponse(response, responseTitle, {
             document: title,
             question: question || undefined,
@@ -406,7 +448,7 @@ function copyWebLink() {
 }
 
 // ==================== Initialize on Page Load ====================
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('✅ AI Content Analysis Frontend loaded');
     // Validate text input on page load
     validateTextInput();

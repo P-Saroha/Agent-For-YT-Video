@@ -8,8 +8,14 @@ Uses Google Gemini API directly for simplicity.
 import os
 import re
 import requests
+import signal
 from typing import Dict, Any
 from youtube_transcript_api import YouTubeTranscriptApi
+
+
+def timeout_handler(signum, frame):
+    """Handle timeout"""
+    raise TimeoutError("Request timed out")
 
 
 def clean_response(text: str) -> str:
@@ -75,6 +81,7 @@ class SimpleYouTubeAIService:
         Get transcript from a YouTube video.
         
         Tries to get English first, then any available transcript.
+        Times out after 10 seconds.
         """
         try:
             print(f"   Getting transcript for: {video_id}")
@@ -87,9 +94,13 @@ class SimpleYouTubeAIService:
                 transcript_obj = transcript_list.find_transcript(['en', 'en-US'])
                 transcript_data = transcript_obj.fetch()
             except:
-                # Get any available transcript
-                transcript_obj = transcript_list.find_generated_transcript(['en'])
-                transcript_data = transcript_obj.fetch()
+                try:
+                    # Try auto-generated
+                    transcript_obj = transcript_list.find_generated_transcript(['en'])
+                    transcript_data = transcript_obj.fetch()
+                except:
+                    print(f"   Error: No transcripts available for this video")
+                    return ""
 
             # Extract text from all entries
             text_parts = [entry['text'] for entry in transcript_data]
@@ -99,7 +110,8 @@ class SimpleYouTubeAIService:
             return full_text
 
         except Exception as e:
-            print(f"   ❌ Error getting transcript: {str(e)}")
+            error_msg = str(e)[:80]
+            print(f"   Error getting transcript: {error_msg}")
             return ""
 
     async def call_gemini_api(self, prompt: str) -> str:
@@ -114,7 +126,7 @@ class SimpleYouTubeAIService:
         """
         try:
             if not self.api_key:
-                return "❌ Error: No Gemini API key configured"
+                return "Error: No Gemini API key configured"
 
             headers = {'Content-Type': 'application/json'}
 
@@ -128,12 +140,12 @@ class SimpleYouTubeAIService:
                 }
             }
 
-            # Make API call
+            # Make API call with 20 second timeout
             response = requests.post(
                 f"{self.api_url}?key={self.api_key}",
                 headers=headers,
                 json=payload,
-                timeout=30
+                timeout=20  # 20 second timeout
             )
 
             if response.status_code == 200:
@@ -142,13 +154,17 @@ class SimpleYouTubeAIService:
                     answer = data['candidates'][0]['content']['parts'][0]['text']
                     return clean_response(answer)
                 else:
-                    return "⚠️ No response from AI"
+                    return "No response from AI"
             else:
-                return f"❌ API Error: {response.status_code}"
+                return f"API Error: {response.status_code}"
 
+        except requests.exceptions.Timeout:
+            print(f"   API call timeout (>20s)")
+            return "Request timed out. Please try again."
         except Exception as e:
-            print(f"   ❌ API Error: {str(e)}")
-            return f"❌ Error: {str(e)}"
+            error_msg = str(e)[:60]
+            print(f"   API Error: {error_msg}")
+            return f"Error: {error_msg}"
 
     async def ask_about_video(self, video_url: str, question: str) -> Dict[str, Any]:
         """
@@ -162,7 +178,7 @@ class SimpleYouTubeAIService:
             Dictionary with answer and metadata
         """
         try:
-            print(f"❓ Processing question about video...")
+            print(f"Processing question about video...")
 
             # Get video ID
             video_id = self.extract_video_id(video_url)
@@ -172,7 +188,7 @@ class SimpleYouTubeAIService:
             if not transcript:
                 return {
                     "success": False,
-                    "answer": "❌ Could not get video transcript. Video might not have subtitles.",
+                    "answer": "Could not get video transcript. The video might not have captions, or YouTube is blocking access. Please try a different video with captions enabled.",
                     "error": "No transcript available"
                 }
 
